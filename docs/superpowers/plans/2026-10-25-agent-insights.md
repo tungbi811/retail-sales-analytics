@@ -20,7 +20,7 @@
 - Agents are read-only on Postgres and on `lake/`. This guards against honest mistakes only: a read-only session plus the prompt rule.
 - Lake: span 2023-01-01 → 2024-07-31, about 300 orders a day, the same product, store and customer IDs as `data/business_sale_test.xlsx`, a fixed seed, and git-ignored output.
 - Rail button label: `Insights`. Report numbers are labelled "from the data lake".
-- The working tree has unrelated uncommitted changes. Every commit `git add`s only the files its task lists.
+- The working tree has unrelated uncommitted changes. Every commit `git add`s only the files its task lists. Some of those files already carry the owner's uncommitted edits (`dashboard/src/App.tsx`, `dashboard/src/components/Shell.tsx`, `dashboard/src/index.css`, `dashboard/tests/rail.test.mjs`, `api/services/text_to_sql/providers.py`). For those, stage only the task's own hunks, never the whole file, and leave the owner's edits unstaged.
 - Python tests run with `uv run python -m unittest discover -s tests -t .`. Dashboard tests run with `cd dashboard && npm test`, which needs `npm run dev` running. No test calls a live model.
 
 ## Review Focus
@@ -247,7 +247,7 @@ Allowed changes from the old code, and nothing else:
 **Files:**
 - Create: `dashboard/src/pages/InsightsPage.tsx`, `dashboard/src/data/insights.ts`
 - Modify: `dashboard/src/components/Shell.tsx` (`View` gets `'insights'`, and `VIEWS` gets `{ view: 'insights', label: 'Insights', Icon: Telescope }` after Text to SQL), `dashboard/src/App.tsx` (`Page` gets `'Insights'`, plus `VIEW_OF`, `PAGE_OF` and `PageView`), `dashboard/src/index.css`
-- Test: `dashboard/tests/insights.test.mjs`
+- Test: `dashboard/tests/insights.test.mjs`; modify `dashboard/tests/rail.test.mjs:62-65` only: the test title and the expected labels become `['Dashboard', 'Text to SQL', 'Insights', 'Settings']`. Every other assertion stays as it is.
 
 **Interfaces:**
 - Consumes: Task 7's endpoints and the stream message forms.
@@ -271,7 +271,7 @@ A **Hide discussion** toggle collapses the stream to one status line: `"<last ag
   - `missing key error links to Settings`
 - [ ] **Step 2: Run** `cd dashboard && node --test tests/insights.test.mjs` with `npm run dev` running. Expected: FAIL.
 - [ ] **Step 3: Implement.**
-- [ ] **Step 4: Run** `npm test` (all files), `npm run lint` and `npm run build`. Expected: all pass, and `rail.test.mjs` is unchanged and green.
+- [ ] **Step 4: Run** `npm test` (all files), `npm run lint` and `npm run build`. Expected: all pass, and `rail.test.mjs` differs from before only in that one label list and its title.
 - [ ] **Step 5: Commit** with the message `Add the Insights view with the live agent discussion`.
 
 ### Task 9: Report, Follow up, and history
