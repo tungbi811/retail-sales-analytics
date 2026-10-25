@@ -12,6 +12,7 @@ data/*.xlsx → ingestion/ → bronze → dbt/ → silver → gold → api/ → 
 |--------------|------------------------------------------------------------------------------------|
 | `data/`      | Excel input files                                                                  |
 | `ingestion/` | Creates the bronze tables and loads the Excel sheets into them                     |
+| `lake/`      | Generated, git-ignored raw orders, inventory, deliveries, promotions and engagement |
 | `dbt/`       | bronze → silver (cleaned, tested) → gold: star schema plus business rules; see `dbt/README.md` |
 | `airflow/`   | The `pantio_etl` DAG: ingest, then `dbt build`                                     |
 | `api/`       | FastAPI over the gold tables: `routes/` are the endpoints, `services/` the logic   |
@@ -29,6 +30,7 @@ cd dashboard && npm install
 ## Run
 
 ```bash
+uv run python -m ingestion.make_lake                # Data lake: rebuild deterministic raw sources
 uv run uvicorn api.main:app --reload --port 8000   # API, from the project root
 cd dashboard && npm run dev                         # dashboard on http://localhost:5173
 ```
