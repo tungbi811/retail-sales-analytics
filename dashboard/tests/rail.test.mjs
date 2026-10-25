@@ -42,8 +42,8 @@ async function open(t, ask = (route) => route.fulfill({ json: answer }), provide
     loads.push(Date.now())
     route.fulfill({ json: warehouse })
   })
-  await page.route('**/api/ask', ask)
-  await page.route('**/api/ask/providers', (route) => route.fulfill({ json: providers }))
+  await page.route('**/api/text-to-sql', ask)
+  await page.route('**/api/text-to-sql/providers', (route) => route.fulfill({ json: providers }))
   await page.goto(baseURL)
   await page.locator('.dash .kpis').waitFor()
   return { page, loads }

@@ -5,7 +5,7 @@ import { count, dayMonth, moneyShort, time } from '../lib/format'
 import { downloadCsv } from '../lib/csv'
 import { Segmented } from '../components/Segmented'
 
-export interface AskResult {
+export interface TextToSqlResult {
   question: string
   provider: ProviderId
   model: string
@@ -30,7 +30,7 @@ interface Provider {
 }
 
 /** `id` is when the question was sent, `at` when the answer came back. */
-export type AskEntry = { id: number; question: string; provider: ProviderId } & ({ status: 'loading' } | { status: 'done'; result: AskResult; at: number } | { status: 'error'; message: string; at: number })
+export type TextToSqlEntry = { id: number; question: string; provider: ProviderId } & ({ status: 'loading' } | { status: 'done'; result: TextToSqlResult; at: number } | { status: 'error'; message: string; at: number })
 
 type Show = 'all' | 'done' | 'error'
 
@@ -49,8 +49,8 @@ const INITIALS: Record<ProviderId, string> = { claude: 'CL', openai: 'OA', gemin
 const FALLBACK: Provider = { id: 'claude', label: 'Claude', model: '', ready: true, active: true }
 
 /** The API answers with the provider chosen in Settings. */
-async function askApi(question: string): Promise<AskResult> {
-  const res = await fetch('/api/ask', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ question }) })
+async function textToSql(question: string): Promise<TextToSqlResult> {
+  const res = await fetch('/api/text-to-sql', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ question }) })
   const body = await res.json().catch(() => null)
   if (!res.ok) throw new Error(body?.detail ?? `The API answered ${res.status}. Is it running on port 8000?`)
   return body
@@ -58,8 +58,8 @@ async function askApi(question: string): Promise<AskResult> {
 
 interface Props {
   wh: Warehouse
-  entries: AskEntry[]
-  onEntries: (update: (e: AskEntry[]) => AskEntry[]) => void
+  entries: TextToSqlEntry[]
+  onEntries: (update: (e: TextToSqlEntry[]) => TextToSqlEntry[]) => void
   onData: () => void
   onSettings: () => void
 }
@@ -68,7 +68,7 @@ interface Props {
  * Laid out like an inbox: questions asked on the left, the conversation in the middle, what the model can see on the right.
  * The model chosen in Settings writes the SQL; the API runs it read-only over the gold models.
  */
-export function AskPage({ wh, entries, onEntries, onData, onSettings }: Props) {
+export function TextToSqlPage({ wh, entries, onEntries, onData, onSettings }: Props) {
   const [draft, setDraft] = useState('')
   const [providers, setProviders] = useState<Provider[] | null>(null)
   const [show, setShow] = useState<Show>('all')
@@ -79,7 +79,7 @@ export function AskPage({ wh, entries, onEntries, onData, onSettings }: Props) {
   const busy = entries.some((e) => e.status === 'loading')
 
   useEffect(() => {
-    fetch('/api/ask/providers')
+    fetch('/api/text-to-sql/providers')
       .then((r) => (r.ok ? r.json() : []))
       .then(setProviders)
       .catch(() => setProviders([]))
@@ -98,7 +98,7 @@ export function AskPage({ wh, entries, onEntries, onData, onSettings }: Props) {
     setActive(id)
     const p = current.id
     onEntries((list) => [...list, { id, question: q, provider: p, status: 'loading' }])
-    askApi(q)
+    textToSql(q)
       .then((result) => onEntries((list) => list.map((e) => (e.id === id ? { id, question: q, provider: p, status: 'done', result, at: Date.now() } : e))))
       .catch((err: Error) => onEntries((list) => list.map((e) => (e.id === id ? { id, question: q, provider: p, status: 'error', message: err.message, at: Date.now() } : e))))
   }
@@ -393,7 +393,7 @@ function Incoming({ provider, meta, children }: { provider: ProviderId; meta?: s
   )
 }
 
-function Answer({ result }: { result: AskResult }) {
+function Answer({ result }: { result: TextToSqlResult }) {
   const { columns, rows } = result
   const [copied, setCopied] = useState(false)
   if (!result.sql)
@@ -470,7 +470,7 @@ function Answer({ result }: { result: AskResult }) {
 }
 
 /** Bars for a label against a number, a line for a date or month against a number. Other shapes stay a table. */
-function AnswerChart({ result }: { result: AskResult }) {
+function AnswerChart({ result }: { result: TextToSqlResult }) {
   const { columns, rows, chart } = result
   const label = columns.find((c) => typeof rows[0][c] !== 'number') ?? columns[0]
   const value = columns.find((c) => c !== label && typeof rows[0][c] === 'number')

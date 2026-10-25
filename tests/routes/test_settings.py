@@ -14,9 +14,10 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from google.genai import errors as genai_errors
 
-from api import ask, settings
+from api.routes import settings, text_to_sql
+from api.services.text_to_sql import providers
 
-# Run from the project root: uv run python -m unittest api.test_settings
+# Run from the project root: uv run python -m unittest discover -s tests -t .
 
 
 def anthropic_error(cls, status):
@@ -61,7 +62,7 @@ class SettingsTest(unittest.TestCase):
         self.clients = []
         app = FastAPI()
         app.include_router(settings.register())
-        app.include_router(ask.register(None))
+        app.include_router(text_to_sql.register(None))
         self.app = app
         self.http = TestClient(app, client=('127.0.0.1', 50000))
 
@@ -79,7 +80,7 @@ class SettingsTest(unittest.TestCase):
         return built
 
     def test_shows_the_active_provider_and_only_the_end_of_each_key(self):
-        os.environ.update({'ANTHROPIC_API_KEY': 'sk-ant-secret-1234', 'ASK_PROVIDER': 'openai', 'ASK_OPENAI_MODEL': 'gpt-test'})
+        os.environ.update({'ANTHROPIC_API_KEY': 'sk-ant-secret-1234', 'TEXT_TO_SQL_PROVIDER': 'openai', 'TEXT_TO_SQL_OPENAI_MODEL': 'gpt-test'})
         out = self.http.get('/api/settings/ai').json()
         self.assertEqual(out['provider'], 'openai')
         by_id = {p['id']: p for p in out['providers']}
@@ -88,16 +89,16 @@ class SettingsTest(unittest.TestCase):
         self.assertNotIn('secret', json.dumps(out))
 
     def test_without_a_choice_claude_is_active(self):
-        os.environ['ASK_PROVIDER'] = 'nonsense'
+        os.environ['TEXT_TO_SQL_PROVIDER'] = 'nonsense'
         self.assertEqual(self.http.get('/api/settings/ai').json()['provider'], 'claude')
 
     def test_saving_writes_the_env_file_and_applies_at_once(self):
         out = self.http.put('/api/settings/ai', json={'provider': 'gemini', 'model': 'gemini-test', 'key': 'AIza-new-9876'}).json()
         written = self.env_file.read_text()
         self.assertIn('POSTGRES_HOST=localhost', written, 'other settings are kept')
-        for line in ["ASK_PROVIDER='gemini'", "ASK_GEMINI_MODEL='gemini-test'", "GEMINI_API_KEY='AIza-new-9876'"]:
+        for line in ["TEXT_TO_SQL_PROVIDER='gemini'", "TEXT_TO_SQL_GEMINI_MODEL='gemini-test'", "GEMINI_API_KEY='AIza-new-9876'"]:
             self.assertIn(line, written)
-        self.assertEqual((ask.active_provider(), ask.model_for('gemini'), ask.has_key('gemini')), ('gemini', 'gemini-test', True))
+        self.assertEqual((providers.active_provider(), providers.model_for('gemini'), providers.has_key('gemini')), ('gemini', 'gemini-test', True))
         self.assertEqual(out['provider'], 'gemini')
         self.assertNotIn('AIza-new', json.dumps(out))
 
@@ -115,7 +116,7 @@ class SettingsTest(unittest.TestCase):
 
     def test_values_that_would_break_the_env_file_are_refused(self):
         for body in [
-            {'provider': 'claude', 'model': 'claude-opus-5-5', 'key': 'sk-ant\nASK_PROVIDER=x'},
+            {'provider': 'claude', 'model': 'claude-opus-5-5', 'key': 'sk-ant\nTEXT_TO_SQL_PROVIDER=x'},
             {'provider': 'claude', 'model': "claude' x"},
             {'provider': 'mistral', 'model': 'm'},
         ]:
@@ -181,12 +182,12 @@ class SettingsTest(unittest.TestCase):
         self.assertEqual(remote.put('/api/settings/ai', json={'provider': 'claude', 'model': 'claude-opus-5-5', 'key': 'k'}).status_code, 403)
         self.assertEqual(self.env_file.read_text(), 'POSTGRES_HOST=localhost\n')
 
-    def test_ask_uses_the_provider_chosen_in_settings(self):
-        os.environ['ASK_PROVIDER'] = 'gemini'
-        response = self.http.post('/api/ask', json={'question': 'Revenue by month'})
+    def test_text_to_sql_uses_the_provider_chosen_in_settings(self):
+        os.environ['TEXT_TO_SQL_PROVIDER'] = 'gemini'
+        response = self.http.post('/api/text-to-sql', json={'question': 'Revenue by month'})
         self.assertEqual(response.status_code, 503)
         self.assertIn('Gemini', response.json()['detail'])
-        listed = self.http.get('/api/ask/providers').json()
+        listed = self.http.get('/api/text-to-sql/providers').json()
         self.assertEqual([p['id'] for p in listed if p['active']], ['gemini'])
 
 

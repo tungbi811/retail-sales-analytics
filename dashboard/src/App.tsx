@@ -33,7 +33,7 @@ import { LatestDay, RegionStack } from './components/SalesCards'
 import { ProductsPage } from './pages/ProductsPage'
 import { StoresPage, type SortKey } from './pages/StoresPage'
 import { CustomersPage } from './pages/CustomersPage'
-import { AskPage, type AskEntry } from './pages/AskPage'
+import { TextToSqlPage, type TextToSqlEntry } from './pages/TextToSqlPage'
 import { SettingsPage } from './pages/SettingsPage'
 
 interface Intent {
@@ -59,7 +59,7 @@ export default function App() {
   const [intent, setIntent] = useState<Intent>({ n: 0 })
   const [tool, setTool] = useState<Tool | null>(null)
   // Ask history lives here so leaving the Ask page keeps the conversation.
-  const [asks, setAsks] = useState<AskEntry[]>([])
+  const [chat, setChat] = useState<TextToSqlEntry[]>([])
   const closeTool = useCallback(() => setTool(null), [])
   // The header buttons open their panel, or close it when it is already open.
   const toggleTool = useCallback((t: Tool) => setTool((cur) => (cur === t ? null : t)), [])
@@ -175,8 +175,8 @@ export default function App() {
             onRegion={setRegion}
             period={period}
             onPeriod={setPeriod}
-            asks={asks}
-            onAsks={setAsks}
+            chat={chat}
+            onChat={setChat}
             onData={() => setTool('data')}
             onSettings={() => land('Settings', {})}
           />
@@ -243,13 +243,13 @@ interface PageViewProps {
   onRegion: (r: RegionFilter) => void
   period: Period
   onPeriod: (p: Period) => void
-  asks: AskEntry[]
-  onAsks: (update: (e: AskEntry[]) => AskEntry[]) => void
+  chat: TextToSqlEntry[]
+  onChat: (update: (e: TextToSqlEntry[]) => TextToSqlEntry[]) => void
   onData: () => void
   onSettings: () => void
 }
 
-function PageView({ page, intent, asks, onAsks, onData, onSettings, ...p }: PageViewProps) {
+function PageView({ page, intent, chat, onChat, onData, onSettings, ...p }: PageViewProps) {
   // Keyed per page and landing, so each mounts fresh, counts up, and opens on what was asked for.
   const key = `${page}-${intent.n}`
   switch (page) {
@@ -260,7 +260,7 @@ function PageView({ page, intent, asks, onAsks, onData, onSettings, ...p }: Page
     case 'Customers':
       return <CustomersPage key={key} {...p} />
     case 'Ask':
-      return <AskPage key={key} wh={p.wh} entries={asks} onEntries={onAsks} onData={onData} onSettings={onSettings} />
+      return <TextToSqlPage key={key} wh={p.wh} entries={chat} onEntries={onChat} onData={onData} onSettings={onSettings} />
     default:
       return <Dashboard key={key} {...p} />
   }

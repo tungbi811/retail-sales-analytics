@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Check, PlugZap, TriangleAlert } from 'lucide-react'
 import { Segmented } from '../components/Segmented'
-import type { ProviderId } from './AskPage'
+import type { ProviderId } from './TextToSqlPage'
 
 interface ProviderSettings {
   id: ProviderId
