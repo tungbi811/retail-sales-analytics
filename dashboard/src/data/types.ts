@@ -38,7 +38,8 @@ export interface FactSales {
   amount: number
 }
 
-export interface FactInventory {
+/** gold.stock_position: a fact_inventory row plus the stock rules dbt works out (dbt/models/gold/inventory). */
+export interface StockPosition {
   inventory_id: string
   store_id: string
   product_id: string
@@ -49,6 +50,30 @@ export interface FactInventory {
   stock_value: number
   is_out_of_stock: boolean
   below_safety_stock: boolean
+  /** Units sold per day over the sell_rate_days before the last sale. */
+  units_per_day: number
+  /** stock_qty / units_per_day; null when nothing sold in that window. */
+  days_of_cover: number | null
+  stock_level: Level
+  /** Units needed to reach safety stock, 0 when there are enough. */
+  shortfall: number
+  restock_cost: number
+}
+
+export type Level = 'out' | 'low' | 'ok' | 'good' | 'deep'
+
+export type Lane = 'out' | 'low' | 'watch' | 'ok'
+
+/** gold.product_stock: one product in one region, or in region 'All', with its stock board lane. */
+export interface ProductStock {
+  product_id: string
+  region: Region | 'All'
+  stock_qty: number
+  units_per_day: number
+  days_of_cover: number | null
+  lane: Lane
+  /** The cover threshold the watch lane was worked out with. */
+  watch_days: number
 }
 
 export interface Warehouse {
@@ -56,7 +81,8 @@ export interface Warehouse {
   products: DimProduct[]
   customers: DimCustomer[]
   sales: FactSales[]
-  inventory: FactInventory[]
+  inventory: StockPosition[]
+  productStock: ProductStock[]
   /** The "as of" date for month-to-date figures. */
   today: Date
   /** When the pipeline last loaded the gold models. */

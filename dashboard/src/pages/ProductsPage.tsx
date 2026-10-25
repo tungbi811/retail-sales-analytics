@@ -113,8 +113,8 @@ export function ProductsPage({ wh, region, onRegion, period, onPeriod, product }
       {drawer && <ProductDrawer wh={wh} rows={rows} range={range} product={drawer} tone={tone(drawer.category)} onClose={closeDrawer} />}
 
       <Footnote wh={wh}>
-        Sales from gold.fact_sales, stock from gold.fact_inventory (one count per store × product; stock adds up across stores, never across dates). Cover: stock on hand divided by units sold per
-        day over the last 90 days of sales.
+        Sales from gold.fact_sales, stock from gold.stock_position (one count per store × product; stock adds up across stores, never across dates). Cover and lanes come from
+        dbt (gold.stock_position, gold.product_stock): stock on hand divided by units sold per day over the last 90 days of sales.
       </Footnote>
     </main>
   )

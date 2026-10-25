@@ -61,7 +61,7 @@ export function StoresPage({ wh, period, onPeriod, rankBy, store: focus }: Props
       <StoreRanking sortBy={rankBy ?? 'revenue'} stores={stats} selected={store?.store_id} onSelect={setSelected} tone={tone} />
 
       <Footnote wh={wh}>
-        Positions are real Pantio showrooms, matched to each store's region and added to the Stores sheet. Sales from gold.fact_sales, stock from gold.fact_inventory.
+        Positions are real Pantio showrooms, matched to each store's region and added to the Stores sheet. Sales from gold.fact_sales, stock from gold.stock_position.
       </Footnote>
     </main>
   )

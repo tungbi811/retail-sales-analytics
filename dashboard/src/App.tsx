@@ -385,8 +385,8 @@ function Dashboard({ wh, go, onRank, region, onRegion: setRegion }: DashboardPro
 
       <p className="footnote">
         {live
-          ? `Live from the Postgres gold models (fact_sales, fact_inventory, dim_store, dim_product). Sales run to ${dayMonth(lastSale)} ${thisYear}; amounts are shown as stored, without a currency.`
-          : 'Sample data, generated in the browser in the shape of the dbt gold models (fact_sales, fact_inventory, dim_store, dim_product). None of these numbers are real.'}
+          ? `Live from the Postgres gold models (fact_sales, stock_position, dim_store, dim_product). Sales run to ${dayMonth(lastSale)} ${thisYear}; amounts are shown as stored, without a currency.`
+          : 'Sample data, generated in the browser in the shape of the dbt gold models (fact_sales, stock_position, dim_store, dim_product). None of these numbers are real.'}
       </p>
     </main>
   )

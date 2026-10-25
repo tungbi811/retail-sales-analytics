@@ -40,3 +40,9 @@ models:
 vars:
   # Age is computed against the sales year, not CURRENT_DATE, so re-runs stay reproducible
   reference_year: 2024
+
+  # Stock rules for gold/inventory. The dashboard and text to SQL read the results, so change them here only.
+  sell_rate_days: 90    # units per day = units sold in the last 90 days (to the last sale) / 90
+  watch_days: 60        # a product is on watch when no store is short but its stock covers under 60 days
+  stock_ok_below: 2     # stock_level: ok under 2x safety stock,
+  stock_good_below: 4   #              good under 4x, deep from 4x up

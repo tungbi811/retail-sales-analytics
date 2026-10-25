@@ -1,0 +1,80 @@
+version: 2
+
+# Who reads the gold tables. `dbt docs generate && dbt docs serve` draws these at the end of the lineage graph,
+# so a number on a page can be traced back through gold and silver to the bronze tables and the Excel file.
+
+exposures:
+  - name: dashboard_overview
+    label: Dashboard
+    type: dashboard
+    maturity: medium
+    url: http://localhost:5173
+    description: The month at a glance (KPIs, pace, revenue by month and day, sales by time, category mix) and the stock alerts in the header.
+    depends_on:
+      - ref('fact_sales')
+      - ref('dim_store')
+      - ref('dim_product')
+      - ref('stock_position')
+    owner:
+      name: Pantio analytics
+
+  - name: dashboard_products
+    label: Products
+    type: dashboard
+    maturity: medium
+    url: http://localhost:5173
+    description: The stock board (lanes from product_stock), product sales and drivers, and stock against safety for every store x product.
+    depends_on:
+      - ref('fact_sales')
+      - ref('dim_product')
+      - ref('dim_store')
+      - ref('stock_position')
+      - ref('product_stock')
+    owner:
+      name: Pantio analytics
+
+  - name: dashboard_stores
+    label: Stores
+    type: dashboard
+    maturity: medium
+    url: http://localhost:5173
+    description: The store map and ranking, with each store's sales, top products, stock alerts and days of cover.
+    depends_on:
+      - ref('fact_sales')
+      - ref('dim_store')
+      - ref('dim_product')
+      - ref('stock_position')
+    owner:
+      name: Pantio analytics
+
+  - name: dashboard_customers
+    label: Customers
+    type: dashboard
+    maturity: medium
+    url: http://localhost:5173
+    description: Who buys, spend by age and gender, customer health, spend tiers and the customer list.
+    depends_on:
+      - ref('fact_sales')
+      - ref('dim_customer')
+      - ref('dim_product')
+      - ref('dim_store')
+    owner:
+      name: Pantio analytics
+
+  - name: text_to_sql
+    label: Ask in plain words
+    type: application
+    maturity: medium
+    url: http://localhost:5173
+    description: A model writes read-only SQL over the whole gold schema (api/services/text_to_sql); these are the tables it is pointed at.
+    depends_on:
+      - ref('fact_sales')
+      - ref('fact_inventory')
+      - ref('dim_date')
+      - ref('dim_store')
+      - ref('dim_product')
+      - ref('dim_customer')
+      - ref('stock_position')
+      - ref('product_stock')
+    owner:
+      name: Pantio analytics

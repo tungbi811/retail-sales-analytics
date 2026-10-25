@@ -12,7 +12,7 @@ data/*.xlsx → ingestion/ → bronze → dbt/ → silver → gold → api/ → 
 |--------------|------------------------------------------------------------------------------------|
 | `data/`      | Excel input files                                                                  |
 | `ingestion/` | Creates the bronze tables and loads the Excel sheets into them                     |
-| `dbt/`       | bronze → silver (cleaned, tested) → gold (`fact_sales`, `fact_inventory`, `dim_*`) |
+| `dbt/`       | bronze → silver (cleaned, tested) → gold: star schema plus business rules; see `dbt/README.md` |
 | `airflow/`   | The `pantio_etl` DAG: ingest, then `dbt build`                                     |
 | `api/`       | FastAPI over the gold tables: `routes/` are the endpoints, `services/` the logic   |
 | `dashboard/` | React + Vite dashboard; see `dashboard/README.md`                                  |

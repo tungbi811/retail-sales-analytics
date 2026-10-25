@@ -171,7 +171,7 @@ test('data shows where the numbers come from and reloads them', async (t) => {
   await page.getByTitle('Data source').click()
   assert.match(await panel(page).innerText(), /Postgres, dbt gold models/)
   assert.match(await panel(page).innerText(), /Jan 5 2024 to Feb 19 2024/)
-  assert.deepEqual(await page.locator('.data-tables li').allInnerTexts(), ['gold.fact_sales\n7 sales', 'gold.fact_inventory\n4 stock rows', 'gold.dim_customer\n1 customers', 'gold.dim_product\n2 products', 'gold.dim_store\n3 stores'])
+  assert.deepEqual(await page.locator('.data-tables li').allInnerTexts(), ['gold.fact_sales\n7 sales', 'gold.stock_position\n4 stock rows', 'gold.dim_customer\n1 customers', 'gold.dim_product\n2 products', 'gold.dim_store\n3 stores'])
   const before = loads.length
   await page.getByRole('button', { name: 'Reload from Postgres' }).click()
   await page.locator('.dash .kpis').waitFor()

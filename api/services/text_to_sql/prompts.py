@@ -65,7 +65,9 @@ def describe_schema(connect) -> str:
     out.append(
         '\nNotes: fact_sales has one row per sale (an order); join it to dim_store, dim_product, dim_customer by their ids '
         'and to dim_date on sale_date = date_day. fact_inventory is a snapshot per store x product; below_safety_stock and '
-        'is_out_of_stock flag restock needs. Never sum stock across time.'
+        'is_out_of_stock flag restock needs. Never sum stock across time. For sell rate, days of cover, stock level or '
+        'restock cost use gold.stock_position (one row per store x product), and for a product\'s stock board lane use '
+        'gold.product_stock (region \'All\' covers every store); do not work these out from fact_sales yourself.'
     )
     out.append(f"Sales run from {span['first']:%Y-%m-%d} to {span['last']:%Y-%m-%d %H:%M}; treat {span['last']:%Y-%m-%d} as today.")
     return '\n'.join(out)

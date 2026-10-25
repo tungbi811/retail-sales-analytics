@@ -1,4 +1,4 @@
-import type { DimCustomer, DimProduct, DimStore, FactInventory, FactSales, Warehouse } from './types'
+import type { DimCustomer, DimProduct, DimStore, FactSales, Level, ProductStock, StockPosition, Warehouse } from './types'
 
 // Sample data only. Deterministic so screenshots and numbers stay stable between reloads.
 
@@ -136,8 +136,10 @@ function generateSales(rand: () => number): FactSales[] {
   return rows
 }
 
-function generateInventory(rand: () => number): FactInventory[] {
-  const rows: FactInventory[] = []
+type InventoryRow = Omit<StockPosition, 'units_per_day' | 'days_of_cover' | 'stock_level' | 'shortfall' | 'restock_cost'>
+
+function generateInventory(rand: () => number): InventoryRow[] {
+  const rows: InventoryRow[] = []
   let n = 0
   for (const s of stores) {
     for (const [i, p] of products.entries()) {
@@ -162,14 +164,59 @@ function generateInventory(rand: () => number): FactInventory[] {
   return rows
 }
 
+// The stock rules from dbt/models/gold/inventory and the vars in dbt_project.yml, for sample data and test fixtures only.
+// Live data gets these columns from dbt; keep the two in step if a rule changes.
+const SELL_RATE_DAYS = 90
+const WATCH_DAYS = 60
+const OK_BELOW = 2
+const GOOD_BELOW = 4
+
+type SaleLike = { store_id: string; product_id: string; sale_datetime: Date | string; quantity: number }
+
+export function withStockRules(stores: DimStore[], sales: SaleLike[], inventory: InventoryRow[]): { inventory: StockPosition[]; productStock: ProductStock[] } {
+  const times = sales.map((s) => new Date(s.sale_datetime).getTime())
+  const from = Math.max(...times) - SELL_RATE_DAYS * 86_400_000
+  const units = new Map<string, number>()
+  for (const [i, s] of sales.entries()) {
+    if (times[i] > from) units.set(`${s.store_id}|${s.product_id}`, (units.get(`${s.store_id}|${s.product_id}`) ?? 0) + s.quantity)
+  }
+  const level = (i: InventoryRow): Level =>
+    i.stock_qty === 0 ? 'out' : i.stock_qty < i.safety_stock ? 'low' : i.stock_qty < OK_BELOW * i.safety_stock ? 'ok' : i.stock_qty < GOOD_BELOW * i.safety_stock ? 'good' : 'deep'
+  const rows = inventory.map((i) => {
+    const perDay = (units.get(`${i.store_id}|${i.product_id}`) ?? 0) / SELL_RATE_DAYS
+    const shortfall = Math.max(i.safety_stock - i.stock_qty, 0)
+    return { ...i, units_per_day: perDay, days_of_cover: perDay ? i.stock_qty / perDay : null, stock_level: level(i), shortfall, restock_cost: shortfall * i.unit_cost }
+  })
+
+  const regionOf = new Map(stores.map((s) => [s.store_id, s.region]))
+  const groups = new Map<string, StockPosition[]>()
+  for (const r of rows) {
+    for (const region of [regionOf.get(r.store_id)!, 'All']) {
+      const key = `${r.product_id}|${region}`
+      groups.set(key, [...(groups.get(key) ?? []), r])
+    }
+  }
+  const productStock = [...groups.entries()].map(([key, g]): ProductStock => {
+    const [product_id, region] = key.split('|')
+    const stock = g.reduce((a, r) => a + r.stock_qty, 0)
+    const perDay = g.reduce((a, r) => a + r.units_per_day, 0)
+    const cover = perDay ? stock / perDay : null
+    const lane = g.some((r) => r.below_safety_stock && r.is_out_of_stock) ? 'out' : g.some((r) => r.below_safety_stock) ? 'low' : cover !== null && cover < WATCH_DAYS ? 'watch' : 'ok'
+    return { product_id, region, stock_qty: stock, units_per_day: perDay, days_of_cover: cover, lane, watch_days: WATCH_DAYS }
+  })
+  return { inventory: rows, productStock }
+}
+
 export function loadMockWarehouse(): Warehouse {
   const rand = mulberry32(20261024)
+  const customers = generateCustomers(rand)
+  const sales = generateSales(rand)
   return {
     stores,
     products,
-    customers: generateCustomers(rand),
-    sales: generateSales(rand),
-    inventory: generateInventory(rand),
+    customers,
+    sales,
+    ...withStockRules(stores, sales, generateInventory(rand)),
     today: TODAY,
     syncedAt: new Date(2026, 9, 24, 6, 0),
     source: 'sample',

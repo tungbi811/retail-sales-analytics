@@ -1,8 +1,15 @@
 // A small warehouse for the browser tests: January 2024 is the first month on record, February runs to 19 Feb.
+import { withStockRules } from '../src/data/mock.ts'
+
+/** The API's answer for a test warehouse: inventory gets the columns dbt adds in gold.stock_position, plus gold.product_stock. */
+export function asApi(wh) {
+  const { inventory, productStock } = withStockRules(wh.stores, wh.sales, wh.inventory)
+  return { ...wh, inventory, product_stock: productStock }
+}
 
 const sale = (sale_id, store_id, product_id, sale_datetime, quantity, amount) => ({ sale_id, store_id, product_id, customer_id: 'a', sale_datetime, sale_date: sale_datetime.slice(0, 10), quantity, amount })
 
-export const warehouse = {
+export const warehouse = asApi({
   stores: [
     { store_id: 'n1', store_name: 'Hanoi showroom', region: 'Miền Bắc', city: 'Hà Nội', address: '1 Hanoi Street', latitude: 21.03, longitude: 105.85 },
     { store_id: 'n2', store_name: 'Haiphong showroom', region: 'Miền Bắc', city: 'Hải Phòng', address: '2 Haiphong Street', latitude: 20.86, longitude: 106.68 },
@@ -30,4 +37,4 @@ export const warehouse = {
   ],
   today: '2024-02-19T20:00:00',
   synced_at: '2024-02-19T20:00:00',
-}
+})

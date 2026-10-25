@@ -1,5 +1,5 @@
 import { loadMockWarehouse } from './mock'
-import type { FactInventory, FactSales, Warehouse } from './types'
+import type { FactSales, ProductStock, StockPosition, Warehouse } from './types'
 
 // VITE_DATA=sample forces the generated sample data; anything else reads the API.
 export const wantsSample = import.meta.env.VITE_DATA === 'sample'
@@ -11,7 +11,8 @@ interface ApiWarehouse {
   products: Warehouse['products']
   customers: Warehouse['customers']
   sales: Json<FactSales>[]
-  inventory: FactInventory[]
+  inventory: StockPosition[]
+  product_stock: ProductStock[]
   today: string | null
   synced_at: string | null
 }
@@ -33,6 +34,7 @@ export async function loadWarehouse(sample = wantsSample): Promise<Warehouse> {
     customers: api.customers,
     sales: api.sales.map((s) => ({ ...s, sale_datetime: new Date(s.sale_datetime) })),
     inventory: api.inventory,
+    productStock: api.product_stock,
     // Ranges end exclusively at "today", so step past the last sale to include it.
     today: new Date(new Date(api.today).getTime() + 1000),
     syncedAt: api.synced_at ? new Date(api.synced_at) : null,

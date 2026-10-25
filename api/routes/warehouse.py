@@ -28,10 +28,16 @@ QUERIES = {
         FROM gold.fact_sales
         ORDER BY sale_datetime
     ''',
+    # Stock with the rules dbt applies (sell rate, days of cover, stock level, lanes); see dbt/models/gold/inventory.
     'inventory': '''
         SELECT inventory_id::text, store_id::text, product_id::text, last_updated, stock_qty,
-               safety_stock, unit_cost, stock_value, is_out_of_stock, below_safety_stock
-        FROM gold.fact_inventory
+               safety_stock, unit_cost, stock_value, is_out_of_stock, below_safety_stock,
+               units_per_day, days_of_cover, stock_level, shortfall, restock_cost
+        FROM gold.stock_position
+    ''',
+    'product_stock': '''
+        SELECT product_id::text, region, stock_qty::int, units_per_day, days_of_cover, lane, watch_days
+        FROM gold.product_stock
     ''',
 }
 

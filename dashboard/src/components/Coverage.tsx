@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
-import type { Warehouse } from '../data/types'
+import type { Level, Warehouse } from '../data/types'
 import type { RegionFilter } from '../data/metrics'
-import { inventoryStats, level, type Level } from '../data/analytics'
+import { inventoryStats } from '../data/analytics'
 import { money } from '../lib/format'
 import { Info } from './Info'
 
@@ -25,7 +25,7 @@ export const longDate = (iso: string) =>
     year: 'numeric',
   })
 
-/** Every fact_inventory row as a cell, products down and stores across. */
+/** Every gold.stock_position row as a cell, products down and stores across. */
 export function CoverageMatrix({ wh, region }: Props) {
   const inv = useMemo(() => inventoryStats(wh, region), [wh, region])
   const [hover, setHover] = useState<string | null>(null)
@@ -40,7 +40,7 @@ export function CoverageMatrix({ wh, region }: Props) {
     <section className="card" aria-labelledby="matrix-title">
       <header className="card-head">
         <h2 className="card-title" id="matrix-title">
-          Stock against safety <Info text="Each cell is one fact_inventory row: stock_qty, coloured by how it compares with safety_stock." />
+          Stock against safety <Info text="Each cell is one stock_position row: stock_qty, coloured by its stock_level, which dbt works out from safety_stock." />
         </h2>
         <ul className="heat-legend matrix-legend" aria-label="Legend">
           {LEVELS.map((l) => (
@@ -81,7 +81,7 @@ export function CoverageMatrix({ wh, region }: Props) {
                 {inv.stores.map((s, si) => {
                   const i = cell.get(`${p.product_id}|${s.store_id}`)
                   if (!i) return <td key={s.store_id} />
-                  const lv = level(i)
+                  const lv = i.stock_level
                   return (
                     <td key={s.store_id}>
                       <span

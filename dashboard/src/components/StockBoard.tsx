@@ -1,7 +1,7 @@
 import { CalendarDays, Check, Clock, Download, PackagePlus } from 'lucide-react'
-import type { Warehouse } from '../data/types'
+import type { Lane, Warehouse } from '../data/types'
 import { regions, type RegionFilter } from '../data/metrics'
-import { WATCH_DAYS, type BoardCard, type Lane } from '../data/analytics'
+import { watchDays, type BoardCard } from '../data/analytics'
 import { count, money, moneyShort, signedPct } from '../lib/format'
 import { toneOf } from '../lib/tones'
 import { downloadCsv } from '../lib/csv'
@@ -20,10 +20,11 @@ interface Props {
   onOpen: (id: string) => void
 }
 
-const LANES: { key: Lane; title: string; note: string }[] = [
+// The watch threshold is a dbt setting (watch_days), read from gold.product_stock.
+const lanes = (watch: number | null): { key: Lane; title: string; note: string }[] => [
   { key: 'out', title: 'Out of stock', note: 'Empty in at least one store' },
   { key: 'low', title: 'Below safety', note: 'Short somewhere, empty nowhere' },
-  { key: 'watch', title: 'Low cover', note: `Stocked, but under ${WATCH_DAYS} days of sales left` },
+  { key: 'watch', title: 'Low cover', note: watch === null ? 'Stocked, but few days of sales left' : `Stocked, but under ${watch} days of sales left` },
   { key: 'ok', title: 'Healthy', note: 'At safety stock in every store' },
 ]
 
@@ -52,6 +53,7 @@ export function StockBoard({ wh, region, cards, categories, category, onCategory
   const done = shown.length ? stocked / shown.length : 0
   const dates = cards.flatMap((c) => wh.inventory.filter((i) => i.product_id === c.product_id).map((i) => i.last_updated)).sort()
   const regionList = regions(wh)
+  const watch = watchDays(wh)
   const where = region === 'All' ? '' : ` in ${region}`
 
   function exportList() {
@@ -74,7 +76,7 @@ export function StockBoard({ wh, region, cards, categories, category, onCategory
             {dates.length ? `Counted ${longDate(dates[0])} – ${longDate(dates[dates.length - 1])}` : 'No stock counts'}
             <span aria-hidden="true">·</span>
             {count(shelves)} store shelves short
-            <Info text="Each card is a product. Its lane comes from its emptiest store in fact_inventory: out of stock, below safety_stock, or under 60 days of cover. Stock is a snapshot, so the period does not apply." />
+            <Info text="Each card is a product. Its lane comes from gold.product_stock: out of stock or below safety_stock in some store, or under the watch_days of cover set in dbt. Stock is a snapshot, so the period does not apply." />
           </p>
         </div>
 
@@ -111,7 +113,7 @@ export function StockBoard({ wh, region, cards, categories, category, onCategory
       </section>
 
       <div className="lanes">
-        {LANES.map((l) => {
+        {lanes(watch).map((l) => {
           const items = shown.filter((c) => c.lane === l.key).sort(ORDER[l.key])
           const units = items.reduce((a, c) => a + c.order, 0)
           return (
@@ -131,7 +133,7 @@ export function StockBoard({ wh, region, cards, categories, category, onCategory
                 <ul>
                   {items.map((c, i) => (
                     <li key={c.product_id} style={{ '--d': `${i * 30}ms` } as React.CSSProperties}>
-                      <Card card={c} tone={toneOf(categories, c.category)} rank={rank.get(c.product_id)} regionList={regionList} onOpen={onOpen} />
+                      <Card card={c} tone={toneOf(categories, c.category)} rank={rank.get(c.product_id)} regionList={regionList} watch={watch} onOpen={onOpen} />
                     </li>
                   ))}
                 </ul>
@@ -146,7 +148,7 @@ export function StockBoard({ wh, region, cards, categories, category, onCategory
   )
 }
 
-function Card({ card: c, tone, rank, regionList, onOpen }: { card: BoardCard; tone: string; rank?: number; regionList: string[]; onOpen: (id: string) => void }) {
+function Card({ card: c, tone, rank, regionList, watch, onOpen }: { card: BoardCard; tone: string; rank?: number; regionList: string[]; watch: number | null; onOpen: (id: string) => void }) {
   const extra = c.short.length - AVATARS
   const cover = c.cover === null ? null : Math.round(c.cover)
   return (
@@ -196,7 +198,7 @@ function Card({ card: c, tone, rank, regionList, onOpen }: { card: BoardCard; to
             <span className="sr-only">Short in {c.short.map((i) => i.store.city).join(', ')}</span>
           </span>
         )}
-        <span className={`scard-due ${cover !== null && cover < WATCH_DAYS ? 'is-soon' : ''}`}>
+        <span className={`scard-due ${cover !== null && watch !== null && cover < watch ? 'is-soon' : ''}`}>
           <Clock size={12} strokeWidth={2} aria-hidden="true" />
           {cover === null ? 'No recent sales' : `${cover}d cover`}
         </span>

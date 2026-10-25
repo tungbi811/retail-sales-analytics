@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { after, before, test } from 'node:test'
 import { chromium } from 'playwright'
+import { asApi } from './fixture.mjs'
 
 const baseURL = process.env.DASHBOARD_URL ?? 'http://localhost:5173'
 let browser
@@ -43,7 +44,7 @@ after(async () => {
 async function openStores(t, data = warehouse, viewport = { width: 1440, height: 1100 }) {
   const page = await browser.newPage({ viewport, reducedMotion: 'reduce' })
   t.after(() => page.close())
-  await page.route('**/api/warehouse', (route) => route.fulfill({ json: data }))
+  await page.route('**/api/warehouse', (route) => route.fulfill({ json: asApi(data) }))
   await page.goto(baseURL)
   await page.getByRole('button', { name: 'Stores', exact: true }).click()
   await page.locator('.store-detail').waitFor()

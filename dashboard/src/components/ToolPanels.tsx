@@ -152,7 +152,7 @@ export function DataPanel({ wh, onReload, onClose }: DataProps) {
   const last = wh.sales[wh.sales.length - 1]?.sale_datetime
   const tables: [string, string, number][] = [
     ['fact_sales', 'sales', wh.sales.length],
-    ['fact_inventory', 'stock rows', wh.inventory.length],
+    ['stock_position', 'stock rows', wh.inventory.length],
     ['dim_customer', 'customers', wh.customers.length],
     ['dim_product', 'products', wh.products.length],
     ['dim_store', 'stores', wh.stores.length],
@@ -214,9 +214,9 @@ const GLOSSARY: { group: string; terms: [string, string][] }[] = [
   {
     group: 'Stock',
     terms: [
-      ['Below safety stock', 'fact_inventory rows where stock_qty is under safety_stock.'],
-      ['Out of stock', 'fact_inventory rows where stock_qty is 0.'],
-      ['Days of cover', 'Stock on hand divided by average units sold per day.'],
+      ['Below safety stock', 'stock_position rows where stock_qty is under safety_stock.'],
+      ['Out of stock', 'stock_position rows where stock_qty is 0.'],
+      ['Days of cover', 'Stock on hand divided by units sold per day over the last 90 days of sales. Worked out in dbt (stock_position).'],
     ],
   },
   {

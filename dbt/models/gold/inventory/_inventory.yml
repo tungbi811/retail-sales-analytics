@@ -1,0 +1,134 @@
+version: 2
+
+models:
+  - name: stock_position
+    description: >
+      One row per store x product: the latest stock count, how fast it sells, how long it lasts, and what it costs to
+      bring it back to safety stock. The sell rate looks back sell_rate_days from the last sale on record, not from
+      today, so re-runs on historical data give the same answer.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [store_id, product_id]
+    columns:
+      - name: inventory_id
+        data_tests: [unique, not_null]
+      - name: units_per_day
+        description: Units sold in the last sell_rate_days days, divided by sell_rate_days.
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: days_of_cover
+        description: stock_qty / units_per_day. Null when nothing sold in the window, since the stock never runs out at that rate.
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: stock_level
+        description: >
+          Stock against safety stock: out (0), low (under safety stock), ok (under stock_ok_below x safety),
+          good (under stock_good_below x safety), deep (above that).
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [out, low, ok, good, deep]
+      - name: shortfall
+        description: Units needed to reach safety stock; 0 when the store has enough.
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: restock_cost
+        description: shortfall x unit_cost.
+
+  - name: product_stock
+    description: >
+      One row per product per region, plus one per product with region 'All': its stock, sell rate, days of cover,
+      and its lane on the stock board. Only stores that stock the product count.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [product_id, region]
+    columns:
+      - name: region
+        description: A dim_store region, or 'All' for every store.
+        data_tests: [not_null]
+      - name: days_of_cover
+        description: Total stock / total units per day. Null when nothing sold in the window.
+      - name: lane
+        description: >
+          out when a store is out of stock and below safety stock, low when a store is below safety stock,
+          watch when no store is short but days_of_cover is under watch_days, ok otherwise.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [out, low, watch, ok]
+      - name: watch_days
+        description: The watch_days setting the lane was worked out with, so the dashboard can name it.
+
+unit_tests:
+  - name: stock_position_sells_cover_and_levels
+    description: Sell rate over the last 90 days to the last sale, days of cover, the five stock levels, and the restock cost.
+    model: stock_position
+    overrides:
+      vars: {sell_rate_days: 90, stock_ok_below: 2, stock_good_below: 4}
+    given:
+      - input: ref('fact_sales')
+        rows:
+          - {store_id: 1, product_id: 1, sale_datetime: '2024-07-01 10:00:00', quantity: 90}
+          - {store_id: 1, product_id: 1, sale_datetime: '2024-01-01 10:00:00', quantity: 50}
+          - {store_id: 1, product_id: 2, sale_datetime: '2024-07-27 07:00:00', quantity: 180}
+      - input: ref('fact_inventory')
+        rows:
+          - {inventory_id: 1, store_id: 1, product_id: 1, stock_qty: 30, safety_stock: 10, unit_cost: 10}
+          - {inventory_id: 2, store_id: 1, product_id: 2, stock_qty: 0, safety_stock: 5, unit_cost: 10}
+          - {inventory_id: 3, store_id: 2, product_id: 1, stock_qty: 15, safety_stock: 10, unit_cost: 10}
+          - {inventory_id: 4, store_id: 2, product_id: 2, stock_qty: 7, safety_stock: 10, unit_cost: 10}
+          - {inventory_id: 5, store_id: 3, product_id: 1, stock_qty: 40, safety_stock: 10, unit_cost: 10}
+          - {inventory_id: 6, store_id: 3, product_id: 2, stock_qty: 20, safety_stock: 10, unit_cost: 10}
+          - {inventory_id: 7, store_id: 4, product_id: 1, stock_qty: 5, safety_stock: 0, unit_cost: 10}
+    expect:
+      rows:
+        - {inventory_id: 1, units_per_day: 1.0, days_of_cover: 30.0, stock_level: good, shortfall: 0, restock_cost: 0}
+        - {inventory_id: 2, units_per_day: 2.0, days_of_cover: 0.0, stock_level: out, shortfall: 5, restock_cost: 50}
+        - {inventory_id: 3, units_per_day: 0.0, days_of_cover: null, stock_level: ok, shortfall: 0, restock_cost: 0}
+        - {inventory_id: 4, units_per_day: 0.0, days_of_cover: null, stock_level: low, shortfall: 3, restock_cost: 30}
+        - {inventory_id: 5, units_per_day: 0.0, days_of_cover: null, stock_level: deep, shortfall: 0, restock_cost: 0}
+        - {inventory_id: 6, units_per_day: 0.0, days_of_cover: null, stock_level: good, shortfall: 0, restock_cost: 0}
+        - {inventory_id: 7, units_per_day: 0.0, days_of_cover: null, stock_level: deep, shortfall: 0, restock_cost: 0}
+
+  - name: product_stock_lanes_by_region
+    description: Out beats low beats watch; watch needs cover under 60 days; no sales means no cover and no watch; 'All' adds every region.
+    model: product_stock
+    overrides:
+      vars: {watch_days: 60}
+    given:
+      - input: ref('dim_store')
+        rows:
+          - {store_id: 1, region: North}
+          - {store_id: 2, region: North}
+          - {store_id: 3, region: South}
+      - input: ref('stock_position')
+        rows:
+          - {store_id: 1, product_id: 1, stock_qty: 10, units_per_day: 1.0, is_out_of_stock: false, below_safety_stock: false}
+          - {store_id: 3, product_id: 1, stock_qty: 100, units_per_day: 1.0, is_out_of_stock: false, below_safety_stock: false}
+          - {store_id: 1, product_id: 2, stock_qty: 0, units_per_day: 0.0, is_out_of_stock: true, below_safety_stock: true}
+          - {store_id: 2, product_id: 2, stock_qty: 3, units_per_day: 0.5, is_out_of_stock: false, below_safety_stock: true}
+          - {store_id: 2, product_id: 3, stock_qty: 2, units_per_day: 0.0, is_out_of_stock: false, below_safety_stock: true}
+          - {store_id: 3, product_id: 4, stock_qty: 50, units_per_day: 0.0, is_out_of_stock: false, below_safety_stock: false}
+    expect:
+      rows:
+        - {product_id: 1, region: North, stock_qty: 10, days_of_cover: 10.0, lane: watch, watch_days: 60}
+        - {product_id: 1, region: South, stock_qty: 100, days_of_cover: 100.0, lane: ok, watch_days: 60}
+        - {product_id: 1, region: All, stock_qty: 110, days_of_cover: 55.0, lane: watch, watch_days: 60}
+        - {product_id: 2, region: North, stock_qty: 3, days_of_cover: 6.0, lane: out, watch_days: 60}
+        - {product_id: 2, region: All, stock_qty: 3, days_of_cover: 6.0, lane: out, watch_days: 60}
+        - {product_id: 3, region: North, stock_qty: 2, days_of_cover: null, lane: low, watch_days: 60}
+        - {product_id: 3, region: All, stock_qty: 2, days_of_cover: null, lane: low, watch_days: 60}
+        - {product_id: 4, region: South, stock_qty: 50, days_of_cover: null, lane: ok, watch_days: 60}
+        - {product_id: 4, region: All, stock_qty: 50, days_of_cover: null, lane: ok, watch_days: 60}
