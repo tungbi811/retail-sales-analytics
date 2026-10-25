@@ -106,6 +106,16 @@ class AgentsTest(unittest.TestCase):
         self.assertEqual(reply.message, 'Execution failed: setup failed')
         self.assertIsInstance(reply.target, RevertToUserTarget)
 
+    def test_run_code_setup_failure_does_not_retry_user_code(self):
+        executor = FakeExecutor(RuntimeError('lost kernel'),
+                                SimpleNamespace(exit_code=1, output='setup import failed'),
+                                SimpleNamespace(exit_code=0, output='should not run'))
+        reply = tool(Coder(executor, threading.Event()), 'run_code')(
+            'print(1)', ContextVariables(data={'current_agent': 'DataScientist'}))
+        self.assertEqual(reply.message, 'Execution failed: setup import failed')
+        self.assertIsInstance(reply.target, RevertToUserTarget)
+        self.assertEqual(executor.calls, [['print(1)'], 'restart', [SETUP_CELL]])
+
     def test_run_code_after_stop_terminates(self):
         stopped = threading.Event()
         stopped.set()

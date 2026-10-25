@@ -23,9 +23,11 @@ class Coder(AssistantAgent):
             except Exception:
                 try:
                     executor.restart()
-                    executor.execute_code_blocks(
+                    setup_result = executor.execute_code_blocks(
                         [CodeBlock(language="python", code=SETUP_CELL)]
                     )
+                    if setup_result.exit_code:
+                        return ReplyResult(message=f"Execution failed: {setup_result.output}", target=RevertToUserTarget())
                     result = executor.execute_code_blocks(
                         [CodeBlock(language="python", code=code)]
                     )
