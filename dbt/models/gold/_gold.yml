@@ -1,0 +1,94 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: "One row per day of 2024. Generated, not loaded from the Calendar sheet."
+    columns:
+      - name: date_day
+        description: "Primary key. Joins to fact_sales.sale_date and fact_inventory.last_updated."
+        data_tests: [unique, not_null]
+      - name: weekday_num
+        description: "ISO weekday, 1 = Monday ... 7 = Sunday. Use it to sort weekday_name."
+
+  - name: dim_product
+    description: "One row per product. Category kept as in source (see README data quality notes)."
+    columns:
+      - name: product_id
+        data_tests: [unique, not_null]
+
+  - name: dim_store
+    description: "One row per store."
+    columns:
+      - name: store_id
+        data_tests: [unique, not_null]
+
+  - name: dim_customer
+    description: "One row per customer, with age_group computed for reference_year."
+    columns:
+      - name: customer_id
+        data_tests: [unique, not_null]
+
+  - name: fact_sales
+    description: "Transaction fact: one row per sale. Measures are fully additive."
+    columns:
+      - name: sale_id
+        data_tests: [unique, not_null]
+      - name: sale_date
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_day
+      - name: product_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_product')
+                field: product_id
+      - name: store_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_store')
+                field: store_id
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_id
+
+  - name: fact_inventory
+    description: "Snapshot fact: one row per store x product. Stock measures are semi-additive (sum across stores/products, never across time)."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [store_id, product_id]
+    columns:
+      - name: inventory_id
+        data_tests: [unique, not_null]
+      - name: last_updated
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_day
+      - name: product_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_product')
+                field: product_id
+      - name: store_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_store')
+                field: store_id

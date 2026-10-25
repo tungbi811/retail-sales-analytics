@@ -1,0 +1,393 @@
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { ChevronLeft, ChevronRight, Clock, Download, RotateCw } from 'lucide-react'
+import { loadWarehouse } from './data/source'
+import type { Warehouse } from './data/types'
+import {
+  categoryMix,
+  kpis,
+  monthPace,
+  monthWindow,
+  monthly,
+  regions,
+  salesByTime,
+  salesFor,
+  stockAlerts,
+  toCsv,
+  yearPace,
+  years,
+  type RegionFilter,
+} from './data/metrics'
+import { dayMonth, setCurrency } from './lib/format'
+import { Header, Rail, type Page, type Tool, type View } from './components/Shell'
+import { DataPanel, HelpPanel, SearchPanel } from './components/ToolPanels'
+import { RefreshContext, SyncPill } from './components/PageHead'
+import { KpiCards } from './components/KpiCards'
+import { FirstMonth, MonthGauge, YearGauge } from './components/YearGauge'
+import { jump } from './lib/scroll'
+import { RevenueChart } from './components/RevenueChart'
+import { SalesByTime } from './components/SalesByTime'
+import { CategoryMix } from './components/CategoryMix'
+import { Segmented } from './components/Segmented'
+import type { Period, Range } from './data/analytics'
+import { LatestDay, RegionStack } from './components/SalesCards'
+import { ProductsPage } from './pages/ProductsPage'
+import { StoresPage, type SortKey } from './pages/StoresPage'
+import { CustomersPage } from './pages/CustomersPage'
+import { AskPage, type AskEntry } from './pages/AskPage'
+import { SettingsPage } from './pages/SettingsPage'
+
+interface Intent {
+  n: number
+  rankBy?: SortKey
+  store?: string
+  product?: string
+}
+
+// Which rail button lights up for a page, and where each one leads.
+const VIEW_OF: Partial<Record<Page, View>> = { Ask: 'ask', Settings: 'settings' }
+const PAGE_OF: Record<View, Page> = { dashboard: 'Dashboard', ask: 'Ask', settings: 'Settings' }
+
+type Load = { status: 'loading' } | { status: 'error'; message: string } | { status: 'ready'; wh: Warehouse }
+
+export default function App() {
+  const [page, setPage] = useState<Page>('Dashboard')
+  const [load, setLoad] = useState<Load>({ status: 'loading' })
+  // Filters follow you between pages, so switching tabs compares like with like.
+  const [region, setRegion] = useState<RegionFilter>('All')
+  const [period, setPeriod] = useState<Period>('MTD')
+  // Where a link or search result lands: a store, a product, or the store ranking sorted by one column.
+  const [intent, setIntent] = useState<Intent>({ n: 0 })
+  const [tool, setTool] = useState<Tool | null>(null)
+  // Ask history lives here so leaving the Ask page keeps the conversation.
+  const [asks, setAsks] = useState<AskEntry[]>([])
+  const closeTool = useCallback(() => setTool(null), [])
+  // The header buttons open their panel, or close it when it is already open.
+  const toggleTool = useCallback((t: Tool) => setTool((cur) => (cur === t ? null : t)), [])
+
+  // One light pastel theme.
+  useEffect(() => {
+    document.documentElement.dataset.palette = 'pastel'
+    document.documentElement.dataset.theme = 'light'
+  }, [])
+
+  // "/" opens search and "?" opens help, from anywhere except a text field.
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement
+      const panel = e.key === '/' ? 'search' : e.key === '?' ? 'help' : null
+      if (panel && !e.metaKey && !e.ctrlKey && !t.closest('input, textarea, [contenteditable]')) {
+        e.preventDefault()
+        setTool(panel)
+      }
+    }
+    document.addEventListener('keydown', key)
+    return () => document.removeEventListener('keydown', key)
+  }, [])
+
+  const fetchData = useCallback((sample?: boolean) => {
+    setLoad({ status: 'loading' })
+    loadWarehouse(sample)
+      .then((wh) => {
+        setCurrency(wh.currency)
+        setLoad({ status: 'ready', wh })
+      })
+      .catch((e: Error) => setLoad({ status: 'error', message: e.message }))
+  }, [])
+
+  useEffect(() => fetchData(), [fetchData])
+
+  const wh = load.status === 'ready' ? load.wh : null
+  const allAlerts = useMemo(() => (wh ? stockAlerts(wh, 'All') : []), [wh])
+
+  // Refresh keeps the current numbers on screen while it fetches, unlike fetchData, which shows the skeleton.
+  const [refreshState, setRefreshState] = useState<'idle' | 'busy' | 'failed'>('idle')
+  const refresh = useMemo(
+    () => ({
+      state: refreshState,
+      refresh: () => {
+        setRefreshState('busy')
+        loadWarehouse(false)
+          .then((next) => {
+            setCurrency(next.currency)
+            setLoad({ status: 'ready', wh: next })
+            setRefreshState('idle')
+          })
+          .catch(() => setRefreshState('failed'))
+      },
+    }),
+    [refreshState],
+  )
+
+  function open(p: Page) {
+    setIntent((i) => ({ n: i.n + 1 }))
+    setPage(p)
+  }
+
+  function land(p: Page, target: Omit<Intent, 'n'>) {
+    setIntent((i) => ({ n: i.n + 1, ...target }))
+    setPage(p)
+    setTool(null)
+  }
+
+  function rankStores(key: SortKey) {
+    land('Stores', { rankBy: key })
+    requestAnimationFrame(() => jump('ranking-title'))
+  }
+
+  function showAlerts() {
+    setPage('Products')
+    requestAnimationFrame(() => {
+      const el = document.getElementById('stock-alerts')
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el?.focus({ preventScroll: true })
+    })
+  }
+
+  return (
+    <div className="app">
+      <Header page={page} onPage={open} alerts={allAlerts} onAlerts={showAlerts} onTool={toggleTool} source={wh?.source} />
+      <Rail view={VIEW_OF[page] ?? 'dashboard'} onView={(v) => land(PAGE_OF[v], {})} />
+      {wh && tool === 'search' && <SearchPanel wh={wh} onStore={(id) => land('Stores', { store: id })} onProduct={(id) => land('Products', { product: id })} onClose={closeTool} />}
+      {wh && tool === 'data' && (
+        <DataPanel
+          wh={wh}
+          onReload={(sample) => {
+            setTool(null)
+            fetchData(sample)
+          }}
+          onClose={closeTool}
+        />
+      )}
+      {tool === 'help' && <HelpPanel onClose={closeTool} />}
+
+      {page === 'Settings' ? (
+        <SettingsPage />
+      ) : load.status === 'ready' ? (
+        <RefreshContext.Provider value={refresh}>
+          <PageView
+            page={page}
+            wh={load.wh}
+            go={open}
+            intent={intent}
+            onRank={rankStores}
+            onAlerts={showAlerts}
+            region={region}
+            onRegion={setRegion}
+            period={period}
+            onPeriod={setPeriod}
+            asks={asks}
+            onAsks={setAsks}
+            onData={() => setTool('data')}
+            onSettings={() => land('Settings', {})}
+          />
+        </RefreshContext.Provider>
+      ) : load.status === 'error' ? (
+        <main className="main">
+          <div className="title-row">
+            <h1>{page}</h1>
+          </div>
+          <section className="card placeholder" role="alert">
+            <h2>Can't load the warehouse</h2>
+            <p>{load.message}</p>
+            <p>
+              Start the API from the project root with <code>uv run uvicorn api.main:app --port 8000</code>, then retry.
+            </p>
+            <div className="placeholder-actions">
+              <button className="btn btn-primary" onClick={() => fetchData()}>
+                <RotateCw size={15} strokeWidth={1.8} aria-hidden="true" />
+                Retry
+              </button>
+              <button className="btn" onClick={() => fetchData(true)}>
+                Use sample data
+              </button>
+            </div>
+          </section>
+        </main>
+      ) : (
+        <Loading page={page} />
+      )}
+    </div>
+  )
+}
+
+function Loading({ page }: { page: Page }) {
+  return (
+    <main className="main" aria-busy="true" aria-label="Loading the warehouse">
+      <div className="title-row">
+        <h1>{page}</h1>
+      </div>
+      <div className="toolbar">
+        <span className="skeleton skeleton-pill" />
+      </div>
+      <div className="kpis">
+        {[1, 2, 3, 4].map((i) => (
+          <span key={i} className="skeleton skeleton-kpi" />
+        ))}
+      </div>
+      <div className="row row-a">
+        <span className="skeleton skeleton-panel" />
+        <span className="skeleton skeleton-panel" />
+      </div>
+    </main>
+  )
+}
+
+interface PageViewProps {
+  page: Page
+  wh: Warehouse
+  go: (page: Page) => void
+  intent: Intent
+  onRank: (key: SortKey) => void
+  onAlerts: () => void
+  region: RegionFilter
+  onRegion: (r: RegionFilter) => void
+  period: Period
+  onPeriod: (p: Period) => void
+  asks: AskEntry[]
+  onAsks: (update: (e: AskEntry[]) => AskEntry[]) => void
+  onData: () => void
+  onSettings: () => void
+}
+
+function PageView({ page, intent, asks, onAsks, onData, onSettings, ...p }: PageViewProps) {
+  // Keyed per page and landing, so each mounts fresh, counts up, and opens on what was asked for.
+  const key = `${page}-${intent.n}`
+  switch (page) {
+    case 'Products':
+      return <ProductsPage key={key} {...p} product={intent.product} />
+    case 'Stores':
+      return <StoresPage key={key} {...p} rankBy={intent.rankBy} store={intent.store} />
+    case 'Customers':
+      return <CustomersPage key={key} {...p} />
+    case 'Ask':
+      return <AskPage key={key} wh={p.wh} entries={asks} onEntries={onAsks} onData={onData} onSettings={onSettings} />
+    default:
+      return <Dashboard key={key} {...p} />
+  }
+}
+
+interface DashboardProps {
+  wh: Warehouse
+  go: (page: Page) => void
+  onRank: (key: SortKey) => void
+  region: RegionFilter
+  onRegion: (r: RegionFilter) => void
+}
+
+function Dashboard({ wh, go, onRank, region, onRegion: setRegion }: DashboardProps) {
+  const thisYear = wh.today.getFullYear()
+  const regionTabs: { value: RegionFilter; label: string }[] = useMemo(
+    () => [{ value: 'All', label: 'Overview' }, ...regions(wh).map((r) => ({ value: r, label: r }))],
+    [wh],
+  )
+  const yearList = useMemo(() => years(wh), [wh])
+
+  // The month every card shows. Pick it from the arrows by the date or by clicking a bar in the revenue chart.
+  const [sel, setSel] = useState({ year: thisYear, month: wh.today.getMonth() })
+  const year = sel.year
+  const setYear = (y: number) => setSel({ year: y, month: y === thisYear ? wh.today.getMonth() : 11 })
+  const first = wh.sales[0]?.sale_datetime ?? wh.today
+  const index = (y: number, m: number) => y * 12 + m
+  const step = (by: number) => {
+    const d = new Date(sel.year, sel.month + by, 1)
+    setSel({ year: d.getFullYear(), month: d.getMonth() })
+  }
+  const canBack = index(sel.year, sel.month) > index(first.getFullYear(), first.getMonth())
+  const canForward = index(sel.year, sel.month) < index(thisYear, wh.today.getMonth())
+
+  const rows = useMemo(() => salesFor(wh, region), [wh, region])
+  const w = useMemo(() => monthWindow(wh, sel.year, sel.month), [wh, sel])
+  const k = useMemo(() => kpis(wh, rows, w, region), [wh, rows, w, region])
+  const pace = useMemo(() => yearPace(wh, rows), [wh, rows])
+  const monthTrack = useMemo(() => monthPace(rows, w), [rows, w])
+  const months = useMemo(() => monthly(wh, rows, year), [wh, rows, year])
+  const finished = months.filter((p) => !p.future && !p.partial)
+  const avgMonth = finished.length ? finished.reduce((t, p) => t + p.revenue, 0) / finished.length : 0
+  const monthsBefore = useMemo(() => monthly(wh, rows, year - 1), [wh, rows, year])
+  const heat = useMemo(() => salesByTime(rows, w.to), [rows, w])
+  const mix = useMemo(() => categoryMix(wh, rows, w), [wh, rows, w])
+  // The same window for the day-by-day cards.
+  const month: Range = useMemo(() => ({ from: w.from, to: w.to, prevFrom: w.prevFrom, prevTo: w.prevTo, label: '', vs: '' }), [w])
+  // The last sale, not the wall clock, is "now" for historical data.
+  const lastSale = new Date(wh.today.getTime() - 1000)
+  const live = wh.source === 'postgres'
+
+  function exportCsv() {
+    const blob = new Blob([toCsv(months, year, region)], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `pantio-revenue-${year}-${region.toLowerCase().replace(/\s+/g, '-')}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  return (
+    <main className="main">
+      <div className="title-row">
+        <h1>Dashboard</h1>
+        <SyncPill wh={wh} />
+      </div>
+
+      <div className="toolbar">
+        <Segmented label="Region" options={regionTabs} value={region} onChange={setRegion} />
+        <div className="period period-picker">
+          <button className="period-step" onClick={() => step(-1)} disabled={!canBack} aria-label="Previous month">
+            <ChevronLeft size={15} strokeWidth={2} />
+          </button>
+          <p aria-live="polite">
+            <Clock size={14} strokeWidth={1.8} aria-hidden="true" />
+            {w.current ? `${k.monthLabel}, through ${dayMonth(lastSale)}` : k.monthLabel}
+          </p>
+          <button className="period-step" onClick={() => step(1)} disabled={!canForward} aria-label="Next month">
+            <ChevronRight size={15} strokeWidth={2} />
+          </button>
+        </div>
+        <div className="toolbar-actions">
+          <button className="btn btn-primary" onClick={exportCsv}>
+            <Download size={15} strokeWidth={1.8} aria-hidden="true" />
+            Export
+          </button>
+        </div>
+      </div>
+
+      {/* Rows stack on narrow screens; on wide ones they dissolve into one 4-column grid (see .dash in index.css). */}
+      <div className="dash">
+        <KpiCards k={k} go={go} region={region} onRegion={setRegion} onRank={onRank} />
+
+        <div className="row row-a">
+          {pace ? (
+            <YearGauge pace={pace} onLink={() => setYear(thisYear)} />
+          ) : (
+            monthTrack ? <MonthGauge pace={monthTrack} onLink={() => jump('stack-title')} /> : <FirstMonth month={k.monthLabel.split(' ')[0]} revenue={k.revenue.value} average={avgMonth} year={sel.year} />
+          )}
+          <RevenueChart
+            year={year}
+            years={yearList}
+            onYear={setYear}
+            points={months}
+            lastYear={monthsBefore}
+            selected={year === sel.year ? sel.month : -1}
+            onSelect={(m) => setSel({ year, month: m })}
+          />
+        </div>
+
+        <div className="row sales-mid">
+          <RegionStack wh={wh} rows={rows} range={month} />
+          <LatestDay wh={wh} rows={rows} range={month} current={w.current} />
+        </div>
+
+        <div className="row row-b">
+          <SalesByTime heat={heat} />
+          <CategoryMix mix={mix} month={k.monthLabel.split(' ')[0]} />
+        </div>
+      </div>
+
+      <p className="footnote">
+        {live
+          ? `Live from the Postgres gold models (fact_sales, fact_inventory, dim_store, dim_product). Sales run to ${dayMonth(lastSale)} ${thisYear}; amounts are shown as stored, without a currency.`
+          : 'Sample data, generated in the browser in the shape of the dbt gold models (fact_sales, fact_inventory, dim_store, dim_product). None of these numbers are real.'}
+      </p>
+    </main>
+  )
+}

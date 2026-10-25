@@ -1,0 +1,9 @@
+# Astro Runtime includes the following pre-installed providers packages: https://www.astronomer.io/docs/astro/runtime-image-architecture#provider-packages
+# Already in the image: pandas, SQLAlchemy, psycopg2-binary, python-dotenv (used by ingestion/load_data.py)
+
+# Renders the dbt project as Airflow tasks
+astronomer-cosmos
+# Postgres connection type, used by Cosmos' PostgresUserPasswordProfileMapping
+apache-airflow-providers-postgres
+# pandas needs it to read .xlsx in ingestion/load_data.py
+openpyxl

@@ -1,0 +1,23 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Secrets
+.env
+
+# Browser automation logs
+.playwright-mcp/
+
+# macOS
+.DS_Store
+
+# Local scratch: brainstorm mockups and run logs
+.superpowers/
+logs/

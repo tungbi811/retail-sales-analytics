@@ -1,0 +1,30 @@
+# Merged by Astro CLI into its generated compose setup.
+# Mounts the pantio project folders into every Airflow container, so the DAG can
+# run ingestion/load_data.py and Cosmos can read the dbt project.
+# Paths are relative to this airflow/ folder; /usr/local/airflow is the containers' working dir.
+
+x-pantio-volumes: &pantio-volumes
+  - ../dbt:/usr/local/airflow/dbt
+  - ../ingestion:/usr/local/airflow/ingestion
+  - ../data:/usr/local/airflow/data
+
+# DB credentials come from the root .env (single source of truth); only the host differs,
+# because inside Docker "localhost" is the container itself
+x-pantio-env: &pantio-env
+  env_file: ../.env
+  environment:
+    POSTGRES_HOST: host.docker.internal
+
+services:
+  scheduler:
+    <<: *pantio-env
+    volumes: *pantio-volumes
+  dag-processor:
+    <<: *pantio-env
+    volumes: *pantio-volumes
+  api-server:
+    <<: *pantio-env
+    volumes: *pantio-volumes
+  triggerer:
+    <<: *pantio-env
+    volumes: *pantio-volumes

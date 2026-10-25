@@ -1,0 +1,695 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-24T13:32:25.564332+00:00",
+  "title": "Design System: Pantio",
+  "extensions": {
+    "colorMeta": {
+      "ground": {
+        "role": "neutral",
+        "displayName": "Mist Ground",
+        "canonical": "#eef1f2",
+        "tonalRamp": [
+          "#21292b",
+          "#374448",
+          "#506268",
+          "#688088",
+          "#869ba2",
+          "#a8b8bd",
+          "#cbd4d7",
+          "#f1f3f4"
+        ]
+      },
+      "ground-wash-blue": {
+        "role": "neutral",
+        "displayName": "Wash Blue",
+        "canonical": "#d4e5f2",
+        "tonalRamp": [
+          "#12293b",
+          "#1e4462",
+          "#2b628d",
+          "#3880b8",
+          "#5b9ccd",
+          "#8ab8db",
+          "#b9d4ea",
+          "#ebf3f9"
+        ]
+      },
+      "ground-wash-pink": {
+        "role": "neutral",
+        "displayName": "Wash Blush",
+        "canonical": "#f5dcd7",
+        "tonalRamp": [
+          "#3d170f",
+          "#662619",
+          "#933725",
+          "#c04830",
+          "#d46954",
+          "#e09485",
+          "#edbfb6",
+          "#faedeb"
+        ]
+      },
+      "ground-wash-green": {
+        "role": "neutral",
+        "displayName": "Wash Mint",
+        "canonical": "#d7eedd",
+        "tonalRamp": [
+          "#17361f",
+          "#265933",
+          "#37814a",
+          "#47a861",
+          "#69bf7f",
+          "#94d1a4",
+          "#bfe4c8",
+          "#edf7f0"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Frosted White",
+        "canonical": "rgb(255 255 255 / 0.74)",
+        "tonalRamp": [
+          "#121211",
+          "#33332f",
+          "#5a5a56",
+          "#8f8f89",
+          "#b8b8b2",
+          "#d4d4cf",
+          "#f0f0ed",
+          "#fbfbfa"
+        ]
+      },
+      "surface-2": {
+        "role": "neutral",
+        "displayName": "Frosted White 2",
+        "canonical": "rgb(255 255 255 / 0.6)",
+        "tonalRamp": [
+          "#121211",
+          "#33332f",
+          "#5a5a56",
+          "#8f8f89",
+          "#b8b8b2",
+          "#d4d4cf",
+          "#f0f0ed",
+          "#fbfbfa"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "rgb(17 17 16 / 0.09)"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#121211",
+        "tonalRamp": [
+          "#272725",
+          "#42423e",
+          "#5e5e59",
+          "#7b7b74",
+          "#979791",
+          "#b5b5b0",
+          "#d2d2d0",
+          "#f3f3f2"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink 2",
+        "canonical": "#5a5a56",
+        "tonalRamp": [
+          "#272725",
+          "#41413e",
+          "#5e5e5a",
+          "#7b7b75",
+          "#969691",
+          "#b4b4b1",
+          "#d2d2d0",
+          "#f3f3f2"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Ink 3",
+        "canonical": "#6e6e69",
+        "tonalRamp": [
+          "#272725",
+          "#41413e",
+          "#5e5e5a",
+          "#7b7b75",
+          "#969691",
+          "#b4b4b1",
+          "#d2d2d0",
+          "#f3f3f2"
+        ]
+      },
+      "deep-teal": {
+        "role": "primary",
+        "displayName": "Deep Teal",
+        "canonical": "#173847",
+        "tonalRamp": [
+          "#132e3a",
+          "#1f4c60",
+          "#2d6d8b",
+          "#3b8fb5",
+          "#5da8cb",
+          "#8bc1da",
+          "#badae9",
+          "#ecf5f9"
+        ]
+      },
+      "year-teal": {
+        "role": "primary",
+        "displayName": "Year Teal",
+        "canonical": "#1f4a5e",
+        "tonalRamp": [
+          "#132d3a",
+          "#204b60",
+          "#2e6d8a",
+          "#3b8eb4",
+          "#5ea8ca",
+          "#8cc1d9",
+          "#badae8",
+          "#ecf5f9"
+        ]
+      },
+      "harbour-blue": {
+        "role": "primary",
+        "displayName": "Harbour Blue",
+        "canonical": "#1d5b7b",
+        "tonalRamp": [
+          "#173847",
+          "#1d5b7b",
+          "#3c87b6",
+          "#73afd4",
+          "#a6cde5",
+          "#cce1ee",
+          "#e3ebf0",
+          "#f1f6f9"
+        ]
+      },
+      "field-blue": {
+        "role": "secondary",
+        "displayName": "Field Blue",
+        "canonical": "#bad6ec",
+        "tonalRamp": [
+          "#11293c",
+          "#1c4464",
+          "#286290",
+          "#3480bc",
+          "#579bd1",
+          "#87b8de",
+          "#b7d4eb",
+          "#ebf3f9"
+        ]
+      },
+      "field-green": {
+        "role": "secondary",
+        "displayName": "Field Green",
+        "canonical": "#bde4c9",
+        "tonalRamp": [
+          "#163620",
+          "#255a35",
+          "#35824d",
+          "#46aa65",
+          "#67c183",
+          "#92d3a6",
+          "#bee4ca",
+          "#edf8f0"
+        ]
+      },
+      "field-yellow": {
+        "role": "secondary",
+        "displayName": "Field Yellow",
+        "canonical": "#f1e39a",
+        "tonalRamp": [
+          "#433a09",
+          "#706010",
+          "#a18b16",
+          "#d3b51d",
+          "#e5cb43",
+          "#ecda79",
+          "#f4e9ae",
+          "#fcf9e9"
+        ]
+      },
+      "field-coral": {
+        "role": "secondary",
+        "displayName": "Field Coral",
+        "canonical": "#f1b2a5",
+        "tonalRamp": [
+          "#42140a",
+          "#6e2111",
+          "#9f3019",
+          "#cf3e20",
+          "#e26046",
+          "#ea8e7b",
+          "#f3bbb0",
+          "#fcece9"
+        ]
+      },
+      "average-red": {
+        "role": "tertiary",
+        "displayName": "Average Red",
+        "canonical": "#d65f53",
+        "tonalRamp": [
+          "#3e130f",
+          "#672019",
+          "#942e23",
+          "#c23c2e",
+          "#d65e52",
+          "#e28c83",
+          "#edbab5",
+          "#faecea"
+        ]
+      },
+      "gauge-mint": {
+        "role": "tertiary",
+        "displayName": "Gauge Mint",
+        "canonical": "#7fd6c2",
+        "tonalRamp": [
+          "#133a31",
+          "#1f6151",
+          "#2d8b75",
+          "#3ab699",
+          "#5dcbb2",
+          "#8bdac8",
+          "#b9e9de",
+          "#ecf9f6"
+        ]
+      },
+      "gauge-butter": {
+        "role": "tertiary",
+        "displayName": "Gauge Butter",
+        "canonical": "#f4e59c",
+        "tonalRamp": [
+          "#453a08",
+          "#73610d",
+          "#a58c12",
+          "#d8b718",
+          "#eacc3e",
+          "#f0db75",
+          "#f6e9ac",
+          "#fcf9e8"
+        ]
+      },
+      "series-teal": {
+        "role": "tertiary",
+        "displayName": "Series Teal",
+        "canonical": "#5cb39e",
+        "tonalRamp": [
+          "#18342d",
+          "#29574c",
+          "#3a7d6d",
+          "#4ca38e",
+          "#6dbba8",
+          "#97cec1",
+          "#c0e2da",
+          "#eef7f5"
+        ]
+      },
+      "series-mustard": {
+        "role": "tertiary",
+        "displayName": "Series Mustard",
+        "canonical": "#e3c64e",
+        "tonalRamp": [
+          "#42370a",
+          "#6e5c11",
+          "#9f8519",
+          "#cfad21",
+          "#e2c346",
+          "#ead47b",
+          "#f2e5b0",
+          "#fcf8e9"
+        ]
+      },
+      "series-salmon": {
+        "role": "tertiary",
+        "displayName": "Series Salmon",
+        "canonical": "#e78a76",
+        "tonalRamp": [
+          "#41150b",
+          "#6c2313",
+          "#9c321b",
+          "#cc4224",
+          "#df6349",
+          "#e8907d",
+          "#f1bcb1",
+          "#fbece9"
+        ]
+      },
+      "series-mist": {
+        "role": "tertiary",
+        "displayName": "Series Mist",
+        "canonical": "#a9bfd3",
+        "tonalRamp": [
+          "#1a2733",
+          "#2b4154",
+          "#3e5d79",
+          "#517a9f",
+          "#7196b7",
+          "#9ab4cb",
+          "#c2d2e0",
+          "#eef2f6"
+        ]
+      },
+      "pos": {
+        "role": "semantic",
+        "displayName": "Positive",
+        "canonical": "#1b7342",
+        "tonalRamp": [
+          "#0f3e24",
+          "#18673b",
+          "#239555",
+          "#2ec26f",
+          "#52d68c",
+          "#83e2ad",
+          "#b5eece",
+          "#eafaf1"
+        ]
+      },
+      "pos-bg": {
+        "role": "semantic",
+        "displayName": "Positive Tint",
+        "canonical": "#d9eedf",
+        "tonalRamp": [
+          "#183520",
+          "#275835",
+          "#397f4d",
+          "#4aa664",
+          "#6bbd82",
+          "#95d0a6",
+          "#c0e3ca",
+          "#edf7f0"
+        ]
+      },
+      "neg": {
+        "role": "semantic",
+        "displayName": "Negative",
+        "canonical": "#b2362b",
+        "tonalRamp": [
+          "#3e130f",
+          "#671f19",
+          "#942d24",
+          "#c13b2f",
+          "#d55d52",
+          "#e18b84",
+          "#edbab5",
+          "#faecea"
+        ]
+      },
+      "neg-bg": {
+        "role": "semantic",
+        "displayName": "Negative Tint",
+        "canonical": "#f6dedb",
+        "tonalRamp": [
+          "#3d140f",
+          "#662219",
+          "#933125",
+          "#c04030",
+          "#d46254",
+          "#e08f85",
+          "#edbcb6",
+          "#faeceb"
+        ]
+      },
+      "warn": {
+        "role": "semantic",
+        "displayName": "Warning",
+        "canonical": "#8a5a00",
+        "tonalRamp": [
+          "#4c3200",
+          "#805300",
+          "#b87800",
+          "#f09c00",
+          "#ffb429",
+          "#ffca66",
+          "#ffdfa3",
+          "#fff6e5"
+        ]
+      },
+      "warn-bg": {
+        "role": "semantic",
+        "displayName": "Warning Tint",
+        "canonical": "#f5e7c4",
+        "tonalRamp": [
+          "#41320b",
+          "#6d5312",
+          "#9d781b",
+          "#cd9c23",
+          "#e0b448",
+          "#e9ca7c",
+          "#f2dfb1",
+          "#fbf6e9"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Page H1 only (28px under 600px); gauge readout at 650."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "KPI values (22px on mobile); category total at 30px/650."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card titles and brand name; year-card subhead at 16px."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Base text and nav; tables and controls at 13.5px."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "KPI labels, notes, captions, tooltip text; sentence case."
+      },
+      "micro": {
+        "displayName": "Micro",
+        "purpose": "Axis labels, heat headers, chips, badges."
+      }
+    },
+    "shadows": [
+      {
+        "name": "resting-lift",
+        "value": "0 1px 2px rgb(17 17 16 / 0.05), 0 8px 24px -12px rgb(17 17 16 / 0.12)",
+        "purpose": "Every resting surface: cards, KPI cards, nav, buttons, pills."
+      },
+      {
+        "name": "resting-lift-dark",
+        "value": "0 1px 2px rgb(0 0 0 / 0.3)",
+        "purpose": "Resting lift under the dark theme."
+      },
+      {
+        "name": "float-rail",
+        "value": "0 12px 32px -12px rgb(0 0 0 / 0.45)",
+        "purpose": "Floating tool rail."
+      },
+      {
+        "name": "float-tooltip",
+        "value": "0 14px 30px -12px rgb(0 0 0 / 0.5)",
+        "purpose": "Chart tooltip."
+      },
+      {
+        "name": "float-bar",
+        "value": "0 10px 24px -10px rgb(0 0 0 / 0.45)",
+        "purpose": "Active month bar."
+      },
+      {
+        "name": "popover",
+        "value": "0 16px 40px -12px rgb(0 0 0 / 0.3), 0 0 0 1px var(--line)",
+        "purpose": "Palette menu popover."
+      },
+      {
+        "name": "pressed-segment",
+        "value": "0 1px 2px rgb(17 17 16 / 0.1)",
+        "purpose": "Selected option in a segmented control."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-soft",
+        "value": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+        "purpose": "Data transitions, popover and cap entrances."
+      },
+      {
+        "name": "duration-state",
+        "value": "0.18s",
+        "purpose": "Hover and selection colour changes (0.15s for press and tooltips)."
+      },
+      {
+        "name": "duration-data",
+        "value": "0.5s",
+        "purpose": "Bar heights, ring fill, average line (0.45s for mini bars)."
+      },
+      {
+        "name": "duration-palette",
+        "value": "0.3s",
+        "purpose": "KPI card palette cross-fade."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "1240px"
+      },
+      {
+        "name": "tablet",
+        "value": "1060px"
+      },
+      {
+        "name": "rail-bottom",
+        "value": "860px"
+      },
+      {
+        "name": "mobile",
+        "value": "600px"
+      }
+    ],
+    "palettes": {
+      "default": "pastel",
+      "alternates": [
+        "mono",
+        "ocean",
+        "sage"
+      ],
+      "selector": "html[data-palette]",
+      "darkTheme": "html[data-theme='dark']"
+    }
+  },
+  "components": [
+    {
+      "name": "Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Frosted pill button for secondary actions (Full analytics).",
+      "html": "<button class=\"ds-btn\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"><path d=\"M3 3v18h18\"/><path d=\"M8 17V9\"/><path d=\"M13 17V5\"/><path d=\"M18 17v-3\"/></svg>Full analytics</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 16px;border:0;border-radius:999px;background:var(--surface,rgb(255 255 255/.74));color:var(--ink,#121211);box-shadow:var(--shadow,0 1px 2px rgb(17 17 16/.05),0 8px 24px -12px rgb(17 17 16/.12));font:550 13.5px/1 'Urbanist Variable', ui-sans-serif, system-ui, sans-serif;cursor:pointer;transition:transform .15s,background-color .18s}.ds-btn:hover{background:var(--surface-2,rgb(255 255 255/.6))}.ds-btn:active{transform:translateY(1px)}.ds-btn:focus-visible{outline:2px solid #121211;outline-offset:2px}"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ink pill for the main page action (Export).",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 15V3\"/><path d=\"m7 10 5 5 5-5\"/><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/></svg>Export</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 16px;border:0;border-radius:999px;background:#121211;color:#eef1f2;box-shadow:0 1px 2px rgb(17 17 16/.05),0 8px 24px -12px rgb(17 17 16/.12);font:550 13.5px/1 'Urbanist Variable', ui-sans-serif, system-ui, sans-serif;cursor:pointer;transition:transform .15s,background-color .18s}.ds-btn-primary:hover{background:color-mix(in srgb,#121211 86%,#eef1f2)}.ds-btn-primary:active{transform:translateY(1px)}.ds-btn-primary:focus-visible{outline:2px solid #121211;outline-offset:2px}"
+    },
+    {
+      "name": "Pill Nav",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "Centred top navigation; current page is a solid ink pill.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-item is-on\" href=\"#\">Dashboard</a><a class=\"ds-nav-item\" href=\"#\">Sales</a><a class=\"ds-nav-item\" href=\"#\">Stores</a><a class=\"ds-nav-item\" href=\"#\">Inventory <span class=\"ds-nav-badge\">17</span></a></nav>",
+      "css": ".ds-nav{display:inline-flex;gap:2px;padding:4px;border-radius:999px;background:rgb(255 255 255/.74);box-shadow:0 1px 2px rgb(17 17 16/.05),0 8px 24px -12px rgb(17 17 16/.12);font-family:'Urbanist Variable', ui-sans-serif, system-ui, sans-serif}.ds-nav-item{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:999px;font-size:14px;font-weight:500;color:#121211;text-decoration:none;transition:background-color .18s,color .18s}.ds-nav-item:hover{background:rgb(255 255 255/.6)}.ds-nav-item.is-on{background:#121211;color:#eef1f2}.ds-nav-item:focus-visible{outline:2px solid #121211;outline-offset:2px}.ds-nav-badge{font-size:11px;font-weight:650;color:#5a5a56}"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "chip",
+      "refersTo": "segmented-option-active",
+      "description": "Region tabs and year switch; selected option lifts as a frosted pill.",
+      "html": "<div class=\"ds-seg\"><button class=\"is-on\">Overview</button><button>North</button><button>Central</button><button>South</button></div>",
+      "css": ".ds-seg{display:inline-flex;padding:3px;border-radius:999px;background:color-mix(in srgb,#121211 6%,transparent);font-family:'Urbanist Variable', ui-sans-serif, system-ui, sans-serif}.ds-seg button{padding:6px 15px;border:0;border-radius:999px;background:none;font:500 13.5px/1.45 'Urbanist Variable', ui-sans-serif, system-ui, sans-serif;color:#5a5a56;cursor:pointer;transition:background-color .18s,color .18s,box-shadow .18s}.ds-seg button:hover{color:#121211}.ds-seg button.is-on{background:#fff;color:#121211;box-shadow:0 1px 2px rgb(17 17 16/.1)}.ds-seg button:focus-visible{outline:2px solid #121211;outline-offset:2px}"
+    },
+    {
+      "name": "KPI Field Card",
+      "kind": "card",
+      "refersTo": "kpi-card-revenue",
+      "description": "Whole-card pastel KPI with same-hue ink, delta chip and dashed link divider.",
+      "html": "<article class=\"ds-kpi\"><p class=\"ds-kpi-label\">Revenue</p><p class=\"ds-kpi-value\">$27,227</p><p class=\"ds-kpi-note\"><span class=\"ds-delta\">&uarr; 16.0%</span> vs last month</p><a class=\"ds-kpi-link\" href=\"#\">See sales</a></article>",
+      "css": ".ds-kpi{display:flex;flex-direction:column;gap:10px;width:280px;padding:16px 18px 14px;border-radius:18px;background:#bad6ec;color:#10202c;box-shadow:0 1px 2px rgb(17 17 16/.05),0 8px 24px -12px rgb(17 17 16/.12);font-family:'Urbanist Variable', ui-sans-serif, system-ui, sans-serif}.ds-kpi p{margin:0}.ds-kpi-label{font-size:13px;font-weight:500;color:color-mix(in srgb,#10202c 70%,transparent)}.ds-kpi-value{font-size:27px;font-weight:600;letter-spacing:-.02em;line-height:1.15;font-variant-numeric:tabular-nums}.ds-kpi-note{display:flex;align-items:center;gap:7px;font-size:12.5px;color:color-mix(in srgb,#10202c 70%,transparent)}.ds-delta{padding:2px 6px;border-radius:6px;background:rgb(255 255 255/.5);color:#1b7342;font-size:12px;font-weight:650;font-variant-numeric:tabular-nums}.ds-kpi-link{padding-top:10px;border-top:1px dashed color-mix(in srgb,#10202c 22%,transparent);font-size:12.5px;font-weight:550;color:inherit;text-decoration:underline;text-decoration-color:color-mix(in srgb,currentColor 35%,transparent);text-underline-offset:3px}.ds-kpi-link:hover{text-decoration-color:currentColor}.ds-kpi-link:focus-visible{outline:2px solid #10202c;outline-offset:2px}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Frosted white content card with title, info button and muted sub-figure.",
+      "html": "<section class=\"ds-card\"><h3 class=\"ds-card-title\">Revenue <span class=\"ds-card-sub\">$270,289 so far this year</span></h3><p class=\"ds-card-body\">Content sits on a translucent white field over the pastel wash.</p></section>",
+      "css": ".ds-card{width:340px;padding:18px 20px;border-radius:20px;background:rgb(255 255 255/.74);color:#121211;box-shadow:0 1px 2px rgb(17 17 16/.05),0 8px 24px -12px rgb(17 17 16/.12);font-family:'Urbanist Variable', ui-sans-serif, system-ui, sans-serif}.ds-card-title{margin:0;font-size:15px;font-weight:600}.ds-card-sub{margin-left:6px;font-size:13px;font-weight:450;color:#5a5a56}.ds-card-body{margin:10px 0 0;font-size:14px;line-height:1.45;color:#5a5a56}"
+    },
+    {
+      "name": "Hatched Month Bars",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Signature: hatched past months, solid gradient active month with cap, dashed future month.",
+      "html": "<div class=\"ds-bars\"><span class=\"ds-bar\" style=\"height:60%\"></span><span class=\"ds-bar\" style=\"height:75%\"></span><span class=\"ds-bar is-on\" style=\"height:70%\"><i></i></span><span class=\"ds-bar is-future\" style=\"height:80%\"></span></div>",
+      "css": ".ds-bars{display:flex;align-items:flex-end;gap:22px;height:160px;padding:12px}.ds-bar{position:relative;width:30px;min-height:8px;border-radius:999px;background:repeating-linear-gradient(135deg,rgb(31 91 123/.26) 0 1.5px,transparent 1.5px 6px),rgb(17 17 16/.025);box-shadow:inset 0 0 0 1px rgb(31 91 123/.26);transition:box-shadow .2s}.ds-bar:hover{box-shadow:inset 0 0 0 1px rgb(31 91 123/.45);background:repeating-linear-gradient(135deg,rgb(31 91 123/.45) 0 1.5px,transparent 1.5px 6px),rgb(17 17 16/.025)}.ds-bar.is-on{background:linear-gradient(to top,#1d5b7b 0%,#2f84ad 60%,#a8d3e9 100%);box-shadow:0 10px 24px -10px rgb(0 0 0/.45)}.ds-bar.is-on i{position:absolute;top:4px;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgb(0 0 0/.18)}.ds-bar.is-future{background:transparent;box-shadow:none;border:1.5px dashed rgb(31 91 123/.26)}"
+    },
+    {
+      "name": "Chart Tooltip",
+      "kind": "custom",
+      "refersTo": "tooltip",
+      "description": "Dark deep-teal tooltip raised over the active month.",
+      "html": "<div class=\"ds-tip\"><p class=\"ds-tip-title\">Oct 2026 <span>to date</span></p><p class=\"ds-tip-row\">Revenue <b>$27,227</b></p><p class=\"ds-tip-row\">vs last year <b class=\"pos\">+19.6%</b></p></div>",
+      "css": ".ds-tip{min-width:172px;padding:10px 12px;border-radius:12px;background:#173847;color:#f4f4f2;font:12.5px/1.45 'Urbanist Variable', ui-sans-serif, system-ui, sans-serif;font-variant-numeric:tabular-nums;box-shadow:0 14px 30px -12px rgb(0 0 0/.5)}.ds-tip p{margin:0}.ds-tip-title{margin-bottom:6px!important;font-weight:650}.ds-tip-title span{font-weight:450;color:#a7a7a2}.ds-tip-row{display:flex;justify-content:space-between;gap:18px;padding-block:2px;color:#a7a7a2}.ds-tip-row b{font-weight:600;color:#f4f4f2}.ds-tip-row b.pos{color:#84dca8}"
+    },
+    {
+      "name": "Tool Rail",
+      "kind": "nav",
+      "refersTo": "rail",
+      "description": "Floating deep-teal pill of icon buttons; vertical on desktop, horizontal at the bottom on mobile.",
+      "html": "<aside class=\"ds-rail\"><button aria-label=\"Search\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m20 20-3.5-3.5\"/></svg></button><button aria-label=\"Alerts\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9\"/><path d=\"M10.3 21a1.94 1.94 0 0 0 3.4 0\"/></svg><span class=\"ds-rail-badge\">17</span></button></aside>",
+      "css": ".ds-rail{display:inline-flex;flex-direction:column;gap:6px;padding:8px 6px;border-radius:999px;background:#173847;box-shadow:0 12px 32px -12px rgb(0 0 0/.45)}.ds-rail button{position:relative;display:grid;place-items:center;width:38px;height:38px;border:0;border-radius:999px;background:none;color:rgb(255 255 255/.7);cursor:pointer;transition:background-color .18s,color .18s}.ds-rail button:hover{background:rgb(255 255 255/.12);color:#fff}.ds-rail button:focus-visible{outline:2px solid #fff;outline-offset:2px}.ds-rail-badge{position:absolute;top:1px;right:0;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#e0473b;color:#fff;font:700 10px/17px sans-serif;box-shadow:0 0 0 2px #173847}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Pastel Sales Desk",
+    "overview": "A calm, airy analyst's desk: a pale wash of blue, blush and mint sits behind translucent white cards, and the numbers carry the weight. Colour is used as field, not as accent: each KPI owns a whole pastel card (blue, green, yellow, coral) rather than a coloured chip on a grey card. One dark teal anchor, the year-to-date card, gives the page its centre of gravity, and the same deep teal returns in the tool rail, the tooltip and the active month bar so the darks read as one family.\n\nThe signature move is the hatched year: past months are diagonally hatched, translucent capsules; the month in focus fills solid with a teal gradient, gets a white cap, and raises a dark tooltip. Future months are dashed outlines. Everything is rounded, pill-shaped controls and softly lifted cards; nothing is boxed in with hard borders. Density is moderate: the whole month reads in the first viewport, with detail (heatmap, category mix, stores, stock) below.\n\nPastel is the default palette (`data-palette=\"pastel\"` on `<html>`). Mono, Ocean and Sage are alternate palettes that reassign the same role tokens; `data-theme=\"dark\"` inverts neutrals while keeping each palette's dark anchors. The tokens in the frontmatter are the Pastel light values.",
+    "keyCharacteristics": [
+      "Pale three-point radial wash ground (blue top-left, blush top-right, mint at the foot), fixed behind the scroll.",
+      "Translucent white cards with a soft two-layer shadow, no borders.",
+      "Whole-card pastel KPI fields with dark same-hue text.",
+      "One deep-teal family for every dark element: year card, rail, tooltip, active bar, top heat cell.",
+      "Pills everywhere: nav, segmented controls, buttons, rail, bars.",
+      "Urbanist Variable throughout, with intermediate weights (450, 550, 650) and tabular numerals on every figure."
+    ],
+    "rules": [
+      {
+        "name": "The Field Not Chip Rule",
+        "body": "A KPI's colour is the whole card, with same-hue dark ink on it. Don't put coloured accent chips or stripes on a neutral card.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Dark Family Rule",
+        "body": "Every dark element in a palette shares that palette's anchor hue (deep teal in Pastel, near-black in Mono, navy in Ocean, forest in Sage). No second dark.",
+        "section": "colors"
+      },
+      {
+        "name": "The Palette Is A Role Swap Rule",
+        "body": "New surfaces use the role variables (`--k1..4`, `--h0..5`, `--s1..5`, `--gauge-*`, `--tip-*`, `--rail-bg`, `--bar-active`, `--hatch`, `--avg`), never palette hexes, so Mono, Ocean, Sage and dark all keep working.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Figures Rule",
+        "body": "Every number (KPI values, gauge, axes, tooltips, table cells, deltas) is set with tabular numerals so columns and updates don't jitter.",
+        "section": "typography"
+      },
+      {
+        "name": "The No Uppercase Labels Rule",
+        "body": "Labels stay sentence case at normal tracking; hierarchy is size and weight. The only tracking used is negative, on large figures.",
+        "section": "typography"
+      },
+      {
+        "name": "The Soft Lift Rule",
+        "body": "Resting surfaces share one shadow token. Deeper shadows are reserved for things that float above the layout.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** set colour through role variables (`--k1..4`, `--h0..5`, `--s1..5`, `--tip-*`, `--gauge-*`, `--rail-bg`, `--bar-active`, `--hatch`, `--avg`) so every palette and the dark theme follow.",
+      "**Do** give each KPI a whole pastel field with its own dark ink, and keep one dark anchor card per view.",
+      "**Do** use pills (999px) for nav, segmented controls, buttons and bars; 20px for cards.",
+      "**Do** set every figure in tabular numerals and label sample data as sample data.",
+      "**Do** keep semantic green, red and amber for change and stock status only.",
+      "**Do** use Lucide stroke icons at 16–17px, stroke 1.8."
+    ],
+    "donts": [
+      "**Don't** put coloured accent chips or stripes on grey cards; the colour is the card.",
+      "**Don't** add borders to cards or a second shadow recipe for resting surfaces.",
+      "**Don't** introduce a second typeface or uppercase tracked labels.",
+      "**Don't** hard-code palette hexes in components; they break Mono, Ocean, Sage and dark.",
+      "**Don't** use Average Red for anything but the average line."
+    ]
+  }
+}

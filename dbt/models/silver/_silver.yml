@@ -1,0 +1,93 @@
+version: 2
+
+models:
+  - name: stg_products
+    description: "Products with IDs cast to int. Categories kept as in source (several look mislabeled, see README)."
+    columns:
+      - name: product_id
+        data_tests: [unique, not_null]
+
+  - name: stg_stores
+    columns:
+      - name: store_id
+        data_tests: [unique, not_null]
+      - name: region
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Miền Bắc', 'Miền Trung', 'Miền Nam']
+      # Bounding box of Vietnam's mainland, catches swapped or mistyped coordinates
+      - name: latitude
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 8.4
+                max_value: 23.4
+      - name: longitude
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 102.1
+                max_value: 109.5
+
+  - name: stg_customers
+    columns:
+      - name: customer_id
+        data_tests: [unique, not_null]
+      - name: gender
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Nam', 'Nữ']
+      - name: age_group
+        description: "Age in reference_year (dbt var), bucketed. 'Other' means outside 20-39."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['20-24', '25-29', '30-34', '35-39']
+
+  - name: stg_sales
+    description: "One row per sale. sale_date joins to the date dimension; sale_datetime keeps the hour."
+    columns:
+      - name: sale_id
+        data_tests: [unique, not_null]
+      - name: quantity
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: false
+      - name: amount
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: false
+
+  - name: stg_inventory
+    description: "One row per store x product. stock_value is recomputed as stock_qty * unit_cost."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [store_id, product_id]
+    columns:
+      - name: inventory_id
+        data_tests: [unique, not_null]
+      - name: stock_qty
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: safety_stock
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: unit_cost
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: false
