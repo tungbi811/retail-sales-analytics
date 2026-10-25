@@ -42,6 +42,9 @@ cd dashboard && npm run dev                         # dashboard on http://localh
 | `GET /api/warehouse`             | Every gold table the dashboard reads, and the last dbt run time   |
 | `POST /api/text-to-sql`          | A question in plain words → SQL written by a model, run read-only |
 | `GET /api/text-to-sql/providers` | Which providers have a key, and which one is chosen               |
+| `POST /api/insights/runs`        | A business question → the agent team starts on the data lake      |
+| `GET /api/insights/runs/{id}/events` | The agents' discussion and report, streamed (SSE)             |
+| `POST /api/insights/runs/{id}/reply`, `/stop` | Answer an agent's question, or stop the run          |
 | `/api/settings/ai`               | Provider, model and key (this computer only)                      |
 
 ## Tests

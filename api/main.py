@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 
 from api.db import connect
-from api.routes import settings, text_to_sql, warehouse
+from api.routes import insights, settings, text_to_sql, warehouse
 
 # API over the dbt gold models, consumed by the dashboard in dashboard/.
 # Run from the project root: uv run uvicorn api.main:app --reload --port 8000
@@ -15,4 +15,5 @@ app = FastAPI(title='Pantio API')
 
 app.include_router(warehouse.register(connect))
 app.include_router(text_to_sql.register(connect))
+app.include_router(insights.register(connect))
 app.include_router(settings.register())
