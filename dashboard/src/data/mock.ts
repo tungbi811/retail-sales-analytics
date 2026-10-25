@@ -1,4 +1,5 @@
-import type { DimCustomer, DimProduct, DimStore, FactSales, Level, ProductStock, StockPosition, Warehouse } from './types'
+import type { DimCustomer, DimProduct, DimStore, FactSales, Level, ProductStock, StockPosition, StockRules, StoreStock, Warehouse } from './types'
+import { DAY } from './metrics.ts'
 
 // Sample data only. Deterministic so screenshots and numbers stay stable between reloads.
 
@@ -166,45 +167,61 @@ function generateInventory(rand: () => number): InventoryRow[] {
 
 // The stock rules from dbt/models/gold/inventory and the vars in dbt_project.yml, for sample data and test fixtures only.
 // Live data gets these columns from dbt; keep the two in step if a rule changes.
-const SELL_RATE_DAYS = 90
-const WATCH_DAYS = 60
-const OK_BELOW = 2
-const GOOD_BELOW = 4
+const RULES: StockRules = { sell_rate_days: 90, watch_days: 60, stock_ok_below: 2, stock_good_below: 4 }
 
 type SaleLike = { store_id: string; product_id: string; sale_datetime: Date | string; quantity: number }
 
-export function withStockRules(stores: DimStore[], sales: SaleLike[], inventory: InventoryRow[]): { inventory: StockPosition[]; productStock: ProductStock[] } {
+function level(i: InventoryRow): Level {
+  if (i.stock_qty === 0) return 'out'
+  if (i.stock_qty < i.safety_stock) return 'low'
+  if (i.stock_qty < RULES.stock_ok_below * i.safety_stock) return 'ok'
+  if (i.stock_qty < RULES.stock_good_below * i.safety_stock) return 'good'
+  return 'deep'
+}
+
+/** Stock, sell rate and days of cover for a group of stock_position rows, as product_stock and store_stock add them up. */
+function cover(rows: StockPosition[]) {
+  const stock = rows.reduce((a, r) => a + r.stock_qty, 0)
+  const perDay = rows.reduce((a, r) => a + r.units_per_day, 0)
+  return { stock_qty: stock, units_per_day: perDay, days_of_cover: perDay ? stock / perDay : null }
+}
+
+function groupBy<T>(rows: T[], keys: (r: T) => string[]) {
+  const groups = new Map<string, T[]>()
+  for (const r of rows) {
+    for (const key of keys(r)) {
+      let g = groups.get(key)
+      if (!g) groups.set(key, (g = []))
+      g.push(r)
+    }
+  }
+  return groups
+}
+
+export function withStockRules(stores: DimStore[], sales: SaleLike[], inventory: InventoryRow[]) {
   const times = sales.map((s) => new Date(s.sale_datetime).getTime())
-  const from = Math.max(...times) - SELL_RATE_DAYS * 86_400_000
+  const from = Math.max(...times) - RULES.sell_rate_days * DAY
   const units = new Map<string, number>()
   for (const [i, s] of sales.entries()) {
     if (times[i] > from) units.set(`${s.store_id}|${s.product_id}`, (units.get(`${s.store_id}|${s.product_id}`) ?? 0) + s.quantity)
   }
-  const level = (i: InventoryRow): Level =>
-    i.stock_qty === 0 ? 'out' : i.stock_qty < i.safety_stock ? 'low' : i.stock_qty < OK_BELOW * i.safety_stock ? 'ok' : i.stock_qty < GOOD_BELOW * i.safety_stock ? 'good' : 'deep'
-  const rows = inventory.map((i) => {
-    const perDay = (units.get(`${i.store_id}|${i.product_id}`) ?? 0) / SELL_RATE_DAYS
+  const positions: StockPosition[] = inventory.map((i) => {
+    const perDay = (units.get(`${i.store_id}|${i.product_id}`) ?? 0) / RULES.sell_rate_days
     const shortfall = Math.max(i.safety_stock - i.stock_qty, 0)
     return { ...i, units_per_day: perDay, days_of_cover: perDay ? i.stock_qty / perDay : null, stock_level: level(i), shortfall, restock_cost: shortfall * i.unit_cost }
   })
 
   const regionOf = new Map(stores.map((s) => [s.store_id, s.region]))
-  const groups = new Map<string, StockPosition[]>()
-  for (const r of rows) {
-    for (const region of [regionOf.get(r.store_id)!, 'All']) {
-      const key = `${r.product_id}|${region}`
-      groups.set(key, [...(groups.get(key) ?? []), r])
-    }
-  }
-  const productStock = [...groups.entries()].map(([key, g]): ProductStock => {
+  const byProduct = groupBy(positions, (r) => [`${r.product_id}|${regionOf.get(r.store_id)}`, `${r.product_id}|All`])
+  const productStock = [...byProduct.entries()].map(([key, g]): ProductStock => {
     const [product_id, region] = key.split('|')
-    const stock = g.reduce((a, r) => a + r.stock_qty, 0)
-    const perDay = g.reduce((a, r) => a + r.units_per_day, 0)
-    const cover = perDay ? stock / perDay : null
-    const lane = g.some((r) => r.below_safety_stock && r.is_out_of_stock) ? 'out' : g.some((r) => r.below_safety_stock) ? 'low' : cover !== null && cover < WATCH_DAYS ? 'watch' : 'ok'
-    return { product_id, region, stock_qty: stock, units_per_day: perDay, days_of_cover: cover, lane, watch_days: WATCH_DAYS }
+    const c = cover(g)
+    const lowCover = c.days_of_cover !== null && c.days_of_cover < RULES.watch_days
+    const lane = g.some((r) => r.below_safety_stock && r.is_out_of_stock) ? 'out' : g.some((r) => r.below_safety_stock) ? 'low' : lowCover ? 'watch' : 'ok'
+    return { product_id, region, ...c, lane, low_cover: lowCover }
   })
-  return { inventory: rows, productStock }
+  const storeStock = [...groupBy(positions, (r) => [r.store_id]).entries()].map(([store_id, g]): StoreStock => ({ store_id, ...cover(g) }))
+  return { inventory: positions, productStock, storeStock, stockRules: RULES }
 }
 
 export function loadMockWarehouse(): Warehouse {

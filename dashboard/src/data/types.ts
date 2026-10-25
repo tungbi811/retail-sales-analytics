@@ -72,8 +72,24 @@ export interface ProductStock {
   units_per_day: number
   days_of_cover: number | null
   lane: Lane
-  /** The cover threshold the watch lane was worked out with. */
+  /** days_of_cover is under the watch_days setting, whatever the lane. */
+  low_cover: boolean
+}
+
+/** gold.store_stock: one store's stock, sell rate and days of cover. */
+export interface StoreStock {
+  store_id: string
+  stock_qty: number
+  units_per_day: number
+  days_of_cover: number | null
+}
+
+/** gold.stock_rules: the stock settings from dbt_project.yml. */
+export interface StockRules {
+  sell_rate_days: number
   watch_days: number
+  stock_ok_below: number
+  stock_good_below: number
 }
 
 export interface Warehouse {
@@ -83,6 +99,8 @@ export interface Warehouse {
   sales: FactSales[]
   inventory: StockPosition[]
   productStock: ProductStock[]
+  storeStock: StoreStock[]
+  stockRules: StockRules
   /** The "as of" date for month-to-date figures. */
   today: Date
   /** When the pipeline last loaded the gold models. */

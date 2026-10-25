@@ -1,4 +1,4 @@
-import type { FactSales, Lane, ProductStock, Warehouse } from './types'
+import type { FactSales, Warehouse } from './types'
 import { DAY, inRange, pct, sum, type RegionFilter, type Totals } from './metrics'
 
 // Metrics for the Products, Stores and Customers pages, and the sales and stock cards on Dashboard and Products.
@@ -147,17 +147,6 @@ export function recentSales(wh: Warehouse, rows: FactSales[], n: number) {
 
 // ---------- Products ----------
 
-/** Units each store × product sells per day, over the 90 days before the last sale. */
-/** A product's stock in a region from gold.product_stock; undefined when no store there stocks it. */
-export function productStock(wh: Warehouse, productId: string, region: RegionFilter): ProductStock | undefined {
-  return wh.productStock.find((p) => p.product_id === productId && p.region === region)
-}
-
-/** The days of cover under which dbt puts a product on watch, or null without stock rows. */
-export function watchDays(wh: Warehouse) {
-  return wh.productStock[0]?.watch_days ?? null
-}
-
 export function monthsToDate(wh: Warehouse) {
   const y = wh.today.getFullYear()
   return Array.from({ length: wh.today.getMonth() + 1 }, (_, m) => ({
@@ -172,6 +161,8 @@ export function productStats(wh: Warehouse, rows: FactSales[], r: Range, region:
   const y = wh.today.getFullYear()
   const months = monthsToDate(wh)
   const ids = storeIdsIn(wh, region)
+  // gold.product_stock has no row where no store in the region stocks the product
+  const stocked = new Map(wh.productStock.filter((ps) => ps.region === region).map((ps) => [ps.product_id, ps]))
 
   const total = now.reduce((a, s) => a + s.amount, 0)
   const list = wh.products.map((p) => {
@@ -183,7 +174,7 @@ export function productStats(wh: Warehouse, rows: FactSales[], r: Range, region:
       if (s.product_id === p.product_id && s.sale_datetime.getFullYear() === y) monthly[s.sale_datetime.getMonth()] += s.amount
     }
     const inv = wh.inventory.filter((i) => i.product_id === p.product_id && ids.has(i.store_id))
-    const stock = inv.reduce((a, i) => a + i.stock_qty, 0)
+    const ps = stocked.get(p.product_id)
     return {
       ...p,
       revenue: t.revenue,
@@ -195,10 +186,12 @@ export function productStats(wh: Warehouse, rows: FactSales[], r: Range, region:
       share: total ? t.revenue / total : 0,
       change: before.orders ? pct(t.revenue, before.revenue) : null,
       monthly,
-      stock,
+      stock: ps?.stock_qty ?? 0,
       low: inv.filter((i) => i.below_safety_stock).length,
       out: inv.filter((i) => i.is_out_of_stock).length,
-      cover: productStock(wh, p.product_id, region)?.days_of_cover ?? null,
+      cover: ps?.days_of_cover ?? null,
+      lowCover: ps?.low_cover ?? false,
+      lane: ps?.lane ?? ('ok' as const),
     }
   })
   const top = Math.max(...list.map((p) => p.revenue))
@@ -242,6 +235,7 @@ export function productDetail(wh: Warehouse, rows: FactSales[], r: Range, produc
 // ---------- Stores ----------
 
 export function storeStats(wh: Warehouse, r: Range) {
+  const stock = new Map(wh.storeStock.map((s) => [s.store_id, s]))
   const list = wh.stores.map((s) => {
     const rows = wh.sales.filter((x) => x.store_id === s.store_id)
     const c = compare(rows, r)
@@ -249,8 +243,6 @@ export function storeStats(wh: Warehouse, r: Range) {
     const y = wh.today.getFullYear()
     const monthly = monthsToDate(wh).map(() => 0)
     for (const x of rows) if (x.sale_datetime.getFullYear() === y) monthly[x.sale_datetime.getMonth()] += x.amount
-    const stock = inv.reduce((a, i) => a + i.stock_qty, 0)
-    const perDay = inv.reduce((a, i) => a + i.units_per_day, 0)
     return {
       ...s,
       ...c.now,
@@ -260,7 +252,7 @@ export function storeStats(wh: Warehouse, r: Range) {
       low: inv.filter((i) => i.below_safety_stock).length,
       out: inv.filter((i) => i.is_out_of_stock).length,
       stockValue: inv.reduce((a, i) => a + i.stock_value, 0),
-      cover: perDay ? stock / perDay : null,
+      cover: stock.get(s.store_id)?.days_of_cover ?? null,
     }
   })
   const ranked = [...list].sort((a, b) => b.revenue - a.revenue)
@@ -367,56 +359,10 @@ export function categoryByGender(wh: Warehouse, rows: FactSales[], r: Range) {
 
 // ---------- Inventory ----------
 
+/** The stock_position rows and stores in a region, for the coverage matrix. */
 export function inventoryStats(wh: Warehouse, region: RegionFilter) {
   const ids = storeIdsIn(wh, region)
-  const inv = wh.inventory.filter((i) => ids.has(i.store_id))
-  const products = new Map(wh.products.map((p) => [p.product_id, p]))
-  const stores = new Map(wh.stores.map((s) => [s.store_id, s]))
-
-  const restock = inv
-    .filter((i) => i.below_safety_stock)
-    .map((i) => ({
-      ...i,
-      product: products.get(i.product_id)!.product_name,
-      category: products.get(i.product_id)!.category,
-      store: stores.get(i.store_id)!.store_name,
-      city: stores.get(i.store_id)!.city,
-      cost: i.restock_cost,
-      cover: i.days_of_cover,
-    }))
-    .sort((a, b) => a.stock_qty / a.safety_stock - b.stock_qty / b.safety_stock || b.cost - a.cost)
-
-  const cover = wh.products
-    .map((p) => {
-      const ps = productStock(wh, p.product_id, region)
-      return { product: p.product_name, category: p.category, stock: ps?.stock_qty ?? 0, perDay: ps?.units_per_day ?? 0, days: ps?.days_of_cover ?? null }
-    })
-    .sort((a, b) => (a.days ?? Infinity) - (b.days ?? Infinity))
-
-  const byCategory = new Map<string, { category: string; value: number; units: number }>()
-  for (const i of inv) {
-    const c = products.get(i.product_id)!.category
-    const v = byCategory.get(c) ?? { category: c, value: 0, units: 0 }
-    v.value += i.stock_value
-    v.units += i.stock_qty
-    byCategory.set(c, v)
-  }
-  const value = inv.reduce((a, i) => a + i.stock_value, 0)
-  const dates = inv.map((i) => i.last_updated).sort()
-
-  return {
-    rows: inv,
-    stores: wh.stores.filter((s) => ids.has(s.store_id)),
-    value,
-    units: inv.reduce((a, i) => a + i.stock_qty, 0),
-    below: restock.length,
-    out: inv.filter((i) => i.is_out_of_stock).length,
-    restockCost: restock.reduce((a, i) => a + i.cost, 0),
-    restock,
-    cover,
-    categories: [...byCategory.values()].map((c) => ({ ...c, share: value ? c.value / value : 0 })).sort((a, b) => b.value - a.value),
-    counted: { from: dates[0], to: dates[dates.length - 1] },
-  }
+  return { rows: wh.inventory.filter((i) => ids.has(i.store_id)), stores: wh.stores.filter((s) => ids.has(s.store_id)) }
 }
 
 /** One card per product for the stock board: the stores short of safety stock, and its lane from gold.product_stock. */
@@ -427,17 +373,15 @@ export function stockBoard(wh: Warehouse, region: RegionFilter, products: Produc
     const rows = wh.inventory.filter((i) => i.product_id === p.product_id && ids.has(i.store_id))
     const short = rows
       .filter((i) => i.below_safety_stock)
-      .map((i) => ({ ...i, store: stores.get(i.store_id)!, cost: i.restock_cost }))
-      .sort((a, b) => a.stock_qty / a.safety_stock - b.stock_qty / b.safety_stock || b.cost - a.cost)
-    const lane: Lane = productStock(wh, p.product_id, region)?.lane ?? 'ok'
+      .map((i) => ({ ...i, store: stores.get(i.store_id)! }))
+      .sort((a, b) => a.stock_qty / a.safety_stock - b.stock_qty / b.safety_stock || b.restock_cost - a.restock_cost)
     return {
       ...p,
-      lane,
       stores: rows.length,
       stocked: rows.length - short.length,
       short,
       order: short.reduce((a, i) => a + i.shortfall, 0),
-      cost: short.reduce((a, i) => a + i.cost, 0),
+      cost: short.reduce((a, i) => a + i.restock_cost, 0),
     }
   })
 }

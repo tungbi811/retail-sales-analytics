@@ -10,7 +10,9 @@ models/
     ├── core/                 the star schema: fact_sales, fact_inventory, dim_date, dim_product, dim_store, dim_customer
     ├── inventory/            business rules for stock
     │   ├── stock_position    store × product: units per day, days of cover, stock level, shortfall, restock cost
-    │   └── product_stock     product × region (and 'All'): stock, days of cover, stock board lane
+    │   ├── product_stock     product × region (and 'All'): stock, days of cover, low cover flag, stock board lane
+    │   ├── store_stock       store: stock, sell rate, days of cover
+    │   └── stock_rules       the settings below as one row, so the dashboard can name them
     └── exposures.yml         which dashboard page reads which table
 ```
 

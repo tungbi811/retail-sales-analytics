@@ -114,7 +114,7 @@ export function ProductsPage({ wh, region, onRegion, period, onPeriod, product }
 
       <Footnote wh={wh}>
         Sales from gold.fact_sales, stock from gold.stock_position (one count per store × product; stock adds up across stores, never across dates). Cover and lanes come from
-        dbt (gold.stock_position, gold.product_stock): stock on hand divided by units sold per day over the last 90 days of sales.
+        dbt (gold.stock_position, gold.product_stock): stock on hand divided by units sold per day over the last {wh.stockRules.sell_rate_days} days of sales.
       </Footnote>
     </main>
   )

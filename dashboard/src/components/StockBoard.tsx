@@ -1,7 +1,7 @@
 import { CalendarDays, Check, Clock, Download, PackagePlus } from 'lucide-react'
 import type { Lane, Warehouse } from '../data/types'
 import { regions, type RegionFilter } from '../data/metrics'
-import { watchDays, type BoardCard } from '../data/analytics'
+import type { BoardCard } from '../data/analytics'
 import { count, money, moneyShort, signedPct } from '../lib/format'
 import { toneOf } from '../lib/tones'
 import { downloadCsv } from '../lib/csv'
@@ -20,11 +20,11 @@ interface Props {
   onOpen: (id: string) => void
 }
 
-// The watch threshold is a dbt setting (watch_days), read from gold.product_stock.
-const lanes = (watch: number | null): { key: Lane; title: string; note: string }[] => [
+// The watch threshold is the watch_days setting in dbt, read from gold.stock_rules.
+const lanes = (watch: number): { key: Lane; title: string; note: string }[] => [
   { key: 'out', title: 'Out of stock', note: 'Empty in at least one store' },
   { key: 'low', title: 'Below safety', note: 'Short somewhere, empty nowhere' },
-  { key: 'watch', title: 'Low cover', note: watch === null ? 'Stocked, but few days of sales left' : `Stocked, but under ${watch} days of sales left` },
+  { key: 'watch', title: 'Low cover', note: `Stocked, but under ${watch} days of sales left` },
   { key: 'ok', title: 'Healthy', note: 'At safety stock in every store' },
 ]
 
@@ -53,12 +53,11 @@ export function StockBoard({ wh, region, cards, categories, category, onCategory
   const done = shown.length ? stocked / shown.length : 0
   const dates = cards.flatMap((c) => wh.inventory.filter((i) => i.product_id === c.product_id).map((i) => i.last_updated)).sort()
   const regionList = regions(wh)
-  const watch = watchDays(wh)
   const where = region === 'All' ? '' : ` in ${region}`
 
   function exportList() {
     const rows = short.flatMap((c) =>
-      c.short.map((i) => ({ product: c.product_name, category: c.category, store: i.store.store_name, city: i.store.city, stock_qty: i.stock_qty, safety_stock: i.safety_stock, order_units: i.shortfall, order_cost: i.cost })),
+      c.short.map((i) => ({ product: c.product_name, category: c.category, store: i.store.store_name, city: i.store.city, stock_qty: i.stock_qty, safety_stock: i.safety_stock, order_units: i.shortfall, order_cost: i.restock_cost })),
     )
     downloadCsv('pantio-restock.csv', ['product', 'category', 'store', 'city', 'stock_qty', 'safety_stock', 'order_units', 'order_cost'], rows)
   }
@@ -113,7 +112,7 @@ export function StockBoard({ wh, region, cards, categories, category, onCategory
       </section>
 
       <div className="lanes">
-        {lanes(watch).map((l) => {
+        {lanes(wh.stockRules.watch_days).map((l) => {
           const items = shown.filter((c) => c.lane === l.key).sort(ORDER[l.key])
           const units = items.reduce((a, c) => a + c.order, 0)
           return (
@@ -133,7 +132,7 @@ export function StockBoard({ wh, region, cards, categories, category, onCategory
                 <ul>
                   {items.map((c, i) => (
                     <li key={c.product_id} style={{ '--d': `${i * 30}ms` } as React.CSSProperties}>
-                      <Card card={c} tone={toneOf(categories, c.category)} rank={rank.get(c.product_id)} regionList={regionList} watch={watch} onOpen={onOpen} />
+                      <Card card={c} tone={toneOf(categories, c.category)} rank={rank.get(c.product_id)} regionList={regionList} onOpen={onOpen} />
                     </li>
                   ))}
                 </ul>
@@ -148,7 +147,7 @@ export function StockBoard({ wh, region, cards, categories, category, onCategory
   )
 }
 
-function Card({ card: c, tone, rank, regionList, watch, onOpen }: { card: BoardCard; tone: string; rank?: number; regionList: string[]; watch: number | null; onOpen: (id: string) => void }) {
+function Card({ card: c, tone, rank, regionList, onOpen }: { card: BoardCard; tone: string; rank?: number; regionList: string[]; onOpen: (id: string) => void }) {
   const extra = c.short.length - AVATARS
   const cover = c.cover === null ? null : Math.round(c.cover)
   return (
@@ -198,7 +197,7 @@ function Card({ card: c, tone, rank, regionList, watch, onOpen }: { card: BoardC
             <span className="sr-only">Short in {c.short.map((i) => i.store.city).join(', ')}</span>
           </span>
         )}
-        <span className={`scard-due ${cover !== null && watch !== null && cover < watch ? 'is-soon' : ''}`}>
+        <span className={`scard-due ${c.lowCover ? 'is-soon' : ''}`}>
           <Clock size={12} strokeWidth={2} aria-hidden="true" />
           {cover === null ? 'No recent sales' : `${cover}d cover`}
         </span>

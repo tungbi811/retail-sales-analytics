@@ -216,7 +216,7 @@ const GLOSSARY: { group: string; terms: [string, string][] }[] = [
     terms: [
       ['Below safety stock', 'stock_position rows where stock_qty is under safety_stock.'],
       ['Out of stock', 'stock_position rows where stock_qty is 0.'],
-      ['Days of cover', 'Stock on hand divided by units sold per day over the last 90 days of sales. Worked out in dbt (stock_position).'],
+      ['Days of cover', 'Stock on hand divided by units sold per day over the recent sales window. Worked out in dbt (stock_position); the window is the sell_rate_days setting.'],
     ],
   },
   {

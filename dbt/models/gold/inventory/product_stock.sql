@@ -36,6 +36,6 @@ SELECT
         WHEN days_of_cover < {{ var('watch_days') }} THEN 'watch'
         ELSE 'ok'
     END AS lane,
-    {{ var('watch_days') }} AS watch_days
+    COALESCE(days_of_cover < {{ var('watch_days') }}, FALSE) AS low_cover
 FROM
     covered

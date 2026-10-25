@@ -36,9 +36,11 @@ QUERIES = {
         FROM gold.stock_position
     ''',
     'product_stock': '''
-        SELECT product_id::text, region, stock_qty::int, units_per_day, days_of_cover, lane, watch_days
+        SELECT product_id::text, region, stock_qty::int, units_per_day, days_of_cover, lane, low_cover
         FROM gold.product_stock
     ''',
+    'store_stock': 'SELECT store_id::text, stock_qty::int, units_per_day, days_of_cover FROM gold.store_stock',
+    'stock_rules': 'SELECT sell_rate_days, watch_days, stock_ok_below, stock_good_below FROM gold.stock_rules',
 }
 
 
@@ -65,6 +67,8 @@ def register(connect):
         except psycopg.errors.UndefinedTable as e:
             raise HTTPException(status_code=503, detail=f'Gold models missing, run dbt first: {e}')
 
+        # stock_rules is a single row of settings
+        data['stock_rules'] = data['stock_rules'][0]
         # The data is historical, so "today" is the latest sale rather than the wall clock
         today = max((s['sale_datetime'] for s in data['sales']), default=None)
         return {**data, 'today': today, 'synced_at': last_dbt_run(), 'source': 'postgres'}

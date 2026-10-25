@@ -68,8 +68,20 @@ models:
           - accepted_values:
               arguments:
                 values: [out, low, watch, ok]
-      - name: watch_days
-        description: The watch_days setting the lane was worked out with, so the dashboard can name it.
+      - name: low_cover
+        description: days_of_cover is under watch_days. Shown on every card, whatever its lane.
+        data_tests: [not_null]
+
+  - name: store_stock
+    description: One row per store with stock_position rows; its stock, sell rate and days of cover.
+    columns:
+      - name: store_id
+        data_tests: [unique, not_null]
+      - name: days_of_cover
+        description: Total stock / total units per day. Null when nothing sold in the window.
+
+  - name: stock_rules
+    description: The stock rule settings from dbt_project.yml as one row, so the dashboard can name them.
 
 unit_tests:
   - name: stock_position_sells_cover_and_levels
@@ -123,12 +135,26 @@ unit_tests:
           - {store_id: 3, product_id: 4, stock_qty: 50, units_per_day: 0.0, is_out_of_stock: false, below_safety_stock: false}
     expect:
       rows:
-        - {product_id: 1, region: North, stock_qty: 10, days_of_cover: 10.0, lane: watch, watch_days: 60}
-        - {product_id: 1, region: South, stock_qty: 100, days_of_cover: 100.0, lane: ok, watch_days: 60}
-        - {product_id: 1, region: All, stock_qty: 110, days_of_cover: 55.0, lane: watch, watch_days: 60}
-        - {product_id: 2, region: North, stock_qty: 3, days_of_cover: 6.0, lane: out, watch_days: 60}
-        - {product_id: 2, region: All, stock_qty: 3, days_of_cover: 6.0, lane: out, watch_days: 60}
-        - {product_id: 3, region: North, stock_qty: 2, days_of_cover: null, lane: low, watch_days: 60}
-        - {product_id: 3, region: All, stock_qty: 2, days_of_cover: null, lane: low, watch_days: 60}
-        - {product_id: 4, region: South, stock_qty: 50, days_of_cover: null, lane: ok, watch_days: 60}
-        - {product_id: 4, region: All, stock_qty: 50, days_of_cover: null, lane: ok, watch_days: 60}
+        - {product_id: 1, region: North, stock_qty: 10, days_of_cover: 10.0, lane: watch, low_cover: true}
+        - {product_id: 1, region: South, stock_qty: 100, days_of_cover: 100.0, lane: ok, low_cover: false}
+        - {product_id: 1, region: All, stock_qty: 110, days_of_cover: 55.0, lane: watch, low_cover: true}
+        - {product_id: 2, region: North, stock_qty: 3, days_of_cover: 6.0, lane: out, low_cover: true}
+        - {product_id: 2, region: All, stock_qty: 3, days_of_cover: 6.0, lane: out, low_cover: true}
+        - {product_id: 3, region: North, stock_qty: 2, days_of_cover: null, lane: low, low_cover: false}
+        - {product_id: 3, region: All, stock_qty: 2, days_of_cover: null, lane: low, low_cover: false}
+        - {product_id: 4, region: South, stock_qty: 50, days_of_cover: null, lane: ok, low_cover: false}
+        - {product_id: 4, region: All, stock_qty: 50, days_of_cover: null, lane: ok, low_cover: false}
+
+  - name: store_stock_sums_each_store
+    description: Cover is total stock over total sell rate; a store that sold nothing has no cover.
+    model: store_stock
+    given:
+      - input: ref('stock_position')
+        rows:
+          - {store_id: 1, stock_qty: 10, units_per_day: 1.0}
+          - {store_id: 1, stock_qty: 30, units_per_day: 1.0}
+          - {store_id: 2, stock_qty: 5, units_per_day: 0.0}
+    expect:
+      rows:
+        - {store_id: 1, stock_qty: 40, units_per_day: 2.0, days_of_cover: 20.0}
+        - {store_id: 2, stock_qty: 5, units_per_day: 0.0, days_of_cover: null}

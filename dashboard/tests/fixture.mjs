@@ -1,10 +1,10 @@
 // A small warehouse for the browser tests: January 2024 is the first month on record, February runs to 19 Feb.
 import { withStockRules } from '../src/data/mock.ts'
 
-/** The API's answer for a test warehouse: inventory gets the columns dbt adds in gold.stock_position, plus gold.product_stock. */
+/** The API's answer for a test warehouse: inventory gets the columns dbt adds in gold.stock_position, plus product_stock, store_stock and stock_rules. */
 export function asApi(wh) {
-  const { inventory, productStock } = withStockRules(wh.stores, wh.sales, wh.inventory)
-  return { ...wh, inventory, product_stock: productStock }
+  const { inventory, productStock, storeStock, stockRules } = withStockRules(wh.stores, wh.sales, wh.inventory)
+  return { ...wh, inventory, product_stock: productStock, store_stock: storeStock, stock_rules: stockRules }
 }
 
 const sale = (sale_id, store_id, product_id, sale_datetime, quantity, amount) => ({ sale_id, store_id, product_id, customer_id: 'a', sale_datetime, sale_date: sale_datetime.slice(0, 10), quantity, amount })
