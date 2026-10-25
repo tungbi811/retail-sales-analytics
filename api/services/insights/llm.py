@@ -22,6 +22,10 @@ def llm_config(temperature: float) -> LLMConfig:
         'stream': False,
         'parallel_tool_calls': False,
     }
+    application_config = {}
     if takes_temperature(provider, model):
         config['temperature'] = temperature
-    return LLMConfig(config)
+        # AG2 copies entries using entry.temperature or application.temperature.
+        # Keep zero at both levels so agent/tool config rebuilds preserve it.
+        application_config['temperature'] = temperature
+    return LLMConfig(config, **application_config)

@@ -5,6 +5,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
+from autogen import AssistantAgent, LLMConfig
+
 from api.services.insights import kernel, llm
 from api.services.text_to_sql.providers import PROVIDERS
 
@@ -23,8 +25,23 @@ class ModelConfigTest(unittest.TestCase):
     @mock.patch.dict(os.environ, {'TEXT_TO_SQL_PROVIDER': 'openai',
                                  'TEXT_TO_SQL_OPENAI_MODEL': 'gpt-5.4-mini', 'OPENAI_API_KEY': 'k'}, clear=True)
     def test_gpt5_mini_has_no_temperature(self):
-        entry = llm.llm_config(0.7).model_dump()['config_list'][0]
-        self.assertNotIn('temperature', entry)
+        for model in ['gpt-5.4-mini', 'o3-mini']:
+            with self.subTest(model=model), mock.patch.dict(os.environ, {'TEXT_TO_SQL_OPENAI_MODEL': model}):
+                config = llm.llm_config(0.7).model_dump()
+                self.assertNotIn('temperature', config['config_list'][0])
+                self.assertNotIn('temperature', config)
+
+    @mock.patch.dict(os.environ, {'TEXT_TO_SQL_PROVIDER': 'openai',
+                                 'TEXT_TO_SQL_OPENAI_MODEL': 'gpt-4.1-mini', 'OPENAI_API_KEY': 'test'}, clear=True)
+    def test_zero_temperature_survives_agent_copy_and_tool_registration(self):
+        def calculate() -> str:
+            return '1'
+
+        with mock.patch('httpx.Client.send', side_effect=AssertionError('No network')):
+            agent = AssistantAgent(name='Coder', llm_config=llm.llm_config(0.0), functions=[calculate])
+        self.assertEqual([item.name for item in agent.tools], ['calculate'])
+        self.assertEqual(agent.llm_config.model_dump()['config_list'][0].get('temperature'), 0.0)
+        self.assertEqual(LLMConfig.ensure_config(agent.llm_config).model_dump()['config_list'][0].get('temperature'), 0.0)
 
     @mock.patch.dict(os.environ, {'TEXT_TO_SQL_PROVIDER': 'gemini',
                                  'TEXT_TO_SQL_GEMINI_MODEL': 'gemini-test', 'GOOGLE_API_KEY': 'alias'}, clear=True)
