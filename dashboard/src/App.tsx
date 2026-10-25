@@ -35,6 +35,8 @@ import { StoresPage, type SortKey } from './pages/StoresPage'
 import { CustomersPage } from './pages/CustomersPage'
 import { TextToSqlPage, type TextToSqlEntry } from './pages/TextToSqlPage'
 import { SettingsPage } from './pages/SettingsPage'
+import { InsightsPage } from './pages/InsightsPage'
+import type { InsightsRun } from './data/insights'
 
 interface Intent {
   n: number
@@ -44,8 +46,8 @@ interface Intent {
 }
 
 // Which rail button lights up for a page, and where each one leads.
-const VIEW_OF: Partial<Record<Page, View>> = { 'Text to SQL': 'ask', Settings: 'settings' }
-const PAGE_OF: Record<View, Page> = { dashboard: 'Dashboard', ask: 'Text to SQL', settings: 'Settings' }
+const VIEW_OF: Partial<Record<Page, View>> = { 'Text to SQL': 'ask', Insights: 'insights', Settings: 'settings' }
+const PAGE_OF: Record<View, Page> = { dashboard: 'Dashboard', ask: 'Text to SQL', insights: 'Insights', settings: 'Settings' }
 
 type Load = { status: 'loading' } | { status: 'error'; message: string } | { status: 'ready'; wh: Warehouse }
 
@@ -60,6 +62,8 @@ export default function App() {
   const [tool, setTool] = useState<Tool | null>(null)
   // Text to SQL history lives here so leaving the page keeps the conversation.
   const [chat, setChat] = useState<TextToSqlEntry[]>([])
+  // Insights runs too, so a run keeps streaming into its history while you look at other pages.
+  const [insights, setInsights] = useState<InsightsRun[]>([])
   const closeTool = useCallback(() => setTool(null), [])
   // The header buttons open their panel, or close it when it is already open.
   const toggleTool = useCallback((t: Tool) => setTool((cur) => (cur === t ? null : t)), [])
@@ -162,6 +166,9 @@ export default function App() {
 
       {page === 'Settings' ? (
         <SettingsPage />
+      ) : page === 'Insights' ? (
+        // Insights reads the data lake through the API, so it does not wait for the warehouse.
+        <InsightsPage runs={insights} onRuns={setInsights} onSettings={() => land('Settings', {})} />
       ) : load.status === 'ready' ? (
         <RefreshContext.Provider value={refresh}>
           <PageView

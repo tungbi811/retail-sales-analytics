@@ -59,10 +59,10 @@ async function openAsk(page) {
   await page.getByRole('heading', { name: 'Text to SQL', level: 1 }).waitFor()
 }
 
-test('the rail switches between the dashboard, Text to SQL and Settings, with no theme or colour switch', async (t) => {
+test('the rail switches between the dashboard, Text to SQL, Insights and Settings, with no theme or colour switch', async (t) => {
   const { page } = await open(t)
   const labels = await rail(page).getByRole('button').evaluateAll((nodes) => nodes.map((n) => n.getAttribute('title')))
-  assert.deepEqual(labels, ['Dashboard', 'Text to SQL', 'Settings'])
+  assert.deepEqual(labels, ['Dashboard', 'Text to SQL', 'Insights', 'Settings'])
   assert.equal(await rail(page).getByRole('button', { name: 'Dashboard' }).getAttribute('aria-current'), 'page')
   assert.deepEqual(await page.locator('.nav-item').allInnerTexts(), ['Dashboard', 'Products', 'Stores', 'Customers'], 'no badge and no Text to SQL tab in the top nav')
   assert.equal(await page.getByRole('button', { name: /theme|palette|colour/i }).count(), 0)

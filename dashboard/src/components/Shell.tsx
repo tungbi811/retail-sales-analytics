@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useThumb } from '../lib/motion'
-import { LayoutDashboard, Package, Search, Settings, Sparkles } from 'lucide-react'
+import { LayoutDashboard, Package, Search, Settings, Sparkles, Telescope } from 'lucide-react'
 import type { stockAlerts } from '../data/metrics'
 
-/** Pages in the top nav. Text to SQL and Settings are reached from the rail instead. */
+/** Pages in the top nav. Text to SQL, Insights and Settings are reached from the rail instead. */
 export const PAGES = ['Dashboard', 'Products', 'Stores', 'Customers'] as const
-export type Page = (typeof PAGES)[number] | 'Text to SQL' | 'Settings'
+export type Page = (typeof PAGES)[number] | 'Text to SQL' | 'Insights' | 'Settings'
 
 type Alerts = ReturnType<typeof stockAlerts>
 
@@ -148,14 +148,15 @@ function StockBell({ alerts, onAll }: { alerts: Alerts; onAll: () => void }) {
 
 export type Tool = 'search' | 'data' | 'help'
 
-export type View = 'dashboard' | 'ask' | 'settings'
+export type View = 'dashboard' | 'ask' | 'insights' | 'settings'
 
 const VIEWS: { view: View; label: string; Icon: typeof Search }[] = [
   { view: 'dashboard', label: 'Dashboard', Icon: LayoutDashboard },
   { view: 'ask', label: 'Text to SQL', Icon: Sparkles },
+  { view: 'insights', label: 'Insights', Icon: Telescope },
 ]
 
-/** Views beside every page: the dashboard pages or Text to SQL, with Settings at the bottom. */
+/** Views beside every page: the dashboard pages, Text to SQL or Insights, with Settings at the bottom. */
 export function Rail({ view, onView }: { view: View; onView: (v: View) => void }) {
   const button = ({ view: v, label, Icon }: (typeof VIEWS)[number]) => (
     <button key={v} className="rail-btn" aria-label={label} title={label} aria-current={view === v ? 'page' : undefined} onClick={() => onView(v)}>

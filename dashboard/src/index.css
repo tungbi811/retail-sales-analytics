@@ -1657,6 +1657,74 @@ button {
   font-weight: 550;
 }
 
+/* Insights: the Text to SQL chat layout, with the agents' discussion in place of answers. */
+.ask-page.insights-page {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.insights-page .ask-chat-head {
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+}
+
+.insights-bubble {
+  white-space: pre-wrap;
+}
+
+.insights-detail {
+  max-width: 88%;
+  min-width: 0;
+  border-radius: 14px;
+  background: var(--surface-2);
+  box-shadow: 0 0 0 1px var(--line);
+  font-size: 13px;
+}
+
+.insights-detail summary {
+  padding: 8px 14px;
+  color: var(--ink-2);
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.insights-detail pre {
+  max-height: 320px;
+  margin: 0;
+  padding: 10px 14px 12px;
+  overflow: auto;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.insights-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 46px;
+  color: var(--ink-2);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.insights-reply {
+  margin-left: 46px;
+}
+
+.insights-error p {
+  margin: 0;
+}
+
+.insights-ended {
+  margin: 0 0 0 46px;
+  font-size: 13px;
+}
+
+.insights-report-text {
+  white-space: pre-wrap;
+}
+
 /* Search */
 
 .find {
