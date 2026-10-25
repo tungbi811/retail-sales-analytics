@@ -1,15 +1,18 @@
 // Month window, KPI, pace and heatmap maths behind the Dashboard. Node strips the types from metrics.ts.
+// The windows and KPI numbers come from dbt (gold.report_periods, gold.sales_monthly); here mock.ts's mirror of those
+// rules stands in for dbt, so these tests also keep the mirror honest. The rules' own tests are dbt unit tests.
 process.env.TZ = 'Asia/Ho_Chi_Minh'
 
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { categoryMix, kpis, monthPace, monthWindow, salesByTime, salesFor, stockAlerts } from '../src/data/metrics.ts'
+import { withSalesRules } from '../src/data/mock.ts'
 
 const at = (y, m, d, h = 0) => new Date(y, m, d, h)
 const sale = (sale_id, store_id, product_id, sale_datetime, quantity, amount) => ({ sale_id, store_id, product_id, customer_id: 'c', sale_datetime, quantity, amount })
 
 // January is the first month on record; February is in progress, with the last sale on 19 Feb.
-const wh = {
+const wh = withSalesRules({
   stores: [
     { store_id: 'n1', store_name: 'Hanoi showroom', region: 'Miền Bắc', city: 'Hà Nội' },
     { store_id: 'n2', store_name: 'Haiphong showroom', region: 'Miền Bắc', city: 'Hải Phòng' },
@@ -36,7 +39,7 @@ const wh = {
     { inventory_id: 'i4', store_id: 'n2', product_id: 'p1', stock_qty: 9, safety_stock: 5, is_out_of_stock: false, below_safety_stock: false },
   ],
   today: at(2024, 1, 20, 12),
-}
+})
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 0.01, `${msg ?? ''} expected ${expected}, got ${actual}`)
 
@@ -88,7 +91,7 @@ test('orders split by region on the overview and by store city inside one region
 })
 
 test('orders split keeps the top three and is empty for a month without sales', () => {
-  const many = { ...wh, stores: ['a', 'b', 'c', 'd'].map((id) => ({ store_id: id, region: 'R', city: id.toUpperCase() })) }
+  const many = withSalesRules({ ...wh, stores: ['a', 'b', 'c', 'd'].map((id) => ({ store_id: id, region: 'R', city: id.toUpperCase() })) })
   const rows = ['a', 'a', 'a', 'a', 'b', 'b', 'b', 'c', 'c', 'd'].map((s, i) => sale(`x${i}`, s, 'p1', at(2024, 1, 3, 10), 1, 10))
   const split = kpis(many, rows, monthWindow(many, 2024, 1), 'R').orders.split
   assert.deepEqual(split.map((s) => [s.label, s.share]), [['A', 0.4], ['B', 0.3], ['C', 0.2]])
@@ -100,7 +103,7 @@ test('month pace is missing for the first month on record', () => {
 })
 
 test('month pace projects the month in progress and dates the pass of last month', () => {
-  const short = { ...wh, today: at(2024, 1, 11) }
+  const short = withSalesRules({ ...wh, today: at(2024, 1, 11) })
   const rows = [sale('a', 'n1', 'p1', at(2024, 0, 15), 1, 600), sale('b', 'n1', 'p1', at(2024, 1, 5), 1, 300)]
   const p = monthPace(rows, monthWindow(short, 2024, 1))
   // 300 over 10 days is 30 a day; February 2024 has 29 days.
@@ -118,7 +121,7 @@ test('month pace can pass 100 and stops projecting once a month is over', () => 
   assert.equal(live.passed, true)
   assert.equal(live.passDate, null)
 
-  const later = { ...wh, today: at(2024, 2, 10) }
+  const later = withSalesRules({ ...wh, today: at(2024, 2, 10) })
   const closed = monthPace(wh.sales, monthWindow(later, 2024, 1))
   assert.equal(closed.current, false)
   assert.equal(closed.projected, 1000)

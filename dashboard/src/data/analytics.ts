@@ -1,5 +1,5 @@
 import type { FactSales, Warehouse } from './types'
-import { DAY, inRange, pct, sum, type RegionFilter, type Totals } from './metrics'
+import { inRange, pct, sum, type RegionFilter, type Totals } from './metrics'
 
 // Metrics for the Products, Stores and Customers pages, and the sales and stock cards on Dashboard and Products.
 // Everything is computed from the gold rows; nothing here is stored.
@@ -25,32 +25,16 @@ export interface Range {
 
 const short = (d: Date) => d.toLocaleString('en', { day: 'numeric', month: 'short' })
 
-/** The period ends at the last sale; the comparison is the equal span just before it (or a year before, for YTD). */
+/** The period's window and its comparison window from gold.report_periods: the period ends at the last sale; the
+ *  comparison is the same span of the month before (MTD), the 90 days before (90D), or last year to date (YTD). */
 export function periodRange(wh: Warehouse, p: Period): Range {
-  const to = wh.today
+  const row = wh.periods.find((x) => x.period === p)!
+  const { from_at: from, to_at: to, prev_from_at: prevFrom, prev_to_at: prevTo } = row
   const y = to.getFullYear()
   const last = new Date(to.getTime() - 1000)
-  let from: Date
-  let prevFrom: Date
-  let prevTo: Date
-  let vs: string
-  if (p === 'MTD') {
-    from = new Date(y, to.getMonth(), 1)
-    prevFrom = new Date(y, to.getMonth() - 1, 1)
-    prevTo = new Date(Math.min(from.getTime(), new Date(y, to.getMonth() - 1, to.getDate(), to.getHours(), to.getMinutes(), to.getSeconds()).getTime()))
-    const previousMonth = prevFrom.toLocaleString('en', { month: 'long' })
-    vs = prevTo.getTime() === from.getTime() ? `vs ${previousMonth}` : `vs same days of ${previousMonth}`
-  } else if (p === '90D') {
-    from = new Date(to.getTime() - 90 * DAY)
-    prevFrom = new Date(to.getTime() - 180 * DAY)
-    prevTo = from
-    vs = 'vs the 90 days before'
-  } else {
-    from = new Date(y, 0, 1)
-    prevFrom = new Date(y - 1, 0, 1)
-    prevTo = new Date(y - 1, to.getMonth(), to.getDate(), to.getHours(), to.getMinutes(), to.getSeconds())
-    vs = `vs ${y - 1} to date`
-  }
+  const previousMonth = prevFrom.toLocaleString('en', { month: 'long' })
+  const vs =
+    p === 'MTD' ? (prevTo.getTime() === from.getTime() ? `vs ${previousMonth}` : `vs same days of ${previousMonth}`) : p === '90D' ? 'vs the 90 days before' : `vs ${y - 1} to date`
   return { from, to, prevFrom, prevTo, label: `${short(from)} – ${short(last)} ${y}`, vs }
 }
 

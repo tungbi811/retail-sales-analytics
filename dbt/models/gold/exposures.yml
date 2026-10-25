@@ -15,6 +15,8 @@ exposures:
       - ref('dim_store')
       - ref('dim_product')
       - ref('stock_position')
+      - ref('report_periods')
+      - ref('sales_monthly')
     owner:
       name: Pantio analytics
 
@@ -31,6 +33,7 @@ exposures:
       - ref('stock_position')
       - ref('product_stock')
       - ref('stock_rules')
+      - ref('report_periods')
     owner:
       name: Pantio analytics
 
@@ -46,6 +49,7 @@ exposures:
       - ref('dim_product')
       - ref('stock_position')
       - ref('store_stock')
+      - ref('report_periods')
     owner:
       name: Pantio analytics
 
@@ -60,6 +64,7 @@ exposures:
       - ref('dim_customer')
       - ref('dim_product')
       - ref('dim_store')
+      - ref('report_periods')
     owner:
       name: Pantio analytics
 
@@ -79,5 +84,6 @@ exposures:
       - ref('stock_position')
       - ref('product_stock')
       - ref('store_stock')
+      - ref('sales_monthly')
     owner:
       name: Pantio analytics

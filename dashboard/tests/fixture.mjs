@@ -1,10 +1,14 @@
 // A small warehouse for the browser tests: January 2024 is the first month on record, February runs to 19 Feb.
-import { withStockRules } from '../src/data/mock.ts'
+import { withSalesRules, withStockRules } from '../src/data/mock.ts'
 
-/** The API's answer for a test warehouse: inventory gets the columns dbt adds in gold.stock_position, plus product_stock, store_stock and stock_rules. */
+/** The API's answer for a test warehouse, with the tables dbt would build from it: stock_position columns on inventory,
+ *  product_stock, store_stock, stock_rules, report_periods and sales_monthly. */
 export function asApi(wh) {
   const { inventory, productStock, storeStock, stockRules } = withStockRules(wh.stores, wh.sales, wh.inventory)
-  return { ...wh, inventory, product_stock: productStock, store_stock: storeStock, stock_rules: stockRules }
+  // As the API's loader does, "now" is one second after `today`.
+  const sales = wh.sales.map((s) => ({ ...s, sale_datetime: new Date(s.sale_datetime) }))
+  const { periods, salesMonthly } = withSalesRules({ stores: wh.stores, sales, today: new Date(new Date(wh.today).getTime() + 1000) })
+  return { ...wh, inventory, product_stock: productStock, store_stock: storeStock, stock_rules: stockRules, report_periods: periods, sales_monthly: salesMonthly }
 }
 
 const sale = (sale_id, store_id, product_id, sale_datetime, quantity, amount) => ({ sale_id, store_id, product_id, customer_id: 'a', sale_datetime, sale_date: sale_datetime.slice(0, 10), quantity, amount })

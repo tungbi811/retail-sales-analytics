@@ -45,11 +45,13 @@ export function inRange(rows: FactSales[], from: Date, to: Date) {
   })
 }
 
-/** One calendar month on the dashboard. The month in progress runs to the last sale and is compared
- *  with the same days of the month before; a finished month is compared with the whole month before. */
+/** One calendar month on the dashboard, from gold.report_periods: the month in progress runs to the last sale and is
+ *  compared with the same days of the month before; a finished month is compared with the whole month before. */
 export interface MonthWindow {
   year: number
   month: number
+  /** YYYY-MM, the key in gold.report_periods and gold.sales_monthly */
+  period: string
   from: Date
   to: Date
   prevFrom: Date
@@ -58,42 +60,46 @@ export interface MonthWindow {
   current: boolean
 }
 
+export const monthKey = (year: number, month: number) => {
+  const d = new Date(year, month, 1)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
 export function monthWindow(wh: Warehouse, year: number, month: number): MonthWindow {
-  const t = wh.today
+  const period = monthKey(year, month)
+  const p = wh.periods.find((x) => x.period === period)
+  // Months outside the data (before the first sales year) are plain calendar months with nothing to compare.
   const from = new Date(year, month, 1)
-  const end = new Date(year, month + 1, 1)
-  const current = t < end
   return {
     year,
     month,
-    from,
-    to: current ? t : end,
-    prevFrom: new Date(year, month - 1, 1),
-    prevTo: current ? new Date(year, month - 1, t.getDate(), t.getHours(), t.getMinutes()) : from,
-    current,
+    period,
+    from: p?.from_at ?? from,
+    to: p?.to_at ?? new Date(year, month + 1, 1),
+    prevFrom: p?.prev_from_at ?? new Date(year, month - 1, 1),
+    prevTo: p?.prev_to_at ?? from,
+    current: p?.is_current ?? false,
   }
 }
 
+const NO_MONTH = { revenue: 0, orders: 0, units: 0, avg_order: 0, has_previous: false, revenue_change_pct: null, orders_change_pct: null, units_change_pct: null, avg_order_change_pct: null, units_of_prev_month: null }
+
+/** The KPI cards for one month: numbers and like-for-like changes come from gold.sales_monthly. */
 export function kpis(wh: Warehouse, rows: FactSales[], w: MonthWindow, region: RegionFilter) {
-  const monthRows = inRange(rows, w.from, w.to)
-  const now = sum(monthRows)
-  const prev = sum(inRange(rows, w.prevFrom, w.prevTo))
-  const prevFull = sum(inRange(rows, w.prevFrom, w.from))
+  const monthOf = (period: string) => wh.salesMonthly.find((m) => m.month === period && m.region === region) ?? NO_MONTH
+  const m = monthOf(w.period)
 
-  // The first month on record has nothing before it: no change to report, no earlier bars to draw.
-  const hasPrev = prevFull.orders > 0
-  const change = (a: number, b: number) => (hasPrev ? pct(a, b) : null)
-
+  // The first month on record has nothing before it: no earlier bars to draw.
   const lastThree = [2, 1, 0]
     .map((back) => {
       const from = new Date(w.year, w.month - back, 1)
-      const to = back === 0 ? w.to : new Date(w.year, w.month - back + 1, 1)
-      const m = sum(inRange(rows, from, to))
-      return { label: from.toLocaleString('en', { month: 'short' }), revenue: m.revenue, orders: m.orders, back }
+      const r = monthOf(monthKey(w.year, w.month - back))
+      return { label: from.toLocaleString('en', { month: 'short' }), revenue: r.revenue, orders: r.orders, back }
     })
-    .filter((m) => m.back === 0 || m.orders > 0)
+    .filter((x) => x.back === 0 || x.orders > 0)
 
   // Where the orders came from: regions on the overview, the busiest stores inside one region.
+  const monthRows = inRange(rows, w.from, w.to)
   const stores = new Map(wh.stores.map((s) => [s.store_id, s]))
   const byKey = new Map<string, number>()
   for (const r of monthRows) {
@@ -102,21 +108,18 @@ export function kpis(wh: Warehouse, rows: FactSales[], w: MonthWindow, region: R
     byKey.set(key, (byKey.get(key) ?? 0) + 1)
   }
   const split = [...byKey.entries()]
-    .map(([label, n]) => ({ label, share: now.orders ? n / now.orders : 0 }))
+    .map(([label, n]) => ({ label, share: monthRows.length ? n / monthRows.length : 0 }))
     .sort((a, b) => b.share - a.share)
     .slice(0, 3)
 
   return {
     monthLabel: w.from.toLocaleString('en', { month: 'long', year: 'numeric' }),
     prevMonthLabel: w.prevFrom.toLocaleString('en', { month: 'short' }),
-    hasPrev,
-    revenue: { value: now.revenue, change: change(now.revenue, prev.revenue), lastThree },
-    orders: { value: now.orders, change: change(now.orders, prev.orders), split },
-    units: { value: now.units, change: change(now.units, prev.units), ofPrevMonth: hasPrev ? now.units / prevFull.units : null },
-    aov: {
-      value: now.orders ? now.revenue / now.orders : 0,
-      change: change(now.orders ? now.revenue / now.orders : 0, prev.orders ? prev.revenue / prev.orders : 0),
-    },
+    hasPrev: m.has_previous,
+    revenue: { value: m.revenue, change: m.revenue_change_pct, lastThree },
+    orders: { value: m.orders, change: m.orders_change_pct, split },
+    units: { value: m.units, change: m.units_change_pct, ofPrevMonth: m.units_of_prev_month },
+    aov: { value: m.avg_order, change: m.avg_order_change_pct },
   }
 }
 

@@ -1,4 +1,4 @@
-import type { DimCustomer, DimProduct, DimStore, FactSales, Level, ProductStock, StockPosition, StockRules, StoreStock, Warehouse } from './types'
+import type { DimCustomer, DimProduct, DimStore, FactSales, Level, ProductStock, ReportPeriod, SalesMonth, StockPosition, StockRules, StoreStock, Warehouse } from './types'
 import { DAY } from './metrics.ts'
 
 // Sample data only. Deterministic so screenshots and numbers stay stable between reloads.
@@ -224,11 +224,80 @@ export function withStockRules(stores: DimStore[], sales: SaleLike[], inventory:
   return { inventory: positions, productStock, storeStock, stockRules: RULES }
 }
 
+// The windows from dbt/models/gold/sales/report_periods.sql and the KPIs from sales_monthly.sql, for sample data and
+// test fixtures only. `now` is one second after the last sale, as the API's "today" is.
+export function reportPeriods(now: Date, firstSale: Date): ReportPeriod[] {
+  // The same moment in the month (or year) before, rolling day overflow into the next month as dbt's intervals do
+  const sameSpan = (y: number, m: number) => new Date(y, m, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds())
+  const rows: ReportPeriod[] = []
+  for (let d = new Date(firstSale.getFullYear(), 0, 1); d <= now; d = new Date(d.getFullYear(), d.getMonth() + 1, 1)) {
+    const end = new Date(d.getFullYear(), d.getMonth() + 1, 1)
+    const current = now < end
+    const prevFrom = new Date(d.getFullYear(), d.getMonth() - 1, 1)
+    const prevTo = current ? new Date(Math.min(d.getTime(), sameSpan(d.getFullYear(), d.getMonth() - 1).getTime())) : d
+    const period = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    rows.push({ period, kind: 'month', from_at: d, to_at: current ? now : end, prev_from_at: prevFrom, prev_to_at: prevTo, is_current: current })
+  }
+  const mtd = rows[rows.length - 1]
+  const yearStart = new Date(now.getFullYear(), 0, 1)
+  return [
+    ...rows,
+    { ...mtd, period: 'MTD', kind: 'period' },
+    { period: '90D', kind: 'period', from_at: new Date(now.getTime() - 90 * DAY), to_at: now, prev_from_at: new Date(now.getTime() - 180 * DAY), prev_to_at: new Date(now.getTime() - 90 * DAY), is_current: true },
+    { period: 'YTD', kind: 'period', from_at: yearStart, to_at: now, prev_from_at: new Date(now.getFullYear() - 1, 0, 1), prev_to_at: sameSpan(now.getFullYear() - 1, now.getMonth()), is_current: true },
+  ]
+}
+
+type SaleRow = { store_id: string; sale_datetime: Date; amount: number; quantity: number }
+
+export function salesMonthly(stores: DimStore[], sales: SaleRow[], periods: ReportPeriod[]): SalesMonth[] {
+  const regionOf = new Map(stores.map((s) => [s.store_id, s.region]))
+  const regionList = [...new Set(stores.map((s) => s.region)), 'All']
+  const change = (now: number, before: number) => (before === 0 ? 0 : ((now - before) / before) * 100)
+  return periods
+    .filter((p) => p.kind === 'month')
+    .flatMap((p) =>
+      regionList.map((region) => {
+        const mine = sales.filter((s) => region === 'All' || regionOf.get(s.store_id) === region)
+        const total = (from: Date, to: Date) => {
+          const rows = mine.filter((s) => s.sale_datetime >= from && s.sale_datetime < to)
+          const revenue = rows.reduce((a, s) => a + s.amount, 0)
+          return { revenue, orders: rows.length, units: rows.reduce((a, s) => a + s.quantity, 0), aov: rows.length ? revenue / rows.length : 0 }
+        }
+        const now = total(p.from_at, p.to_at)
+        const like = total(p.prev_from_at, p.prev_to_at)
+        const whole = total(p.prev_from_at, p.from_at)
+        const has = whole.orders > 0
+        return {
+          month: p.period,
+          region,
+          revenue: now.revenue,
+          orders: now.orders,
+          units: now.units,
+          avg_order: now.aov,
+          has_previous: has,
+          revenue_change_pct: has ? change(now.revenue, like.revenue) : null,
+          orders_change_pct: has ? change(now.orders, like.orders) : null,
+          units_change_pct: has ? change(now.units, like.units) : null,
+          avg_order_change_pct: has ? change(now.aov, like.aov) : null,
+          units_of_prev_month: has && whole.units ? now.units / whole.units : null,
+        }
+      }),
+    )
+}
+
+/** Adds the windows and monthly KPIs dbt would work out for this sales data, with `today` as now. */
+export function withSalesRules<T extends { stores: DimStore[]; sales: SaleRow[]; today: Date }>(wh: T) {
+  const first = new Date(Math.min(...wh.sales.map((s) => s.sale_datetime.getTime()), wh.today.getTime()))
+  const periods = reportPeriods(wh.today, first)
+  return { ...wh, periods, salesMonthly: salesMonthly(wh.stores, wh.sales, periods) }
+}
+
 export function loadMockWarehouse(): Warehouse {
   const rand = mulberry32(20261024)
   const customers = generateCustomers(rand)
   const sales = generateSales(rand)
-  return {
+  return withSalesRules({
     stores,
     products,
     customers,
@@ -236,7 +305,7 @@ export function loadMockWarehouse(): Warehouse {
     ...withStockRules(stores, sales, generateInventory(rand)),
     today: TODAY,
     syncedAt: new Date(2026, 9, 24, 6, 0),
-    source: 'sample',
+    source: 'sample' as const,
     currency: 'USD',
-  }
+  })
 }

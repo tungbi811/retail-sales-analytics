@@ -67,7 +67,9 @@ def describe_schema(connect) -> str:
         'and to dim_date on sale_date = date_day. fact_inventory is a snapshot per store x product; below_safety_stock and '
         'is_out_of_stock flag restock needs. Never sum stock across time. For sell rate, days of cover, stock level or '
         'restock cost use gold.stock_position (one row per store x product), and for a product\'s stock board lane use '
-        'gold.product_stock (region \'All\' covers every store); do not work these out from fact_sales yourself.'
+        'gold.product_stock (region \'All\' covers every store); do not work these out from fact_sales yourself. '
+        'For monthly revenue, orders, units or average order and their change against last month, use gold.sales_monthly '
+        '(region \'All\' covers every store; the month in progress is compared with the same days of the month before).'
     )
     out.append(f"Sales run from {span['first']:%Y-%m-%d} to {span['last']:%Y-%m-%d %H:%M}; treat {span['last']:%Y-%m-%d} as today.")
     return '\n'.join(out)

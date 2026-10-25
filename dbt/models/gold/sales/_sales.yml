@@ -1,0 +1,113 @@
+version: 2
+
+models:
+  - name: report_periods
+    description: >
+      The time windows every page reports on, and the window each is compared with. "Now" is one second after the
+      last sale, since the data is historical. One row per calendar month from January of the first sales year to
+      the month in progress (kind month), plus the page periods MTD, 90D and YTD (kind period). A window in progress
+      is compared with the same span of the window before, never past that window's end.
+    columns:
+      - name: period
+        description: YYYY-MM for a month, or MTD, 90D, YTD.
+        data_tests: [unique, not_null]
+      - name: kind
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [month, period]
+      - name: from_at
+        description: Start of the window, inclusive.
+      - name: to_at
+        description: End of the window, exclusive.
+      - name: prev_from_at
+        description: Start of the comparison window, inclusive.
+      - name: prev_to_at
+        description: End of the comparison window, exclusive.
+      - name: is_current
+        description: The window runs up to now rather than to its natural end.
+
+  - name: sales_monthly
+    description: >
+      One row per month per region, plus region 'All': revenue, orders, units and average order, compared like for
+      like with the month before (report_periods). Changes are null in the first month on record.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [month, region]
+    columns:
+      - name: orders
+        description: Count of fact_sales rows; each sale is one order.
+      - name: avg_order
+        description: revenue / orders, 0 without orders.
+      - name: has_previous
+        description: The whole month before has at least one order, so there is something to compare with.
+      - name: revenue_change_pct
+        description: Revenue against the comparison window, in percent. 0 when that window had no revenue.
+      - name: units_of_prev_month
+        description: Units sold as a share of the whole month before.
+
+unit_tests:
+  - name: report_periods_from_the_last_sale
+    description: Months up to the one in progress, which compares with the same days of the month before; MTD, 90D and YTD.
+    model: report_periods
+    given:
+      - input: ref('fact_sales')
+        rows:
+          - {sale_datetime: '2024-01-05 10:00:00'}
+          - {sale_datetime: '2024-02-19 20:00:00'}
+    expect:
+      rows:
+        - {period: '2024-01', kind: month, from_at: '2024-01-01 00:00:00', to_at: '2024-02-01 00:00:00', prev_from_at: '2023-12-01 00:00:00', prev_to_at: '2024-01-01 00:00:00', is_current: false}
+        - {period: '2024-02', kind: month, from_at: '2024-02-01 00:00:00', to_at: '2024-02-19 20:00:01', prev_from_at: '2024-01-01 00:00:00', prev_to_at: '2024-01-19 20:00:01', is_current: true}
+        - {period: MTD, kind: period, from_at: '2024-02-01 00:00:00', to_at: '2024-02-19 20:00:01', prev_from_at: '2024-01-01 00:00:00', prev_to_at: '2024-01-19 20:00:01', is_current: true}
+        - {period: 90D, kind: period, from_at: '2023-11-21 20:00:01', to_at: '2024-02-19 20:00:01', prev_from_at: '2023-08-23 20:00:01', prev_to_at: '2023-11-21 20:00:01', is_current: true}
+        - {period: YTD, kind: period, from_at: '2024-01-01 00:00:00', to_at: '2024-02-19 20:00:01', prev_from_at: '2023-01-01 00:00:00', prev_to_at: '2023-02-19 20:00:01', is_current: true}
+
+  - name: report_periods_never_compare_past_the_month_before
+    description: On 31 March the same days of February would run into March, so the comparison stops at 1 March.
+    model: report_periods
+    given:
+      - input: ref('fact_sales')
+        rows:
+          - {sale_datetime: '2024-03-31 10:00:00'}
+    expect:
+      rows:
+        - {period: '2024-01', prev_to_at: '2024-01-01 00:00:00'}
+        - {period: '2024-02', prev_to_at: '2024-02-01 00:00:00'}
+        - {period: '2024-03', prev_to_at: '2024-03-01 00:00:00'}
+        - {period: MTD, prev_to_at: '2024-03-01 00:00:00'}
+        - {period: 90D, prev_to_at: '2024-01-01 10:00:01'}
+        - {period: YTD, prev_to_at: '2023-03-31 10:00:01'}
+
+  - name: sales_monthly_compares_like_for_like
+    description: >
+      February is in progress to 20 Feb noon and compares with 1-20 Jan; January is the first month, so it has no
+      change. A region whose comparison window is empty shows 0% change, as long as the month before had sales.
+    model: sales_monthly
+    given:
+      - input: ref('report_periods')
+        rows:
+          - {period: '2024-01', kind: month, from_at: '2024-01-01 00:00:00', to_at: '2024-02-01 00:00:00', prev_from_at: '2023-12-01 00:00:00', prev_to_at: '2024-01-01 00:00:00', is_current: false}
+          - {period: '2024-02', kind: month, from_at: '2024-02-01 00:00:00', to_at: '2024-02-20 12:00:00', prev_from_at: '2024-01-01 00:00:00', prev_to_at: '2024-01-20 12:00:00', is_current: true}
+          - {period: MTD, kind: period, from_at: '2024-02-01 00:00:00', to_at: '2024-02-20 12:00:00', prev_from_at: '2024-01-01 00:00:00', prev_to_at: '2024-01-20 12:00:00', is_current: true}
+      - input: ref('dim_store')
+        rows:
+          - {store_id: 1, region: North}
+          - {store_id: 2, region: North}
+          - {store_id: 3, region: South}
+      - input: ref('fact_sales')
+        rows:
+          - {store_id: 1, sale_datetime: '2024-01-05 10:00:00', amount: 100, quantity: 1}
+          - {store_id: 3, sale_datetime: '2024-01-25 10:00:00', amount: 300, quantity: 4}
+          - {store_id: 1, sale_datetime: '2024-02-02 10:00:00', amount: 200, quantity: 2}
+          - {store_id: 2, sale_datetime: '2024-02-10 10:00:00', amount: 200, quantity: 2}
+          - {store_id: 3, sale_datetime: '2024-02-15 10:00:00', amount: 500, quantity: 4}
+    expect:
+      rows:
+        - {month: '2024-01', region: All, revenue: 400, orders: 2, units: 5, avg_order: 200.0, has_previous: false, revenue_change_pct: null, orders_change_pct: null, units_change_pct: null, avg_order_change_pct: null, units_of_prev_month: null}
+        - {month: '2024-01', region: North, revenue: 100, orders: 1, units: 1, avg_order: 100.0, has_previous: false, revenue_change_pct: null, orders_change_pct: null, units_change_pct: null, avg_order_change_pct: null, units_of_prev_month: null}
+        - {month: '2024-01', region: South, revenue: 300, orders: 1, units: 4, avg_order: 300.0, has_previous: false, revenue_change_pct: null, orders_change_pct: null, units_change_pct: null, avg_order_change_pct: null, units_of_prev_month: null}
+        - {month: '2024-02', region: All, revenue: 900, orders: 3, units: 8, avg_order: 300.0, has_previous: true, revenue_change_pct: 800.0, orders_change_pct: 200.0, units_change_pct: 700.0, avg_order_change_pct: 200.0, units_of_prev_month: 1.6}
+        - {month: '2024-02', region: North, revenue: 400, orders: 2, units: 4, avg_order: 200.0, has_previous: true, revenue_change_pct: 300.0, orders_change_pct: 100.0, units_change_pct: 300.0, avg_order_change_pct: 100.0, units_of_prev_month: 4.0}
+        - {month: '2024-02', region: South, revenue: 500, orders: 1, units: 4, avg_order: 500.0, has_previous: true, revenue_change_pct: 0.0, orders_change_pct: 0.0, units_change_pct: 0.0, avg_order_change_pct: 0.0, units_of_prev_month: 1.0}

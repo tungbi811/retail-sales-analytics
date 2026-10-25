@@ -84,6 +84,37 @@ export interface StoreStock {
   days_of_cover: number | null
 }
 
+/** gold.report_periods: a window the dashboard reports on, and the window it is compared with. */
+export interface ReportPeriod {
+  /** YYYY-MM for a month, or MTD, 90D, YTD */
+  period: string
+  kind: 'month' | 'period'
+  from_at: Date
+  /** Exclusive */
+  to_at: Date
+  prev_from_at: Date
+  /** Exclusive */
+  prev_to_at: Date
+  is_current: boolean
+}
+
+/** gold.sales_monthly: one month in one region (or 'All'), compared like for like with the month before. */
+export interface SalesMonth {
+  month: string
+  region: Region | 'All'
+  revenue: number
+  orders: number
+  units: number
+  avg_order: number
+  /** The whole month before had orders; without them every change is null. */
+  has_previous: boolean
+  revenue_change_pct: number | null
+  orders_change_pct: number | null
+  units_change_pct: number | null
+  avg_order_change_pct: number | null
+  units_of_prev_month: number | null
+}
+
 /** gold.stock_rules: the stock settings from dbt_project.yml. */
 export interface StockRules {
   sell_rate_days: number
@@ -101,6 +132,8 @@ export interface Warehouse {
   productStock: ProductStock[]
   storeStock: StoreStock[]
   stockRules: StockRules
+  periods: ReportPeriod[]
+  salesMonthly: SalesMonth[]
   /** The "as of" date for month-to-date figures. */
   today: Date
   /** When the pipeline last loaded the gold models. */

@@ -41,6 +41,13 @@ QUERIES = {
     ''',
     'store_stock': 'SELECT store_id::text, stock_qty::int, units_per_day, days_of_cover FROM gold.store_stock',
     'stock_rules': 'SELECT sell_rate_days, watch_days, stock_ok_below, stock_good_below FROM gold.stock_rules',
+    # The windows each page reports on and compares with, and the Dashboard's monthly KPIs; see dbt/models/gold/sales.
+    'report_periods': 'SELECT period, kind, from_at, to_at, prev_from_at, prev_to_at, is_current FROM gold.report_periods',
+    'sales_monthly': '''
+        SELECT month, region, revenue::int, orders::int, units::int, avg_order, has_previous, revenue_change_pct,
+               orders_change_pct, units_change_pct, avg_order_change_pct, units_of_prev_month
+        FROM gold.sales_monthly
+    ''',
 }
 
 
