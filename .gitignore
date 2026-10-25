@@ -21,3 +21,4 @@ wheels/
 # Local scratch: brainstorm mockups and run logs
 .superpowers/
 logs/
+lake/
