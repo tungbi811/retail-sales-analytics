@@ -1,4 +1,4 @@
-import type { DimCustomer, DimProduct, DimStore, FactSales, Level, ProductStock, ReportPeriod, SalesMonth, StockPosition, StockRules, StoreStock, Warehouse } from './types'
+import type { CustomerPeriod, DimCustomer, DimProduct, DimStore, FactSales, Level, ProductStock, ReportPeriod, SalesMonth, StockPosition, StockRules, StoreStock, Warehouse } from './types'
 import { DAY } from './metrics.ts'
 
 // Sample data only. Deterministic so screenshots and numbers stay stable between reloads.
@@ -254,13 +254,25 @@ export function salesMonthly(stores: DimStore[], sales: SaleRow[], periods: Repo
   const regionOf = new Map(stores.map((s) => [s.store_id, s.region]))
   const regionList = [...new Set(stores.map((s) => s.region)), 'All']
   const change = (now: number, before: number) => (before === 0 ? 0 : ((now - before) / before) * 100)
+  // Each region's sales once, in time order, so a window is a slice found by binary search
+  const byRegion = new Map(regionList.map((region) => [region, sales.filter((s) => region === 'All' || regionOf.get(s.store_id) === region).sort((a, b) => a.sale_datetime.getTime() - b.sale_datetime.getTime())]))
+  const firstAt = (rows: SaleRow[], t: Date) => {
+    let lo = 0
+    let hi = rows.length
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1
+      if (rows[mid].sale_datetime < t) lo = mid + 1
+      else hi = mid
+    }
+    return lo
+  }
   return periods
     .filter((p) => p.kind === 'month')
     .flatMap((p) =>
       regionList.map((region) => {
-        const mine = sales.filter((s) => region === 'All' || regionOf.get(s.store_id) === region)
+        const mine = byRegion.get(region)!
         const total = (from: Date, to: Date) => {
-          const rows = mine.filter((s) => s.sale_datetime >= from && s.sale_datetime < to)
+          const rows = mine.slice(firstAt(mine, from), firstAt(mine, to))
           const revenue = rows.reduce((a, s) => a + s.amount, 0)
           return { revenue, orders: rows.length, units: rows.reduce((a, s) => a + s.quantity, 0), aov: rows.length ? revenue / rows.length : 0 }
         }
@@ -286,11 +298,64 @@ export function salesMonthly(stores: DimStore[], sales: SaleRow[], periods: Repo
     )
 }
 
-/** Adds the windows and monthly KPIs dbt would work out for this sales data, with `today` as now. */
-export function withSalesRules<T extends { stores: DimStore[]; sales: SaleRow[]; today: Date }>(wh: T) {
+type CustomerSale = SaleRow & { customer_id: string; product_id: string }
+
+// customer_period.sql: who ordered in each page period's current and previous window, per region and 'All'.
+export function customerPeriods(stores: DimStore[], products: DimProduct[], sales: CustomerSale[], periods: ReportPeriod[]): CustomerPeriod[] {
+  const regionOf = new Map(stores.map((s) => [s.store_id, s.region]))
+  const categoryOf = new Map(products.map((p) => [p.product_id, p.category]))
+  // Most first; a tie goes to the key seen first, as Map keeps insertion order and sort is stable
+  const top = (m: Map<string, number>) => [...m.entries()].sort((a, b) => b[1] - a[1])[0][0]
+  const out: CustomerPeriod[] = []
+  for (const p of periods.filter((x) => x.kind === 'period')) {
+    for (const [time_window, from, to] of [['current', p.from_at, p.to_at], ['previous', p.prev_from_at, p.prev_to_at]] as const) {
+      for (const region of [...new Set(stores.map((s) => s.region)), 'All']) {
+        const rows = sales.filter((s) => region === 'All' || regionOf.get(s.store_id) === region)
+        const before = new Set(rows.filter((s) => s.sale_datetime < from).map((s) => s.customer_id))
+        const by = new Map<string, { revenue: number; orders: number; units: number; last: Date; cats: Map<string, number>; stores: Map<string, number> }>()
+        for (const s of rows.filter((x) => x.sale_datetime >= from && x.sale_datetime < to)) {
+          const c = by.get(s.customer_id) ?? { revenue: 0, orders: 0, units: 0, last: s.sale_datetime, cats: new Map(), stores: new Map() }
+          c.revenue += s.amount
+          c.orders += 1
+          c.units += s.quantity
+          if (s.sale_datetime > c.last) c.last = s.sale_datetime
+          const k = categoryOf.get(s.product_id)!
+          c.cats.set(k, (c.cats.get(k) ?? 0) + s.amount)
+          c.stores.set(s.store_id, (c.stores.get(s.store_id) ?? 0) + 1)
+          by.set(s.customer_id, c)
+        }
+        const ranked = [...by.entries()].sort((a, b) => b[1].revenue - a[1].revenue || (a[0] < b[0] ? -1 : 1))
+        const n = ranked.length
+        const topSize = Math.max(1, Math.round(n * 0.1))
+        const halfSize = Math.max(topSize, Math.round(n * 0.5))
+        ranked.forEach(([customer_id, c], i) =>
+          out.push({
+            period: p.period as CustomerPeriod['period'],
+            time_window,
+            region,
+            customer_id,
+            revenue: c.revenue,
+            orders: c.orders,
+            units: c.units,
+            last_order_at: c.last,
+            favourite_category: top(c.cats),
+            home_store_id: top(c.stores),
+            is_returning: before.has(customer_id),
+            revenue_rank: i + 1,
+            spend_tier: i < topSize ? 'top' : i < halfSize ? 'next' : 'rest',
+          }),
+        )
+      }
+    }
+  }
+  return out
+}
+
+/** Adds the windows, monthly KPIs and customer periods dbt would work out for this sales data, with `today` as now. */
+export function withSalesRules<T extends { stores: DimStore[]; products: DimProduct[]; sales: CustomerSale[]; today: Date }>(wh: T) {
   const first = new Date(Math.min(...wh.sales.map((s) => s.sale_datetime.getTime()), wh.today.getTime()))
   const periods = reportPeriods(wh.today, first)
-  return { ...wh, periods, salesMonthly: salesMonthly(wh.stores, wh.sales, periods) }
+  return { ...wh, periods, salesMonthly: salesMonthly(wh.stores, wh.sales, periods), customerPeriods: customerPeriods(wh.stores, wh.products, wh.sales, periods) }
 }
 
 export function loadMockWarehouse(): Warehouse {

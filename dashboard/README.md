@@ -40,8 +40,11 @@ Four tabs, each owning its own numbers so the same metric isn't shown twice:
 - **Stores**: the store map and ranking.
 - **Customers**: top customer, who buys, spend by age, customer health (active, returning, spend and orders per customer, each against the period before), who brings the revenue (top 10% / next 40% / bottom 50%), and the customer list.
 
-All four compute from the same `/api/warehouse` rows (`src/data/metrics.ts` for the dashboard cards,
-`src/data/analytics.ts` for the rest).
+All four read `/api/warehouse`. The business rules (stock levels, days of cover, lanes, the periods and what they
+are compared with, monthly KPIs, returning customers, spend tiers) are worked out in dbt (`dbt/models/gold`, see
+`dbt/README.md`); `src/data/metrics.ts` and `src/data/analytics.ts` look those up and add the breakdowns and charts.
+Sample data (`VITE_DATA=sample`) and the test fixtures have no dbt behind them, so `src/data/mock.ts` mirrors the
+rules for them.
 
 The Stores map reads `latitude` / `longitude` from `gold.dim_store`, which come from the Address, City,
 Latitude and Longitude columns of the Stores sheet. The Vietnam outline is pre-built from Natural Earth

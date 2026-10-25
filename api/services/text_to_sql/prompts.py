@@ -69,7 +69,9 @@ def describe_schema(connect) -> str:
         'restock cost use gold.stock_position (one row per store x product), and for a product\'s stock board lane use '
         'gold.product_stock (region \'All\' covers every store); do not work these out from fact_sales yourself. '
         'For monthly revenue, orders, units or average order and their change against last month, use gold.sales_monthly '
-        '(region \'All\' covers every store; the month in progress is compared with the same days of the month before).'
+        '(region \'All\' covers every store; the month in progress is compared with the same days of the month before). '
+        'For returning customers or spend tiers in this month, the last 90 days or this year, use gold.customer_period '
+        '(period MTD, 90D or YTD; time_window current or previous).'
     )
     out.append(f"Sales run from {span['first']:%Y-%m-%d} to {span['last']:%Y-%m-%d %H:%M}; treat {span['last']:%Y-%m-%d} as today.")
     return '\n'.join(out)

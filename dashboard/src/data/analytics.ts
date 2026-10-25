@@ -259,42 +259,24 @@ export function topProductsAt(wh: Warehouse, r: Range, storeId: string, n: numbe
 
 // ---------- Customers ----------
 
-export function customerStats(wh: Warehouse, rows: FactSales[], r: Range) {
-  const now = inRange(rows, r.from, r.to)
-  const before = new Set(rows.filter((s) => s.sale_datetime < r.from).map((s) => s.customer_id))
-  const cat = new Map(wh.products.map((p) => [p.product_id, p.category]))
+/** The customers who ordered in a page period (or the window it is compared with), from gold.customer_period. */
+export function customerStats(wh: Warehouse, period: Period, region: RegionFilter, window: 'current' | 'previous' = 'current') {
+  const info = new Map(wh.customers.map((c) => [c.customer_id, c]))
   const storeName = new Map(wh.stores.map((s) => [s.store_id, s.store_name]))
-
-  const by = new Map<string, { revenue: number; orders: number; units: number; last: Date; cats: Map<string, number>; stores: Map<string, number> }>()
-  for (const s of now) {
-    const c = by.get(s.customer_id) ?? { revenue: 0, orders: 0, units: 0, last: s.sale_datetime, cats: new Map(), stores: new Map() }
-    c.revenue += s.amount
-    c.orders += 1
-    c.units += s.quantity
-    if (s.sale_datetime > c.last) c.last = s.sale_datetime
-    const k = cat.get(s.product_id)!
-    c.cats.set(k, (c.cats.get(k) ?? 0) + s.amount)
-    c.stores.set(s.store_id, (c.stores.get(s.store_id) ?? 0) + 1)
-    by.set(s.customer_id, c)
-  }
-  const top = (m: Map<string, number>) => [...m.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? ''
-
-  const list = wh.customers
-    .filter((c) => by.has(c.customer_id))
-    .map((c) => {
-      const s = by.get(c.customer_id)!
-      return {
-        ...c,
-        revenue: s.revenue,
-        orders: s.orders,
-        units: s.units,
-        last: s.last,
-        favourite: top(s.cats),
-        homeStore: storeName.get(top(s.stores)) ?? '',
-        returning: before.has(c.customer_id),
-      }
-    })
-    .sort((a, b) => b.revenue - a.revenue)
+  const list = wh.customerPeriods
+    .filter((c) => c.period === period && c.region === region && c.time_window === window && info.has(c.customer_id))
+    .sort((a, b) => a.revenue_rank - b.revenue_rank)
+    .map((c) => ({
+      ...info.get(c.customer_id)!,
+      revenue: c.revenue,
+      orders: c.orders,
+      units: c.units,
+      last: c.last_order_at,
+      favourite: c.favourite_category,
+      homeStore: storeName.get(c.home_store_id) ?? '',
+      returning: c.is_returning,
+      tier: c.spend_tier,
+    }))
 
   const revenue = list.reduce((a, c) => a + c.revenue, 0)
   const orders = list.reduce((a, c) => a + c.orders, 0)
@@ -409,17 +391,17 @@ export function stackedByRegion(wh: Warehouse, rows: FactSales[], r: Range) {
 
 /** Customers split by spend: the top 10%, the next 40%, and the bottom half, with each group's share of revenue. */
 export function spendTiers(stats: CustomerStats) {
-  const list = [...stats.list].sort((a, b) => b.revenue - a.revenue)
+  // stats.list is in revenue order; each customer's tier comes from dbt (customer_period.spend_tier)
+  const list = stats.list
   const n = list.length
-  const top = n ? Math.max(1, Math.round(n * 0.1)) : 0
-  const half = Math.max(top, Math.round(n * 0.5))
   const tiers = [
-    { key: 'top', label: 'Top 10%', people: list.slice(0, top) },
-    { key: 'next', label: 'Next 40%', people: list.slice(top, half) },
-    { key: 'rest', label: 'Bottom 50%', people: list.slice(half) },
+    { key: 'top', label: 'Top 10%' },
+    { key: 'next', label: 'Next 40%' },
+    { key: 'rest', label: 'Bottom 50%' },
   ].map((t) => {
-    const revenue = t.people.reduce((a, c) => a + c.revenue, 0)
-    return { key: t.key, label: t.label, customers: t.people.length, revenue, share: stats.revenue ? revenue / stats.revenue : 0, avg: t.people.length ? revenue / t.people.length : 0 }
+    const people = list.filter((c) => c.tier === t.key)
+    const revenue = people.reduce((a, c) => a + c.revenue, 0)
+    return { key: t.key, label: t.label, customers: people.length, revenue, share: stats.revenue ? revenue / stats.revenue : 0, avg: people.length ? revenue / people.length : 0 }
   })
   const asc = list.map((c) => c.revenue).reverse()
   const median = n ? (n % 2 ? asc[(n - 1) / 2] : (asc[n / 2 - 1] + asc[n / 2]) / 2) : 0

@@ -29,10 +29,10 @@ const initials = (name: string) =>
 export function CustomersPage({ wh, region, onRegion, period, onPeriod }: Props) {
   const rows = useMemo(() => salesFor(wh, region), [wh, region])
   const range = useMemo(() => periodRange(wh, period), [wh, period])
-  const stats = useMemo(() => customerStats(wh, rows, range), [wh, rows, range])
+  const stats = useMemo(() => customerStats(wh, period, region), [wh, period, region])
   const seg = useMemo(() => segments(stats), [stats])
   const mix = useMemo(() => categoryByGender(wh, rows, range), [wh, rows, range])
-  const before = useMemo(() => customerStats(wh, rows, { ...range, from: range.prevFrom, to: range.prevTo }), [wh, rows, range])
+  const before = useMemo(() => customerStats(wh, period, region, 'previous'), [wh, period, region])
   const tiers = useMemo(() => spendTiers(stats), [stats])
   const catOrder = useMemo(() => [...new Set(wh.products.map((p) => p.category))].sort((a, b) => a.localeCompare(b)), [wh])
   const top = stats.list[0]

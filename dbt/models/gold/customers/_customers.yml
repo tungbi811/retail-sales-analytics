@@ -1,0 +1,77 @@
+version: 2
+
+models:
+  - name: customer_period
+    description: >
+      One row per customer who ordered in a page period (MTD, 90D, YTD from report_periods), in its current or
+      previous window, per region and for 'All': what they spent, what they buy most, where, whether they had
+      ordered before the window began, and their spend tier within the window.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [period, time_window, region, customer_id]
+    columns:
+      - name: time_window
+        description: current is the period itself; previous is the window it is compared with.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [current, previous]
+      - name: favourite_category
+        description: The category with the most revenue; a tie goes to the one bought first.
+      - name: home_store_id
+        description: The store with the most orders; a tie goes to the one visited first.
+      - name: is_returning
+        description: Ordered in the same region (or anywhere, for 'All') before the window began.
+      - name: revenue_rank
+        description: 1 for the biggest spender in the window; ties go to the lower customer_id as text.
+      - name: spend_tier
+        description: top (the top 10%, at least one customer), next (up to half of customers), rest.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [top, next, rest]
+
+unit_tests:
+  - name: customer_period_tiers_returning_and_favourites
+    description: >
+      February against January, for all stores and per region: returning means an earlier order in the same region,
+      tiers split 10% / 40% / 50% with at least one top customer, and ties go to what came first.
+    model: customer_period
+    given:
+      - input: ref('report_periods')
+        rows:
+          - {period: MTD, kind: period, from_at: '2024-02-01 00:00:00', to_at: '2024-03-01 00:00:00', prev_from_at: '2024-01-01 00:00:00', prev_to_at: '2024-02-01 00:00:00', is_current: true}
+          - {period: '2024-02', kind: month, from_at: '2024-02-01 00:00:00', to_at: '2024-03-01 00:00:00', prev_from_at: '2024-01-01 00:00:00', prev_to_at: '2024-02-01 00:00:00', is_current: true}
+      - input: ref('dim_store')
+        rows:
+          - {store_id: 1, region: North}
+          - {store_id: 2, region: South}
+      - input: ref('dim_product')
+        rows:
+          - {product_id: 1, category: Skin}
+          - {product_id: 2, category: Hair}
+      - input: ref('fact_sales')
+        rows:
+          - {customer_id: 1, store_id: 1, product_id: 1, sale_datetime: '2023-12-20 10:00:00', amount: 50, quantity: 1}
+          - {customer_id: 1, store_id: 1, product_id: 1, sale_datetime: '2024-01-10 10:00:00', amount: 100, quantity: 1}
+          - {customer_id: 2, store_id: 2, product_id: 1, sale_datetime: '2024-01-15 10:00:00', amount: 200, quantity: 2}
+          - {customer_id: 1, store_id: 1, product_id: 2, sale_datetime: '2024-02-05 10:00:00', amount: 300, quantity: 3}
+          - {customer_id: 1, store_id: 2, product_id: 1, sale_datetime: '2024-02-06 10:00:00', amount: 100, quantity: 1}
+          - {customer_id: 2, store_id: 2, product_id: 2, sale_datetime: '2024-02-10 10:00:00', amount: 50, quantity: 1}
+          - {customer_id: 3, store_id: 1, product_id: 1, sale_datetime: '2024-02-12 10:00:00', amount: 20, quantity: 1}
+          - {customer_id: 3, store_id: 1, product_id: 1, sale_datetime: '2024-02-13 10:00:00', amount: 20, quantity: 1}
+    expect:
+      rows:
+        - {period: MTD, time_window: current, region: All, customer_id: 1, revenue: 400, orders: 2, favourite_category: Hair, home_store_id: 1, is_returning: true, revenue_rank: 1, spend_tier: top}
+        - {period: MTD, time_window: current, region: All, customer_id: 2, revenue: 50, orders: 1, favourite_category: Hair, home_store_id: 2, is_returning: true, revenue_rank: 2, spend_tier: next}
+        - {period: MTD, time_window: current, region: All, customer_id: 3, revenue: 40, orders: 2, favourite_category: Skin, home_store_id: 1, is_returning: false, revenue_rank: 3, spend_tier: rest}
+        - {period: MTD, time_window: previous, region: All, customer_id: 2, revenue: 200, orders: 1, favourite_category: Skin, home_store_id: 2, is_returning: false, revenue_rank: 1, spend_tier: top}
+        - {period: MTD, time_window: previous, region: All, customer_id: 1, revenue: 100, orders: 1, favourite_category: Skin, home_store_id: 1, is_returning: true, revenue_rank: 2, spend_tier: rest}
+        - {period: MTD, time_window: current, region: North, customer_id: 1, revenue: 300, orders: 1, favourite_category: Hair, home_store_id: 1, is_returning: true, revenue_rank: 1, spend_tier: top}
+        - {period: MTD, time_window: current, region: North, customer_id: 3, revenue: 40, orders: 2, favourite_category: Skin, home_store_id: 1, is_returning: false, revenue_rank: 2, spend_tier: rest}
+        - {period: MTD, time_window: current, region: South, customer_id: 1, revenue: 100, orders: 1, favourite_category: Skin, home_store_id: 2, is_returning: false, revenue_rank: 1, spend_tier: top}
+        - {period: MTD, time_window: current, region: South, customer_id: 2, revenue: 50, orders: 1, favourite_category: Hair, home_store_id: 2, is_returning: true, revenue_rank: 2, spend_tier: rest}
+        - {period: MTD, time_window: previous, region: North, customer_id: 1, revenue: 100, orders: 1, favourite_category: Skin, home_store_id: 1, is_returning: true, revenue_rank: 1, spend_tier: top}
+        - {period: MTD, time_window: previous, region: South, customer_id: 2, revenue: 200, orders: 1, favourite_category: Skin, home_store_id: 2, is_returning: false, revenue_rank: 1, spend_tier: top}

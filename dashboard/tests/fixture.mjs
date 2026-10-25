@@ -2,13 +2,13 @@
 import { withSalesRules, withStockRules } from '../src/data/mock.ts'
 
 /** The API's answer for a test warehouse, with the tables dbt would build from it: stock_position columns on inventory,
- *  product_stock, store_stock, stock_rules, report_periods and sales_monthly. */
+ *  product_stock, store_stock, stock_rules, report_periods, sales_monthly and customer_period. */
 export function asApi(wh) {
   const { inventory, productStock, storeStock, stockRules } = withStockRules(wh.stores, wh.sales, wh.inventory)
   // As the API's loader does, "now" is one second after `today`.
   const sales = wh.sales.map((s) => ({ ...s, sale_datetime: new Date(s.sale_datetime) }))
-  const { periods, salesMonthly } = withSalesRules({ stores: wh.stores, sales, today: new Date(new Date(wh.today).getTime() + 1000) })
-  return { ...wh, inventory, product_stock: productStock, store_stock: storeStock, stock_rules: stockRules, report_periods: periods, sales_monthly: salesMonthly }
+  const { periods, salesMonthly, customerPeriods } = withSalesRules({ stores: wh.stores, products: wh.products, sales, today: new Date(new Date(wh.today).getTime() + 1000) })
+  return { ...wh, inventory, product_stock: productStock, store_stock: storeStock, stock_rules: stockRules, report_periods: periods, sales_monthly: salesMonthly, customer_period: customerPeriods }
 }
 
 const sale = (sale_id, store_id, product_id, sale_datetime, quantity, amount) => ({ sale_id, store_id, product_id, customer_id: 'a', sale_datetime, sale_date: sale_datetime.slice(0, 10), quantity, amount })

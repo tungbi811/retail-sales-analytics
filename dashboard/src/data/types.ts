@@ -115,6 +115,27 @@ export interface SalesMonth {
   units_of_prev_month: number | null
 }
 
+export type SpendTier = 'top' | 'next' | 'rest'
+
+/** gold.customer_period: one customer who ordered in a page period's current or previous window, in one region or 'All'. */
+export interface CustomerPeriod {
+  period: 'MTD' | '90D' | 'YTD'
+  time_window: 'current' | 'previous'
+  region: Region | 'All'
+  customer_id: string
+  revenue: number
+  orders: number
+  units: number
+  last_order_at: Date
+  favourite_category: string
+  home_store_id: string
+  /** Ordered in the same region (or anywhere, for 'All') before the window began. */
+  is_returning: boolean
+  /** 1 for the biggest spender in the window. */
+  revenue_rank: number
+  spend_tier: SpendTier
+}
+
 /** gold.stock_rules: the stock settings from dbt_project.yml. */
 export interface StockRules {
   sell_rate_days: number
@@ -134,6 +155,7 @@ export interface Warehouse {
   stockRules: StockRules
   periods: ReportPeriod[]
   salesMonthly: SalesMonth[]
+  customerPeriods: CustomerPeriod[]
   /** The "as of" date for month-to-date figures. */
   today: Date
   /** When the pipeline last loaded the gold models. */

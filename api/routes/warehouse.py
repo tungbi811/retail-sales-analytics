@@ -48,6 +48,12 @@ QUERIES = {
                orders_change_pct, units_change_pct, avg_order_change_pct, units_of_prev_month
         FROM gold.sales_monthly
     ''',
+    # Customers per page period and its comparison window; see dbt/models/gold/customers.
+    'customer_period': '''
+        SELECT period, time_window, region, customer_id::text, revenue::int, orders::int, units::int, last_order_at,
+               favourite_category, home_store_id::text, is_returning, revenue_rank::int, spend_tier
+        FROM gold.customer_period
+    ''',
 }
 
 
