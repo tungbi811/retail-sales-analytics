@@ -125,6 +125,20 @@ class AgentsTest(unittest.TestCase):
         self.assertIsInstance(reply.target, TerminateTarget)
         self.assertEqual(executor.calls, [])
 
+    def test_run_code_stopped_mid_cell_terminates_without_restart(self):
+        stopped = threading.Event()
+
+        class StoppingExecutor(FakeExecutor):
+            def execute_code_blocks(self, blocks):
+                stopped.set()
+                return super().execute_code_blocks(blocks)
+
+        executor = StoppingExecutor(RuntimeError('kernel shut down'))
+        reply = tool(Coder(executor, stopped), 'run_code')('slow()', ContextVariables())
+        self.assertEqual(reply.message, 'Stopped by the user.')
+        self.assertIsInstance(reply.target, TerminateTarget)
+        self.assertEqual(executor.calls, [['slow()']])
+
     def test_run_code_error_output_returns_first_two_lines_to_coder(self):
         executor = FakeExecutor(SimpleNamespace(exit_code=1, output='line 1\nline 2\nline 3'))
         reply = tool(Coder(executor, threading.Event()), 'run_code')('broken()', ContextVariables())

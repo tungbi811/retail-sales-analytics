@@ -54,8 +54,9 @@ def make_engagement(ref, orders, deliveries, churners, rng) -> tuple[list[dict],
             kind = 'review' if rng.random() < 0.45 else 'ticket'
             opened = timestamp + timedelta(minutes=30)
             close = opened + timedelta(days=int(rng.integers(1, 8)))
-            rating = int(rng.choice([1, 2, 3], p=[0.45, 0.40, 0.15]) if churner
-                         else rng.choice([3, 4, 5], p=[0.10, 0.35, 0.55]))
+            # Overlapping distributions: churners rate lower on average, not always.
+            rating = int(rng.choice([1, 2, 3, 4, 5], p=[0.25, 0.30, 0.25, 0.12, 0.08] if churner
+                                    else [0.04, 0.08, 0.20, 0.33, 0.35]))
             tickets.append({
                 'ticket_id': f'TICKET-{len(tickets) + 1:07d}', 'kind': kind,
                 'customer_id': customer, 'store_id': order['store_id'], 'order_id': order['order_id'],

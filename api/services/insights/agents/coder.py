@@ -21,6 +21,9 @@ class Coder(AssistantAgent):
                     [CodeBlock(language="python", code=code)]
                 )
             except Exception:
+                # Stop shuts the kernel down mid-cell; end the run instead of restarting it.
+                if stopped.is_set():
+                    return ReplyResult(message='Stopped by the user.', target=TerminateTarget())
                 try:
                     executor.restart()
                     setup_result = executor.execute_code_blocks(

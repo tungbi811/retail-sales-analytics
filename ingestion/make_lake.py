@@ -52,21 +52,20 @@ def main(out: Path = Path('lake'), xlsx: Path = Path('data/business_sale_test.xl
             'columns': {'event_id': 'Unique event ID', 'ts': 'Event timestamp with UTC offset',
                         'customer_id': 'Workbook customer ID', 'session_id': 'Session ID',
                         'type': 'visit, view, cart, checkout or login', 'product_id': 'Workbook product ID or null'},
-            'notes': 'Synthetic sessions follow recognized buyers; fading customers have less recent activity.'},
+            'notes': 'Sessions are only recorded for signed-in customers.'},
         'stock_snapshots': {
             'path': 'stock_snapshots/month=*/part-0.parquet', 'format': 'parquet', 'grain': 'end of day, store and product',
             'columns': {'snapshot_date': 'Inventory date', 'store_id': 'Workbook store ID',
                         'product_id': 'Workbook product ID', 'on_hand': 'Nonnegative units after receipts and sales',
                         'safety_stock': 'Desired buffer in units'},
-            'notes': 'Demand uses deduplicated orders. Six growing pairs have limited supplier allocations and low forward cover.'},
+            'notes': 'One snapshot per store and product per day, taken at close.'},
         'supplier_deliveries': {
             'path': 'supplier_deliveries/deliveries.csv', 'format': 'csv', 'grain': 'supplier replenishment shipment',
             'columns': {'delivery_id': 'Unique shipment ID', 'supplier': 'Supplier name', 'store_id': 'Workbook store ID',
                         'product_id': 'Workbook product ID', 'ordered_date': 'Reorder date', 'promised_date': 'Supplier promised arrival date',
                         'delivered_date': 'Actual receipt date; blank if still in transit at the observation end', 'qty': 'Shipment units'},
             'notes': 'ISO dates. Some receipts are late. A blank delivered_date means a known open shipment still in transit at the observation end, '
-                     'not missing historical receipt data. Use promised_date to schedule inbound; an overdue open shipment remains uncertain. '
-                     'Future promised receipts are inbound, not historical stock. Forward cover uses only known shipments and assumes no unplaced future reorders.'},
+                     'not missing historical receipt data. Future promised receipts are inbound, not historical stock.'},
         'promotions': {
             'path': 'promotions/promotions.json', 'format': 'json', 'grain': 'promotion campaign',
             'columns': {'promotion_id': 'Unique campaign ID', 'name': 'Campaign name', 'product_ids': 'Target product IDs',
@@ -79,7 +78,7 @@ def main(out: Path = Path('lake'), xlsx: Path = Path('data/business_sale_test.xl
                         'store_id': 'Workbook store ID', 'order_id': 'Related order ID or null', 'category': 'Issue category',
                         'rating': 'Integer 1–5 or null', 'opened_at': 'Opened timestamp; mixed ISO and YYYY/MM/DD HH:MM:SS',
                         'closed_at': 'Closed ISO timestamp or null'},
-            'notes': 'Synthetic fading customers have poorer ratings and more late-delivery complaints; normalize mixed opened_at formats.'},
+            'notes': 'opened_at mixes two timestamp formats; normalize before parsing.'},
     })
 
 

@@ -59,6 +59,10 @@ class MakeLakeTest(unittest.TestCase):
             columns = {row[0] for row in self.db.execute(f'DESCRIBE {name}').fetchall()}
             self.assertTrue(set(metadata['columns']).issubset(columns))
         self.assertEqual({v['format'] for v in catalog.values()}, {'jsonl', 'parquet', 'csv', 'json'})
+        # The agents read the catalog, so it describes the data, never the findings planted in it.
+        text = (self.root / '_catalog.json').read_text().lower()
+        for giveaway in ['churn', 'fading', 'growing', 'limited', 'poorer', 'forward cover', 'stock-out']:
+            self.assertNotIn(giveaway, text)
         self.assertEqual(len(list((self.root / 'orders').glob('dt=*/part-0.jsonl'))), 578)
         self.assertEqual(len(list((self.root / 'stock_snapshots').glob('month=*/part-0.parquet'))), 19)
         self.assertLess(sum(p.stat().st_size for p in self.root.rglob('*') if p.is_file()), 200_000_000)

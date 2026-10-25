@@ -10,6 +10,9 @@ import pandas as pd
 from ingestion import lake
 
 
+SUPPLIERS = ['Saigon Beauty Supply', 'Hanoi Cosmetics Trading', 'Delta Distribution', 'Central Goods Co']
+
+
 def make_stock(ref, orders, rng) -> tuple[pd.DataFrame, pd.DataFrame]:
     pairs = [(store, product) for store in ref.stores.store_id for product in ref.products.product_id]
     indexes = {pair: i for i, pair in enumerate(pairs)}
@@ -54,7 +57,7 @@ def make_stock(ref, orders, rng) -> tuple[pd.DataFrame, pd.DataFrame]:
                 pipeline[index] += quantity
                 deliveries.append({
                     'delivery_id': f'DEL-{len(deliveries) + 1:07d}',
-                    'supplier': 'Limited Allocation Co' if limited else f'Supplier {index % 4 + 1}',
+                    'supplier': 'Lotus Imports' if limited else SUPPLIERS[index % len(SUPPLIERS)],
                     'store_id': store, 'product_id': product,
                     'ordered_date': day.isoformat(), 'promised_date': promised.isoformat(),
                     'delivered_date': arrival.isoformat() if arrival <= lake.END else None,
