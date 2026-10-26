@@ -656,43 +656,6 @@ button {
   background: color-mix(in srgb, var(--ink) 8%, var(--surface-2));
 }
 
-.team {
-  display: flex;
-  padding: 3px;
-  border-radius: 999px;
-  background: var(--surface);
-  box-shadow: var(--shadow);
-}
-
-.avatar {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  font-size: 12px;
-  font-weight: 650;
-}
-
-.avatar-sm {
-  width: 28px;
-  height: 28px;
-  font-size: 10.5px;
-  border: 2px solid var(--surface);
-  margin-left: -6px;
-}
-
-.avatar-sm:first-child {
-  margin-left: 0;
-}
-
-.avatar-more {
-  background: var(--ink);
-  color: var(--ground);
-}
-
 /* Floating tool rail */
 
 .rail {
@@ -1246,8 +1209,7 @@ button {
     height: max(460px, calc(100dvh - 300px));
   }
 
-  .ask-list,
-  .ask-main .title-row .sync {
+  .ask-list {
     display: none;
   }
 
@@ -2223,8 +2185,8 @@ h1 {
 .sync {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 13px;
+  height: 36px;
+  padding: 0 13px;
   border-radius: 999px;
   background: var(--surface);
   box-shadow: var(--shadow);
@@ -2235,6 +2197,18 @@ h1 {
 .sync b {
   font-weight: 600;
   color: var(--ink);
+}
+
+.sync-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.sync-main:hover .sync-label {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
 }
 
 .sync-refresh {
@@ -3558,6 +3532,38 @@ h1 {
 .sync-dot-off {
   background: var(--ink-3);
   box-shadow: none;
+}
+
+.run-chip {
+  gap: 7px;
+  white-space: nowrap;
+  transition: color 0.18s;
+}
+
+.run-chip:hover b {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.run-chip-working svg {
+  animation: spin 1.2s linear infinite;
+}
+
+.run-chip-ask svg {
+  color: #d9902b;
+}
+
+.run-chip-done svg {
+  color: #2fa463;
+}
+
+.run-chip-error svg {
+  color: #e0473b;
+}
+
+.sync-dot-stale {
+  background: #d9902b;
+  box-shadow: 0 0 0 3px rgb(217 144 43 / 0.2);
 }
 
 .skeleton {
@@ -5525,8 +5531,7 @@ i.lv-deep {
 }
 
 @media (max-width: 600px) {
-  .board-mark,
-  .title-group + .sync {
+  .board-mark {
     display: none;
   }
 
@@ -6323,21 +6328,8 @@ i.lv-deep {
 
 /* ---------- Responsive ---------- */
 
+/* The header end needs the full row once the run and data chips sit beside Search, so the nav drops below. */
 @media (max-width: 1240px) {
-  .team {
-    display: none;
-  }
-
-  .kpis {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .row-a {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
-  }
-}
-
-@media (max-width: 1060px) {
   .header {
     grid-template-columns: 1fr auto;
   }
@@ -6350,6 +6342,16 @@ i.lv-deep {
     overflow-x: auto;
   }
 
+  .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .row-a {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+  }
+}
+
+@media (max-width: 1060px) {
   .row-a,
   .row-b {
     grid-template-columns: minmax(0, 1fr);
@@ -6409,8 +6411,18 @@ i.lv-deep {
 }
 
 @media (max-width: 600px) {
-  .brand-sub {
+  .brand-sub,
+  .sync-label,
+  .run-chip-label,
+  .search-btn-label,
+  .search-btn kbd {
     display: none;
+  }
+
+  .search-btn {
+    justify-content: center;
+    width: 36px;
+    padding: 0;
   }
 
   h1 {

@@ -20,7 +20,7 @@ import {
 import { dayMonth, setCurrency } from './lib/format'
 import { Header, Rail, type Page, type Tool, type View } from './components/Shell'
 import { DataPanel, HelpPanel, SearchPanel } from './components/ToolPanels'
-import { RefreshContext, SyncPill } from './components/PageHead'
+import { RefreshContext } from './components/PageHead'
 import { KpiCards } from './components/KpiCards'
 import { FirstMonth, MonthGauge, YearGauge } from './components/YearGauge'
 import { jump } from './lib/scroll'
@@ -35,7 +35,7 @@ import { StoresPage, type SortKey } from './pages/StoresPage'
 import { CustomersPage } from './pages/CustomersPage'
 import { TextToSqlPage, type TextToSqlEntry } from './pages/TextToSqlPage'
 import { SettingsPage } from './pages/SettingsPage'
-import type { InsightsRun } from './data/insights'
+import { ended, followEvents, type InsightsRun } from './data/insights'
 
 interface Intent {
   n: number
@@ -66,6 +66,8 @@ export default function App() {
   const [chat, setChat] = useState<TextToSqlEntry[]>([])
   // Insights runs too, so a run keeps streaming into its history while you look at other pages.
   const [insights, setInsights] = useState<InsightsRun[]>([])
+  // The run whose result you have seen: the header announces a finished run until you have been on Insights.
+  const [readRun, setReadRun] = useState<string | null>(null)
   const closeTool = useCallback(() => setTool(null), [])
   // The header buttons open their panel, or close it when it is already open.
   const toggleTool = useCallback((t: Tool) => setTool((cur) => (cur === t ? null : t)), [])
@@ -102,6 +104,25 @@ export default function App() {
 
   useEffect(() => fetchData(), [fetchData])
 
+  // Follow the latest run from here rather than the Insights page, so it keeps streaming while you are elsewhere.
+  // The API replays from the start, so keep only messages that are new.
+  const run = insights[insights.length - 1]
+  const runId = run?.id
+  const runLive = run !== undefined && !ended(run) && !run.id.startsWith('local-')
+  useEffect(() => {
+    if (!runId || !runLive) return
+    return followEvents(runId, (m, i) => {
+      setInsights((list) => list.map((r) => (r.id === runId && i === r.messages.length ? { ...r, messages: [...r.messages, m] } : r)))
+    })
+  }, [runId, runLive])
+  const runUnread = run !== undefined && ended(run) && readRun !== run.id
+
+  // Leaving Insights after the latest run ended means you have seen how it ended.
+  function show(p: Page) {
+    if (page === 'Insights' && run && ended(run)) setReadRun(run.id)
+    setPage(p)
+  }
+
   const wh = load.status === 'ready' ? load.wh : null
   const allAlerts = useMemo(() => (wh ? stockAlerts(wh, 'All') : []), [wh])
 
@@ -126,12 +147,12 @@ export default function App() {
 
   function open(p: Page) {
     setIntent((i) => ({ n: i.n + 1 }))
-    setPage(p)
+    show(p)
   }
 
   function land(p: Page, target: Omit<Intent, 'n'>) {
     setIntent((i) => ({ n: i.n + 1, ...target }))
-    setPage(p)
+    show(p)
     setTool(null)
   }
 
@@ -141,7 +162,7 @@ export default function App() {
   }
 
   function showAlerts() {
-    setPage('Products')
+    show('Products')
     requestAnimationFrame(() => {
       const el = document.getElementById('stock-alerts')
       el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -150,31 +171,41 @@ export default function App() {
   }
 
   return (
-    <div className="app">
-      <Header page={page} onPage={open} alerts={allAlerts} onAlerts={showAlerts} onTool={toggleTool} source={wh?.source} />
-      <Rail view={VIEW_OF[page] ?? 'dashboard'} onView={(v) => land(PAGE_OF[v], {})} />
-      {wh && tool === 'search' && <SearchPanel wh={wh} onStore={(id) => land('Stores', { store: id })} onProduct={(id) => land('Products', { product: id })} onClose={closeTool} />}
-      {wh && tool === 'data' && (
-        <DataPanel
+    <RefreshContext.Provider value={refresh}>
+      <div className="app">
+        <Header
+          page={page}
+          onPage={open}
+          alerts={allAlerts}
+          onAlerts={showAlerts}
+          onTool={toggleTool}
           wh={wh}
-          onReload={(sample) => {
-            setTool(null)
-            fetchData(sample)
-          }}
-          onClose={closeTool}
+          run={run}
+          runUnread={runUnread}
+          onRun={() => land('Insights', {})}
         />
-      )}
-      {tool === 'help' && <HelpPanel onClose={closeTool} />}
+        <Rail view={VIEW_OF[page] ?? 'dashboard'} onView={(v) => land(PAGE_OF[v], {})} />
+        {wh && tool === 'search' && <SearchPanel wh={wh} onStore={(id) => land('Stores', { store: id })} onProduct={(id) => land('Products', { product: id })} onClose={closeTool} />}
+        {wh && tool === 'data' && (
+          <DataPanel
+            wh={wh}
+            onReload={(sample) => {
+              setTool(null)
+              fetchData(sample)
+            }}
+            onClose={closeTool}
+          />
+        )}
+        {tool === 'help' && <HelpPanel onClose={closeTool} />}
 
-      {page === 'Settings' ? (
-        <SettingsPage />
-      ) : page === 'Insights' ? (
-        // Insights reads the data lake through the API, so it does not wait for the warehouse.
-        <Suspense fallback={<Loading page={page} />}>
-          <InsightsPage runs={insights} onRuns={setInsights} onSettings={() => land('Settings', {})} />
-        </Suspense>
-      ) : load.status === 'ready' ? (
-        <RefreshContext.Provider value={refresh}>
+        {page === 'Settings' ? (
+          <SettingsPage />
+        ) : page === 'Insights' ? (
+          // Insights reads the data lake through the API, so it does not wait for the warehouse.
+          <Suspense fallback={<Loading page={page} />}>
+            <InsightsPage runs={insights} onRuns={setInsights} onSettings={() => land('Settings', {})} />
+          </Suspense>
+        ) : load.status === 'ready' ? (
           <PageView
             page={page}
             wh={load.wh}
@@ -191,33 +222,33 @@ export default function App() {
             onData={() => setTool('data')}
             onSettings={() => land('Settings', {})}
           />
-        </RefreshContext.Provider>
-      ) : load.status === 'error' ? (
-        <main className="main">
-          <div className="title-row">
-            <h1>{page}</h1>
-          </div>
-          <section className="card placeholder" role="alert">
-            <h2>Can't load the warehouse</h2>
-            <p>{load.message}</p>
-            <p>
-              Start the API from the project root with <code>uv run uvicorn api.main:app --port 8000</code>, then retry.
-            </p>
-            <div className="placeholder-actions">
-              <button className="btn btn-primary" onClick={() => fetchData()}>
-                <RotateCw size={15} strokeWidth={1.8} aria-hidden="true" />
-                Retry
-              </button>
-              <button className="btn" onClick={() => fetchData(true)}>
-                Use sample data
-              </button>
+        ) : load.status === 'error' ? (
+          <main className="main">
+            <div className="title-row">
+              <h1>{page}</h1>
             </div>
-          </section>
-        </main>
-      ) : (
-        <Loading page={page} />
-      )}
-    </div>
+            <section className="card placeholder" role="alert">
+              <h2>Can't load the warehouse</h2>
+              <p>{load.message}</p>
+              <p>
+                Start the API from the project root with <code>uv run uvicorn api.main:app --port 8000</code>, then retry.
+              </p>
+              <div className="placeholder-actions">
+                <button className="btn btn-primary" onClick={() => fetchData()}>
+                  <RotateCw size={15} strokeWidth={1.8} aria-hidden="true" />
+                  Retry
+                </button>
+                <button className="btn" onClick={() => fetchData(true)}>
+                  Use sample data
+                </button>
+              </div>
+            </section>
+          </main>
+        ) : (
+          <Loading page={page} />
+        )}
+      </div>
+    </RefreshContext.Provider>
   )
 }
 
@@ -337,7 +368,6 @@ function Dashboard({ wh, go, onRank, region, onRegion: setRegion }: DashboardPro
     <main className="main">
       <div className="title-row">
         <h1>Dashboard</h1>
-        <SyncPill wh={wh} />
       </div>
 
       <div className="toolbar">

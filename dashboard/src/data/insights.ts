@@ -21,6 +21,8 @@ export interface InsightsRun {
   messages: StreamMessage[]
   startedAt: number
   previous?: Previous
+  /** Message count when the last agent question was answered, so it stops waiting until the agents ask again. */
+  answered?: number
 }
 
 async function post(path: string, body?: unknown): Promise<Response> {
@@ -85,3 +87,7 @@ export function followEvents(id: string, onMessage: (m: StreamMessage, i: number
 export const agentName = (agent: string) => agent.replace(/([a-z])([A-Z])/g, '$1 $2')
 
 export const ended = (run: InsightsRun) => run.messages.some((m) => m.kind === 'end')
+
+/** The agents asked something and are waiting for an answer. */
+export const waiting = (run: InsightsRun) =>
+  !ended(run) && run.messages[run.messages.length - 1]?.kind === 'ask' && run.answered !== run.messages.length

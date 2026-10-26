@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { CornerDownRight, Lightbulb, MessageSquarePlus, Send, Settings, Square, X } from 'lucide-react'
-import { agentName, ended, followEvents, reply, startRun, stop, type InsightsRun, type Previous, type StreamMessage } from '../data/insights'
+import { agentName, ended, reply, startRun, stop, waiting, type InsightsRun, type Previous, type StreamMessage } from '../data/insights'
 import { count, time } from '../lib/format'
 import { Md, Report } from '../components/Report'
 
@@ -41,14 +41,12 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
   const [selected, setSelected] = useState<string | null>(null)
   // A report the next question follows up on.
   const [followUp, setFollowUp] = useState<Previous | null>(null)
-  // "<run id>:<message count>" of the last question answered, so its box closes until the agents ask again.
-  const [answered, setAnswered] = useState<string | null>(null)
   const [replyError, setReplyError] = useState<string | null>(null)
   const input = useRef<HTMLTextAreaElement>(null)
   const run = runs[runs.length - 1]
   const going = run !== undefined && !ended(run)
   const shown = runs.find((r) => r.id === selected) ?? run
-  const asking = going && run.messages[run.messages.length - 1]?.kind === 'ask' && answered !== `${run.id}:${run.messages.length}`
+  const asking = going && waiting(run)
   // One box at the bottom: a new question when nothing is running, the reply when an agent asks, and none while they work.
   const mode = !going ? 'ask' : asking ? 'reply' : null
   const current = providers?.find((p) => p.active)
@@ -61,16 +59,6 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
       .then(setProviders)
       .catch(() => setProviders([]))
   }, [])
-
-  // Follow the latest run while it is going. The API replays from the start, so keep only messages that are new.
-  const runId = run?.id
-  const live = going && !runId?.startsWith('local-')
-  useEffect(() => {
-    if (!runId || !live) return
-    return followEvents(runId, (m, i) =>
-      onRuns((list) => list.map((r) => (r.id === runId && i === r.messages.length ? { ...r, messages: [...r.messages, m] } : r))),
-    )
-  }, [runId, live, onRuns])
 
   function ask(question: string, previous?: Previous) {
     const q = question.trim()
@@ -99,12 +87,13 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
       ask(draft, followUp ?? undefined)
       setFollowUp(null)
     } else if (mode === 'reply' && draft.trim()) {
-      const key = `${run.id}:${run.messages.length}`
+      const { id } = run
+      const asked = run.messages.length
       const text = draft.trim()
       setReplyError(null)
-      reply(run.id, text)
+      reply(id, text)
         .then(() => {
-          setAnswered(key)
+          onRuns((list) => list.map((r) => (r.id === id ? { ...r, answered: asked } : r)))
           setDraft('')
         })
         .catch((err: Error) => setReplyError(err.message))
@@ -138,10 +127,6 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
             <button onClick={onSettings}>Change in Settings</button>
           </p>
         </div>
-        <p className="sync">
-          <span className="sync-dot" aria-hidden="true" />
-          <b>Read-only</b> data lake and gold models
-        </p>
       </div>
 
       <section className="ask-page insights-page">

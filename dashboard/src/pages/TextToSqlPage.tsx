@@ -139,10 +139,6 @@ export function TextToSqlPage({ wh, entries, onEntries, onData, onSettings }: Pr
             <button onClick={onSettings}>Change in Settings</button>
           </p>
         </div>
-        <p className="sync">
-          <span className="sync-dot" aria-hidden="true" />
-          <b>Read-only</b> gold models
-        </p>
       </div>
 
       <section className="ask-page">

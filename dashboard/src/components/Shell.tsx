@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useThumb } from '../lib/motion'
-import { LayoutDashboard, Package, Search, Settings, Sparkles, Lightbulb } from 'lucide-react'
+import { CircleAlert, CircleCheck, LayoutDashboard, LoaderCircle, MessageCircleQuestion, Package, Search, Settings, Sparkles, Lightbulb } from 'lucide-react'
 import type { stockAlerts } from '../data/metrics'
+import { ended, waiting, type InsightsRun } from '../data/insights'
+import type { Warehouse } from '../data/types'
+import { SyncPill } from './PageHead'
 
 /** Pages in the top nav. Text to SQL, Insights and Settings are reached from the rail instead. */
 export const PAGES = ['Dashboard', 'Products', 'Stores', 'Customers'] as const
@@ -16,10 +19,16 @@ interface HeaderProps {
   onAlerts: () => void
   /** Toggles a tool panel: search from the search button, data from the source line under the brand. */
   onTool: (t: Tool) => void
-  source?: 'postgres' | 'sample'
+  /** Null while the warehouse loads or after it failed to. */
+  wh: Warehouse | null
+  /** The latest Insights run, and whether it ended while you were on another page. */
+  run?: InsightsRun
+  runUnread: boolean
+  onRun: () => void
 }
 
-export function Header({ page, onPage, alerts, onAlerts, onTool, source }: HeaderProps) {
+export function Header({ page, onPage, alerts, onAlerts, onTool, wh, run, runUnread, onRun }: HeaderProps) {
+  const source = wh?.source
   const navRef = useRef<HTMLElement>(null)
   const thumb = useThumb(navRef, '[aria-current="page"]', [page])
   return (
@@ -56,23 +65,49 @@ export function Header({ page, onPage, alerts, onAlerts, onTool, source }: Heade
       <div className="header-end">
         <button className="search-btn" aria-label="Search, press /" data-panel-toggle onClick={() => onTool('search')}>
           <Search size={15} strokeWidth={1.8} aria-hidden="true" />
-          Search
+          <span className="search-btn-label">Search</span>
           <kbd aria-hidden="true">/</kbd>
         </button>
         <StockBell alerts={alerts} onAll={onAlerts} />
-        <div className="team" aria-label="Team: 5 people">
-          {['MR', 'JO', 'AP'].map((i) => (
-            <span key={i} className="avatar avatar-sm">
-              {i}
-            </span>
-          ))}
-          <span className="avatar avatar-sm avatar-more">+2</span>
-        </div>
-        <span className="avatar" aria-label="Your account">
-          MR
-        </span>
+        {page !== 'Insights' && run && <RunChip run={run} unread={runUnread} onOpen={onRun} />}
+        <SyncPill wh={wh} onData={() => onTool('data')} />
       </div>
     </header>
+  )
+}
+
+/**
+ * The Insights run away from its page: working, waiting on your answer, or finished since you last looked.
+ * Hidden otherwise. Opens Insights.
+ */
+function RunChip({ run, unread, onOpen }: { run: InsightsRun; unread: boolean; onOpen: () => void }) {
+  const going = !ended(run)
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    if (!going) return
+    const t = setInterval(() => setNow(Date.now()), 15_000)
+    return () => clearInterval(t)
+  }, [going])
+
+  const end = run.messages.find((m) => m.kind === 'end')
+  const state = waiting(run) ? 'ask' : going ? 'working' : unread && end?.status === 'done' ? 'done' : unread && end?.status === 'error' ? 'error' : null
+  if (!state) return null
+  const minutes = Math.floor((now - run.startedAt) / 60_000)
+  const [Icon, label, detail] = {
+    working: [LoaderCircle, 'Agents working', minutes < 1 ? 'just started' : `${minutes} min`],
+    ask: [MessageCircleQuestion, 'Agents need your answer', null],
+    done: [CircleCheck, 'Report ready', null],
+    error: [CircleAlert, 'Insights run failed', null],
+  }[state] as [typeof Search, string, string | null]
+
+  return (
+    <button className={`sync run-chip run-chip-${state}`} title={run.question} onClick={onOpen} role="status">
+      <Icon size={15} strokeWidth={2} aria-hidden="true" />
+      <span className="run-chip-label">
+        <b>{label}</b>
+        {detail && ` · ${detail}`}
+      </span>
+    </button>
   )
 }
 
