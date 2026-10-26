@@ -50,5 +50,28 @@ def describe_gold(connect) -> str:
     return f'## Gold warehouse\nCleaned Postgres tables built from the Excel file, read with `gold(sql)`.\n\n{lines}'
 
 
+def lake_span(root: Path = LAKE) -> tuple[str, str] | None:
+    '''First and last order day in the lake.'''
+    if not (root / 'orders').exists():
+        return None
+    with duckdb.connect() as conn:
+        conn.execute("SET TimeZone = 'UTC'")
+        first, last = conn.execute(f"SELECT min(ts)::DATE, max(ts)::DATE FROM read_json_auto('{root}/orders/dt=*/part-0.jsonl')").fetchone()
+    return str(first), str(last)
+
+
+def usage(span: tuple[str, str] | None) -> str:
+    '''Which data answers which kind of question. Facts about the sources, never findings.'''
+    history = f'daily history from {span[0]} to {span[1]}' if span else 'daily history'
+    return (
+        '## Which data to use\n'
+        f'- The data lake has the {history}. Use it for anything over time: trends, seasonality, forecasts, '
+        'demand, lead times, promotion effects and customer behaviour.\n'
+        '- The gold warehouse is a cleaned snapshot built from one Excel file, with a shorter sales window. '
+        'Use it for names and attributes (product names and categories, store names and regions, customer details), '
+        'and to cross-check totals.\n'
+        '- Lake IDs are strings; cast them to integers to join gold tables. Name products and stores in results, not only IDs.')
+
+
 def data_info(connect) -> str:
-    return f'{describe_lake()}\n\n{describe_gold(connect)}'
+    return f'{usage(lake_span())}\n\n{describe_lake()}\n\n{describe_gold(connect)}'

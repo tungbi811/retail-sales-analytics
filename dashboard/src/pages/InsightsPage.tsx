@@ -380,7 +380,9 @@ function Status({ run }: { run: InsightsRun }) {
     return () => clearInterval(t)
   }, [])
   const last = run.messages.findLast((m) => 'agent' in m && m.agent !== 'User')
-  const who = last && 'agent' in last ? agentName(last.agent) : 'Business Analyst'
+  // After a hand-off, the agent it went to is the one working; after code, the Coder until its result is back.
+  const next = last?.kind === 'output' && last.tool ? NEXT[last.tool] : last?.kind === 'code' ? 'Coder' : undefined
+  const who = next ?? (last && 'agent' in last ? agentName(last.agent) : 'Business Analyst')
   const s = Math.max(0, Math.floor((now - run.startedAt) / 1000))
   return (
     <p className="insights-status" role="status">
@@ -400,6 +402,13 @@ const HANDOFFS: Record<string, string> = {
   execute_business_translation_step: 'Asked the Data Scientist',
   execute_data_scientist_step: 'Asked the Coder',
   complete_data_scientist_task: 'Findings for the Business Translator',
+}
+const NEXT: Record<string, string> = {
+  complete_business_analyst: 'Business Translator',
+  execute_business_translation_step: 'Data Scientist',
+  execute_data_scientist_step: 'Coder',
+  complete_data_scientist_task: 'Business Translator',
+  run_code: 'Data Scientist',
 }
 const FOLDED: Record<string, string> = { get_data_info: 'read the data catalog', run_code: 'result' }
 

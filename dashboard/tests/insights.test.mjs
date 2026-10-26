@@ -23,7 +23,7 @@ const DISCUSSION = [
   { kind: 'message', agent: 'BusinessAnalyst', text: 'Framed as a 30-day stock-out forecast per store and product.' },
   { kind: 'message', agent: 'DataScientist', text: 'Estimate daily demand from orders, then compare with stock and inbound deliveries.' },
   { kind: 'code', agent: 'Coder', code: "duckdb.sql(f\"select count(*) from read_json_auto('{LAKE}/orders/*/*.jsonl')\")" },
-  { kind: 'output', agent: 'Coder', text: 'Output:\n173263' },
+  { kind: 'output', agent: 'Coder', tool: 'run_code', text: 'Output:\n173263' },
 ]
 
 /** The API's stream: every message so far, replayed from the start. A long retry keeps the browser from reconnecting mid-test. */
@@ -97,7 +97,8 @@ test('hide discussion leaves one status line', async (t) => {
   await page.getByText('Framed as a 30-day stock-out forecast per store and product.').waitFor()
   await page.getByRole('button', { name: 'Hide discussion' }).click()
   assert.equal(await page.locator('.ask-log .ask-in').count(), 0)
-  assert.match(await page.getByRole('status').innerText(), /^Coder is working · \d+:\d\d$/)
+  // The last item is the Coder's result, so the Data Scientist is reading it now.
+  assert.match(await page.getByRole('status').innerText(), /^Data Scientist is working · \d+:\d\d$/)
   await page.getByRole('button', { name: 'Show discussion' }).click()
   assert.equal(await page.locator('.ask-log .ask-in').count(), 4)
 })

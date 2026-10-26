@@ -49,7 +49,20 @@ class DataTest(unittest.TestCase):
 
     def test_data_info_combines_lake_and_gold(self):
         with mock.patch.object(data, 'describe_lake', return_value='lake sample'), \
-             mock.patch.object(data, 'describe_gold', return_value='gold columns'):
+             mock.patch.object(data, 'describe_gold', return_value='gold columns'), \
+             mock.patch.object(data, 'lake_span', return_value=('2023-01-01', '2024-07-31')):
             result = data.data_info(object())
         self.assertIn('lake sample', result)
         self.assertIn('gold columns', result)
+        # Says which data suits forecasts and where names live, so the agents don't forecast from a snapshot.
+        self.assertTrue(result.startswith('## Which data to use'))
+        self.assertIn('daily history from 2023-01-01 to 2024-07-31', result)
+        self.assertIn('cast them to integers to join gold', result)
+
+    def test_lake_span_reads_the_order_days(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / 'lake'
+            with mock.patch.object(lake, 'START', date(2024, 7, 18)), mock.patch.object(lake, 'END', date(2024, 7, 31)):
+                make_lake.main(root)
+            self.assertEqual(data.lake_span(root), ('2024-07-18', '2024-07-31'))
+            self.assertIsNone(data.lake_span(Path(directory) / 'missing'))
