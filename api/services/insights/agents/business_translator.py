@@ -75,6 +75,15 @@ class BusinessTranslator(ConversableAgent):
                     - Use clear, persuasive, and business-oriented language suitable for executives and decision-makers.
                     - Keep recommendations practical, relevant, and impact-focused.
                     - Always ensure traceability from research question → analytical finding → business recommendation.
+                    - Whenever the answer includes a prediction, add a short "How reliable is this?" section in plain words:
+                      how far off it was when tested on recent data it had not seen, in the question's own units and as a
+                      percentage, and how that compares with a simple guess. For example: "Tested on the last 3 months, the
+                      forecast was off by about 0.9B a month (about 9%), a third better than repeating last year's figures."
+                      For yes/no predictions, say it as "of every 10 customers it flagged, about 7 did stop buying".
+                      Do not name metrics such as MAE or precision.
+                    - Every number in the report must come from the Data Scientist's findings; never estimate, round up from
+                      memory or invent one. If a prediction arrives without test errors, call execute_business_translation_step
+                      to ask for a back-test on held-out recent data before writing the report.
                 """
             ),
             functions = [execute_business_translation_step]

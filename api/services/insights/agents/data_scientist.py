@@ -69,6 +69,20 @@ class DataScientist(ConversableAgent):
                   different period: use it only to look up product, store and customer names, never for figures.
                 - Work at the grain the data has: stock and deliveries are per store and product.
 
+                Predictions (forecasts, churn, stock-outs, any model):
+                - Hold back the most recent stretch of history as a test period (for a 3-month forecast, the last 3 months;
+                  otherwise the latest 20% by time). Never score a model on data it was trained on.
+                - Start from a simple baseline (the same as last period or last year, or the most common outcome), then try
+                  2–3 models and tune their main settings with a small search using time-ordered cross-validation (for
+                  example Holt-Winters trend and seasonal options, or gradient boosting depth and learning rate). Keep each
+                  code step well under 20 minutes.
+                - Choose by the lowest error on the test period among all candidates, the baseline included. Forecast with
+                  the winner, retrained on all the history; when the baseline wins, the forecast is the baseline's.
+                - With the findings, pass on: the model kept, the test period, its error on that period (MAE and MAPE for
+                  amounts; accuracy, precision and recall for yes/no outcomes) and the baseline's error on the same period.
+                - A prediction is not finished until the Coder has printed those test errors. Do not call
+                  complete_data_scientist_task for a prediction before then.
+
                 Rules:
                 - If you need to build a machine learning model, you should choose a robust model instead of a simple model like Linear Regression or Logistic Regression.
                 - Do not ask vague or open-ended questions for coders. The requirement should be small and specific.
