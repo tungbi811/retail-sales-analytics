@@ -85,12 +85,22 @@ class SettingsTest(unittest.TestCase):
         self.assertEqual(out['provider'], 'openai')
         by_id = {p['id']: p for p in out['providers']}
         self.assertEqual((by_id['claude']['key'], by_id['openai']['key'], by_id['gemini']['key']), ('…1234', None, None))
-        self.assertEqual((by_id['openai']['model'], by_id['openai']['default']), ('gpt-test', 'gpt-6.1-sol'))
+        self.assertEqual((by_id['openai']['model'], by_id['openai']['default']), ('gpt-test', 'gpt-5.4-mini'))
         self.assertNotIn('secret', json.dumps(out))
 
-    def test_without_a_choice_claude_is_active(self):
-        os.environ['TEXT_TO_SQL_PROVIDER'] = 'nonsense'
-        self.assertEqual(self.http.get('/api/settings/ai').json()['provider'], 'claude')
+    def test_without_a_valid_choice_openai_mini_is_active(self):
+        for choice in [None, 'nonsense']:
+            with self.subTest(choice=choice):
+                if choice is None:
+                    os.environ.pop('TEXT_TO_SQL_PROVIDER', None)
+                else:
+                    os.environ['TEXT_TO_SQL_PROVIDER'] = choice
+                out = self.http.get('/api/settings/ai').json()
+                self.assertEqual(out['provider'], 'openai')
+                selected = next(p for p in out['providers'] if p['id'] == out['provider'])
+                self.assertEqual(selected['model'], 'gpt-5.4-mini')
+                listed = self.http.get('/api/text-to-sql/providers').json()
+                self.assertEqual([(p['id'], p['model']) for p in listed if p['active']], [('openai', 'gpt-5.4-mini')])
 
     def test_saving_writes_the_env_file_and_applies_at_once(self):
         out = self.http.put('/api/settings/ai', json={'provider': 'gemini', 'model': 'gemini-test', 'key': 'AIza-new-9876'}).json()
@@ -125,9 +135,9 @@ class SettingsTest(unittest.TestCase):
         self.assertEqual(self.env_file.read_text(), 'POSTGRES_HOST=localhost\n')
 
     def test_models_come_from_the_provider_using_the_pasted_key(self):
-        built = self.fake(FakeModels([SimpleNamespace(id=i) for i in ['gpt-6.1-sol', 'text-embedding-4', 'gpt-6-realtime', 'o5-mini', 'dall-e-4']]))
+        built = self.fake(FakeModels([SimpleNamespace(id=i) for i in ['gpt-5.4-mini', 'text-embedding-4', 'gpt-6-realtime', 'o5-mini', 'dall-e-4']]))
         out = self.http.post('/api/settings/ai/models', json={'provider': 'openai', 'key': 'sk-pasted'}).json()
-        self.assertEqual(out, {'models': ['gpt-6.1-sol', 'o5-mini'], 'error': None})
+        self.assertEqual(out, {'models': ['gpt-5.4-mini', 'o5-mini'], 'error': None})
         self.assertEqual(built, [('openai', 'sk-pasted')])
 
     def test_gemini_lists_only_models_that_generate_text(self):

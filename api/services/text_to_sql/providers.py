@@ -16,7 +16,7 @@ from api.services.text_to_sql.prompts import ANSWER_SCHEMA
 # id: (label, default model, env vars that hold its key)
 PROVIDERS = {
     'claude': ('Claude', 'claude-opus-5-5', ['ANTHROPIC_API_KEY', 'ANTHROPIC_AUTH_TOKEN']),
-    'openai': ('OpenAI', 'gpt-6.1-sol', ['OPENAI_API_KEY']),
+    'openai': ('OpenAI', 'gpt-5.4-mini', ['OPENAI_API_KEY']),
     'gemini': ('Gemini', 'gemini-3.8-flash', ['GEMINI_API_KEY', 'GOOGLE_API_KEY']),
 }
 
@@ -29,7 +29,7 @@ OPENAI_OTHER = re.compile(r'audio|realtime|tts|transcribe|image|search|embedding
 
 def active_provider() -> str:
     provider = os.getenv(PROVIDER_VAR, '')
-    return provider if provider in PROVIDERS else 'claude'
+    return provider if provider in PROVIDERS else 'openai'
 
 
 def model_var(provider: str) -> str:

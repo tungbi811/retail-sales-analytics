@@ -116,11 +116,14 @@ class OtherProvidersTest(unittest.TestCase):
             p.start()
             self.addCleanup(p.stop)
 
+    @mock.patch.dict('os.environ', {}, clear=True)
     def test_openai_gets_the_schema_as_a_strict_format_and_repairs_in_the_same_conversation(self):
         client = FakeOpenAI(text('DELETE FROM x'), text('SELECT 1'))
         out = service.answer('How many?', None, 'openai', client)
-        self.assertEqual((out['provider'], out['model'], out['sql']), ('openai', 'gpt-6.1-sol', 'SELECT 1'))
+        self.assertEqual((out['provider'], out['model'], out['sql']), ('openai', 'gpt-5.4-mini', 'SELECT 1'))
         first, second = client.requests
+        self.assertEqual(first['model'], 'gpt-5.4-mini')
+        self.assertEqual(second['model'], 'gpt-5.4-mini')
         self.assertEqual(first['text']['format']['strict'], True)
         self.assertIn('gold.fact_sales', first['instructions'])
         self.assertEqual([m['role'] for m in second['input']], ['user', 'assistant', 'user'])
