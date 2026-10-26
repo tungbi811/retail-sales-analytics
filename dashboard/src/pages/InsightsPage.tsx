@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { ChevronDown, ChevronUp, CornerDownRight, Lightbulb, MessageSquarePlus, Send, Settings, Square, X } from 'lucide-react'
 import { agentName, ended, followEvents, reply, startRun, stop, type InsightsRun, type Previous, type StreamMessage } from '../data/insights'
 import { count, time } from '../lib/format'
-import { Report } from '../components/Report'
+import { Md, Report } from '../components/Report'
 
 interface Provider {
   id: string
@@ -394,16 +394,50 @@ function Status({ run }: { run: InsightsRun }) {
   )
 }
 
+// What each agent tool's result is, in plain words. Hand-offs show open; data and code stay folded.
+const HANDOFFS: Record<string, string> = {
+  complete_business_analyst: 'Framed the question',
+  execute_business_translation_step: 'Asked the Data Scientist',
+  execute_data_scientist_step: 'Asked the Coder',
+  complete_data_scientist_task: 'Findings for the Business Translator',
+}
+const FOLDED: Record<string, string> = { get_data_info: 'read the data catalog', run_code: 'result' }
+
 function Item({ m }: { m: StreamMessage }) {
+  if ((m.kind === 'message' || m.kind === 'ask') && m.agent === 'User')
+    return (
+      <div className="ask-out">
+        <p className="ask-q">{m.text}</p>
+        <span className="ask-meta">
+          <b>You</b>
+        </span>
+      </div>
+    )
   if (m.kind === 'message' || m.kind === 'ask')
     return (
-      <div className={m.agent === 'User' ? 'ask-out' : 'ask-in'}>
-        {m.agent !== 'User' && <Avatar agent={m.agent} />}
+      <div className="ask-in">
+        <Avatar agent={m.agent} />
         <div className="ask-in-body">
-          <p className={m.agent === 'User' ? 'ask-q' : 'ask-bubble insights-bubble'}>{m.text}</p>
+          <div className="ask-bubble insights-bubble">
+            <Md text={m.text} />
+          </div>
           <span className="ask-meta">
-            <b>{m.agent === 'User' ? 'You' : agentName(m.agent)}</b>
+            <b>{agentName(m.agent)}</b>
           </span>
+        </div>
+      </div>
+    )
+  if (m.kind === 'output' && m.tool && HANDOFFS[m.tool])
+    return (
+      <div className="ask-in">
+        <Avatar agent={m.agent} />
+        <div className="ask-in-body">
+          <div className="insights-handoff">
+            <p className="insights-handoff-label">
+              {agentName(m.agent)} · {HANDOFFS[m.tool]}
+            </p>
+            <Md text={m.text} />
+          </div>
         </div>
       </div>
     )
@@ -414,9 +448,9 @@ function Item({ m }: { m: StreamMessage }) {
         <div className="ask-in-body">
           <details className="insights-detail">
             <summary>
-              {agentName(m.agent)} · {m.kind === 'code' ? 'ran code' : 'result'}
+              {agentName(m.agent)} · {m.kind === 'code' ? 'ran code' : FOLDED[m.tool ?? ''] ?? 'result'}
             </summary>
-            <pre>{m.kind === 'code' ? m.code : m.text}</pre>
+            {m.kind === 'output' && m.tool === 'get_data_info' ? <Md text={m.text} /> : <pre>{m.kind === 'code' ? m.code : m.text}</pre>}
           </details>
         </div>
       </div>

@@ -241,3 +241,25 @@ test('suggested questions start a run from the list on the left', async (t) => {
   assert.deepEqual(posts, [{ path: 'runs', body: { question: 'Which promotions actually lifted sales, and by how much?' } }])
   assert.equal(await page.getByRole('list', { name: 'Questions to try' }).count(), 0, 'the list gives way to the asked questions')
 })
+
+test('hand-offs read as labelled cards, agent messages as Markdown, and your reply as a full bubble', async (t) => {
+  const { page } = await open(t, {
+    messages: [
+      { kind: 'output', agent: 'BusinessAnalyst', tool: 'get_data_info', text: '## Data lake\n\n### orders\n174,134 rows' },
+      { kind: 'output', agent: 'BusinessTranslator', tool: 'execute_business_translation_step', text: 'Data Scientist, please help:\n\nMeasure **lift** per promotion.' },
+      { kind: 'message', agent: 'User', text: 'everything' },
+      { kind: 'message', agent: 'DataScientist', text: 'Plan:\n\n1. Baseline per product\n2. Lift per promotion' },
+    ],
+  })
+  await ask(page)
+  const handoff = page.locator('.insights-handoff')
+  await handoff.waitFor()
+  assert.equal(await handoff.locator('.insights-handoff-label').innerText(), 'Business Translator · Asked the Data Scientist')
+  assert.equal(await handoff.locator('strong').innerText(), 'lift')
+  assert.equal(await page.locator('.insights-detail summary').innerText(), 'Business Analyst · read the data catalog')
+  assert.equal(await page.locator('.insights-bubble ol li').count(), 2, 'numbered lists render as lists')
+  const reply = page.locator('.ask-log .ask-q', { hasText: 'everything' })
+  const box = await reply.boundingBox()
+  assert.ok(box.width > 90, `"everything" fits on one line (was ${box.width}px wide)`)
+  assert.equal(await reply.innerText(), 'everything')
+})

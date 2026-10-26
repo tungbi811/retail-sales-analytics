@@ -1673,7 +1673,32 @@ button {
 }
 
 .insights-bubble {
-  white-space: pre-wrap;
+  max-width: min(88%, 760px);
+}
+
+/* A hand-off between agents: a quiet card with what was passed on. */
+.insights-handoff {
+  max-width: min(88%, 760px);
+  padding: 10px 16px 12px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+.insights-handoff-label {
+  margin: 0 0 4px;
+  color: var(--ink-3);
+  font-size: 12px;
+  font-weight: 550;
+}
+
+.insights-handoff .md {
+  font-size: 13.5px;
+}
+
+.insights-detail .md {
+  padding: 10px 14px 12px;
+  border-top: 1px solid var(--line);
 }
 
 .insights-detail {
@@ -1787,55 +1812,57 @@ button {
   font-weight: 550;
 }
 
-.report-body {
+.md {
+  min-width: 0;
   font-size: 14px;
   line-height: 1.55;
+  overflow-wrap: anywhere;
 }
 
-.report-body > :first-child {
+.md > :first-child {
   margin-top: 0;
 }
 
-.report-body > :last-child {
+.md > :last-child {
   margin-bottom: 0;
 }
 
-.report-body h1,
-.report-body h2,
-.report-body h3 {
+.md h1,
+.md h2,
+.md h3 {
   margin: 18px 0 6px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
-.report-body h1 {
+.md h1 {
   font-size: 20px;
 }
 
-.report-body h2 {
+.md h2 {
   font-size: 17px;
 }
 
-.report-body h3 {
+.md h3 {
   font-size: 15px;
 }
 
-.report-body p,
-.report-body ul,
-.report-body ol {
+.md p,
+.md ul,
+.md ol {
   margin: 8px 0;
 }
 
-.report-body ul,
-.report-body ol {
+.md ul,
+.md ol {
   padding-left: 22px;
 }
 
-.report-body li + li {
+.md li + li {
   margin-top: 3px;
 }
 
-.report-body code {
+.md code {
   padding: 1px 5px;
   border-radius: 6px;
   background: var(--surface-2);

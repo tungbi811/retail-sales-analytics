@@ -1,5 +1,6 @@
 """One agent-team run in a background thread: its kernel, its message log, and the user's replies and Stop."""
 
+import json
 import threading
 from pathlib import Path
 from uuid import uuid4
@@ -64,6 +65,20 @@ class Run:
         if server is not None:
             server.stop()
 
+    def _log(self, event) -> None:
+        '''Appends one AG2 event to the run's transcript, for finding out afterwards why a run went the way it did.'''
+        content = event.content
+        entry = {'type': event.type, 'sender': getattr(content, 'sender', None)}
+        if getattr(content, 'tool_calls', None):
+            entry['tool_calls'] = [{'name': c.function.name, 'arguments': c.function.arguments} for c in content.tool_calls]
+        elif getattr(content, 'content', None) is not None:
+            entry['content'] = str(content.content)
+        try:
+            with (self.workdir / 'transcript.jsonl').open('a', encoding='utf-8') as f:
+                f.write(json.dumps(entry, ensure_ascii=False) + '\n')
+        except (OSError, TypeError):
+            pass  # a transcript is a debugging aid, never a reason to fail the run
+
     def _work(self) -> None:
         try:
             server, executor = open_kernel(self.workdir)
@@ -74,6 +89,7 @@ class Run:
             response = GroupChat(self.connect, executor, self.stopped).run(follow_up_message(self.question, self.previous))
             translator = Translator()
             for event in response.events:
+                self._log(event)
                 if self.stopped.is_set():
                     # Keep draining so AG2 can finish; anything it asks now gets "exit".
                     if event.type == 'input_request':

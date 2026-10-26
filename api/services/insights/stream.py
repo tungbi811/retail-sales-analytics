@@ -1,6 +1,7 @@
 """Turn AG2 group-chat events into the plain messages the dashboard shows, following the old Streamlit rules."""
 
 import json
+import textwrap
 
 
 def follow_up_message(question: str, previous: dict | None) -> str:
@@ -38,10 +39,11 @@ class Translator:
             return []
         if event.type == 'tool_response':
             agent, tool, self.caller, self.tool = self.caller or 'System', self.tool, None, None
-            self.last_agent, self.last_text = None, str(content.content)
+            # The old tools build messages in indented f-strings; Markdown would read that indent as code.
+            self.last_agent, self.last_text = None, textwrap.dedent(str(content.content)).strip()
             if tool == 'request_clarification':
                 return []  # the question to the user follows as an ask, with this text
-            return [{'kind': 'output', 'agent': agent, 'text': self.last_text}]
+            return [{'kind': 'output', 'agent': agent, 'tool': tool or '', 'text': self.last_text}]
         if event.type == 'input_request':
             if self.last_agent == 'BusinessTranslator':
                 content.respond('exit')

@@ -56,6 +56,12 @@ class BusinessTranslator(ConversableAgent):
                     - Tailor recommendations to each stakeholder group’s goals and decision areas.
                     - Ensure that each recommendation includes a rationale backed by the Data Scientist’s findings (what metric or pattern supports it).
 
+                    Data access:
+                    - The Data Scientist and the Coder can read every data lake source and gold table the Business Analyst listed.
+                      Never ask the user for data, tables or results: get every number through execute_business_translation_step.
+                    - Your first action is always a call to execute_business_translation_step. Write the final report only after
+                      the Data Scientist has returned findings for every research question.
+
                     Workflow:
                     1. Review the {research_questions} and analyze {stakeholders_expectations} to identify key desired outcomes and KPIs.
                     2. For each step in your plan, call execute_business_translation_step to delegate the implementation or computation to the DataScientist agent.

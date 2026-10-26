@@ -148,10 +148,12 @@ class AgentsTest(unittest.TestCase):
 
     def test_get_data_info_uses_lake_and_gold(self):
         connect = object()
-        with mock.patch.object(business_analyst, 'data_info', return_value='lake and gold') as describe, \
-             mock.patch.object(business_analyst, 'convert_message_to_markdown', side_effect=lambda message: f'# {message}'):
+        # data_info is Markdown already; asking a model to rewrite ~10k characters lost most of them.
+        with mock.patch.object(business_analyst, 'data_info', return_value='## Data lake') as describe, \
+             mock.patch.object(business_analyst, 'convert_message_to_markdown') as convert:
             reply = tool(BusinessAnalyst(connect), 'get_data_info')()
-        self.assertEqual(reply.message, '# lake and gold')
+        self.assertEqual(reply.message, '## Data lake')
+        convert.assert_not_called()
         self.assertEqual(reply.target.agent_name, 'BusinessAnalyst')
         describe.assert_called_once_with(connect)
 

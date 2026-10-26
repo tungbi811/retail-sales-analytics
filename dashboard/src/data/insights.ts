@@ -4,7 +4,7 @@
 export type StreamMessage =
   | { kind: 'message'; agent: string; text: string }
   | { kind: 'code'; agent: 'Coder'; code: string }
-  | { kind: 'output'; agent: string; text: string }
+  | { kind: 'output'; agent: string; tool?: string; text: string }
   | { kind: 'ask'; agent: 'BusinessAnalyst'; text: string }
   | { kind: 'report'; text: string }
   | { kind: 'error'; text: string }

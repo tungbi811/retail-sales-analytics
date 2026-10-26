@@ -62,18 +62,24 @@ class TranslatorTest(unittest.TestCase):
         ]
         messages = [m for event in events for m in translator.feed(event)]
         self.assertEqual(messages, [
-            {'kind': 'output', 'agent': 'BusinessAnalyst', 'text': 'Six lake sources'},
+            {'kind': 'output', 'agent': 'BusinessAnalyst', 'tool': 'get_data_info', 'text': 'Six lake sources'},
             {'kind': 'message', 'agent': 'BusinessAnalyst', 'text': 'Framed as a 30-day stock-out forecast.'},
             {'kind': 'message', 'agent': 'BusinessTranslator', 'text': 'Step 1: estimate daily demand.'},
             {'kind': 'message', 'agent': 'DataScientist', 'text': 'Load orders and stock snapshots.'},
             {'kind': 'code', 'agent': 'Coder', 'code': 'print(1)'},
-            {'kind': 'output', 'agent': 'Coder', 'text': 'Output:\n1'},
+            {'kind': 'output', 'agent': 'Coder', 'tool': 'run_code', 'text': 'Output:\n1'},
             {'kind': 'message', 'agent': 'User', 'text': 'Only North, please.'},
             {'kind': 'end', 'status': 'done'},
         ])
 
     def test_tool_response_without_a_call_is_from_system(self):
-        self.assertEqual(Translator().feed(tool_response('stray')), [{'kind': 'output', 'agent': 'System', 'text': 'stray'}])
+        self.assertEqual(Translator().feed(tool_response('stray')), [{'kind': 'output', 'agent': 'System', 'tool': '', 'text': 'stray'}])
+
+    def test_tool_text_loses_its_code_indent(self):
+        translator = Translator()
+        translator.feed(tool_call('BusinessTranslator', 'execute_business_translation_step'))
+        out = translator.feed(tool_response('\n            Data Scientist, please help:\n\n            Measure promotion lift.\n        '))
+        self.assertEqual(out[0]['text'], 'Data Scientist, please help:\n\nMeasure promotion lift.')
 
     def test_follow_up_message_carries_context(self):
         self.assertEqual(follow_up_message('Which stores?', None), 'Which stores?')

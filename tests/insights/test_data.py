@@ -10,22 +10,25 @@ from ingestion import lake, make_lake
 
 
 class DataTest(unittest.TestCase):
-    def test_describe_lake_lists_six_sources_with_samples(self):
+    def test_describe_lake_is_markdown_with_every_source_column_and_a_sample(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / 'lake'
             with mock.patch.object(lake, 'START', date(2024, 7, 18)), mock.patch.object(lake, 'END', date(2024, 7, 31)):
                 make_lake.main(root)
-            result = json.loads(data.describe_lake(root))
-            self.assertEqual(set(result), {'orders', 'web_events', 'stock_snapshots',
-                                           'supplier_deliveries', 'promotions', 'support_tickets'})
+            result = data.describe_lake(root)
             catalog = json.loads((root / '_catalog.json').read_text())
-            for source, entry in result.items():
+            self.assertTrue(result.startswith('## Data lake'))
+            for source, entry in catalog.items():
                 with self.subTest(source=source):
-                    self.assertEqual(entry['catalog'], catalog[source])
-                    self.assertEqual(len(entry['sample_rows']), 3)
-                    self.assertTrue(set(catalog[source]['columns']) <= set(entry['sample_rows'][0]))
-            self.assertIsInstance(result['orders']['sample_rows'][0]['lines'], list)
-            self.assertGreater(result['supplier_deliveries']['sample_rows'][0]['qty'], 0)
+                    self.assertIn(f'### {source}', result)
+                    self.assertIn(f"read_{'json_auto' if entry['format'] in ('json', 'jsonl') else 'csv_auto' if entry['format'] == 'csv' else 'parquet'}('{{LAKE}}/{entry['path']}')", result)
+                    self.assertIn(entry['notes'], result)
+                    for column in entry['columns']:
+                        self.assertIn(f'| `{column}` |', result)
+            self.assertRegex(result, r'### orders\n.*\d[\d,]* rows')
+            self.assertEqual(result.count('Sample row:'), 6)
+            # Read the whole thing as the model would: no JSON blobs it has to unpack.
+            self.assertNotIn('"sample_rows"', result)
 
     def test_describe_lake_without_catalog_says_how_to_make_it(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -38,8 +41,8 @@ class DataTest(unittest.TestCase):
             {'table_name': 'dim_store', 'column_name': 'store_id', 'data_type': 'bigint'},
         ]
         result = data.describe_gold(lambda: connection)
-        for value in ('fact_sales', 'revenue', 'numeric', 'dim_store', 'store_id', 'bigint'):
-            self.assertIn(value, result)
+        self.assertIn('- `gold.fact_sales`: revenue (numeric)', result)
+        self.assertIn('- `gold.dim_store`: store_id (bigint)', result)
         query = connection.__enter__.return_value.execute.call_args.args[0]
         self.assertIn('information_schema.columns', query)
         self.assertIn("table_schema = 'gold'", query)

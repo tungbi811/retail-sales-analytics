@@ -81,9 +81,9 @@ def complete_business_analyst(
 class BusinessAnalyst(AssistantAgent):
     def __init__(self, connect):
         def get_data_info() -> ReplyResult:
-            markdown_response = convert_message_to_markdown(data_info(connect))
+            # data_info is Markdown already; a model rewriting ~10k characters of it dropped most of them.
             return ReplyResult(
-                message=markdown_response,
+                message=data_info(connect),
                 target=AgentNameTarget("BusinessAnalyst")
             )
 
