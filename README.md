@@ -19,6 +19,10 @@ data/*.xlsx → ingestion/ → bronze → dbt/ → silver → gold → api/ → 
 | `dashboard/` | React + Vite dashboard; see `dashboard/README.md`                                  |
 | `tests/`     | Python tests for `api/`                                                            |
 
+## Architecture
+
+![Pantio architecture: Excel and raw files land in the data lake. Excel goes into Postgres bronze, and dbt builds silver and gold, scheduled by Airflow. The other files go to the Insights agent team through DuckDB. FastAPI serves gold and the agents' reports to the dashboard, text to SQL and the model providers.](docs/architecture.svg)
+
 ## Setup
 
 ```bash

@@ -1,0 +1,688 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -12 1964 884" width="1964" height="884" role="img" aria-label="Pantio data architecture"><title>Pantio data architecture</title><style>
+text { font-family: Nunito, 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+.march { animation: march 0.9s linear infinite; }
+@keyframes march { to { stroke-dashoffset: calc(-1 * var(--gap, 14)); } }
+[class^="m-"] { transform-box: view-box; transform-origin: 12px 12px; }
+[class^="swap"] { transform-box: view-box; }
+.swap2 { animation: swap2 4.8s ease-in-out infinite; }
+@keyframes swap2 { 0%, 40% { opacity: 1; transform: scale(1); } 50%, 90% { opacity: 0; transform: scale(0.4) rotate(-20deg); } 100% { opacity: 1; transform: scale(1); } }
+.swap3 { animation: swap3 6.6s ease-in-out infinite; }
+@keyframes swap3 { 0%, 26% { opacity: 1; transform: scale(1); } 33%, 93% { opacity: 0; transform: scale(0.4) rotate(-20deg); } 100% { opacity: 1; transform: scale(1); } }
+.swap4 { animation: swap4 8.4s ease-in-out infinite; }
+@keyframes swap4 { 0%, 20% { opacity: 1; transform: scale(1); } 25%, 95% { opacity: 0; transform: scale(0.4) rotate(-20deg); } 100% { opacity: 1; transform: scale(1); } }
+.layer { animation: layer 3.6s ease-out infinite both; }
+@keyframes layer { 0% { opacity: 0; transform: translateY(-6px); } 18%, 82% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+.blink { animation: blink 1.3s ease-in-out infinite both; }
+@keyframes blink { 0%, 100% { opacity: 0.15; } 40% { opacity: 1; } }
+.m-spin { animation: spin 6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.detail { stroke-dasharray: 1; animation: draw 3.6s ease-in-out infinite; }
+@keyframes draw { 0% { stroke-dashoffset: 1; } 45%, 100% { stroke-dashoffset: 0; } }
+.m-bob2 { animation: bob 3.4s ease-in-out infinite; }
+.m-bob { animation: bob 2.6s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-2.6px); } }
+.m-drive { animation: drive 3s ease-in-out infinite; }
+@keyframes drive { 25% { transform: translateX(3.5px); } 75% { transform: translateX(-3.5px); } }
+.m-pulse { animation: pulse 2.4s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.18); } }
+.m-tilt { animation: tilt 2.8s ease-in-out infinite; }
+@keyframes tilt { 25% { transform: rotate(-18deg); } 75% { transform: rotate(18deg); } }
+.m-sway { animation: sway 3.2s ease-in-out infinite; }
+@keyframes sway { 50% { transform: translateX(3px); } }
+@media (prefers-reduced-motion: reduce) {
+  .march, [class^="m-"], [class^="swap"], .detail, .layer, .blink { animation: none; }
+  .alt { display: none; }
+  .dot { display: none; }
+}
+</style><defs><marker id="dot-1f9e78" viewBox="0 0 12 12" refX="6" refY="6" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse"><circle cx="6" cy="6" r="6" fill="#1f9e78"/></marker><marker id="dot-1c7ed6" viewBox="0 0 12 12" refX="6" refY="6" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse"><circle cx="6" cy="6" r="6" fill="#1c7ed6"/></marker><marker id="dot-7c5cd6" viewBox="0 0 12 12" refX="6" refY="6" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse"><circle cx="6" cy="6" r="6" fill="#7c5cd6"/></marker><marker id="dot-8E75B2" viewBox="0 0 12 12" refX="6" refY="6" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse"><circle cx="6" cy="6" r="6" fill="#8E75B2"/></marker></defs><rect x="-10" y="-12" width="1964" height="884" fill="#ffffff"/><text y="44.3" font-size="34" fill="#1f9e78" text-anchor="middle"><tspan x="985.0" dy="0.0">Pantio data architecture</tspan></text>
+<text y="139.0" font-size="20" fill="#1f9e78" text-anchor="middle"><tspan x="80.0" dy="0.0">Data sources</tspan></text>
+<g class="swap2" style="animation-delay:0.00s;transform-origin:80.0px 195.0px"><svg x="56.0" y="171.0" width="48" height="48" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-still" style="animation-delay:3.63s;transform-origin:12px 12px">
+  <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+  <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:3.63s" d="M8 13h2" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:3.63s" d="M14 13h2" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:3.63s" d="M8 17h2" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:3.63s" d="M14 17h2" />
+</g></svg></g>
+<g class="swap2 alt" style="animation-delay:-2.40s;transform-origin:80.0px 195.0px"><svg x="56.0" y="171.0" width="48" height="48" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-still" style="animation-delay:3.26s;transform-origin:12px 12px">
+  <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+  <line x1="3" x2="21" y1="9" y2="9" />
+  <line class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:3.26s" x1="3" x2="21" y1="15" y2="15" />
+  <line class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:3.26s" x1="9" x2="9" y1="9" y2="21" />
+  <line class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:3.26s" x1="15" x2="15" y1="9" y2="21" />
+</g></svg></g>
+<text y="244.2" font-size="16" fill="#1e2b45" text-anchor="middle"><tspan x="80.0" dy="0.0">Excel workbook</tspan></text>
+<text y="264.3" font-size="14" fill="#6e6e69" text-anchor="middle"><tspan x="80.0" dy="0.0">data/*.xlsx</tspan></text>
+<text y="294.4" font-size="13" fill="#6e6e69" text-anchor="middle"><tspan x="80.0" dy="0.0">Raw files from</tspan><tspan x="80.0" dy="16.2">make_lake.py</tspan></text>
+<svg x="62.0" y="342.0" width="36" height="36" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-drive" style="animation-delay:2.89s;transform-origin:12px 12px">
+  <circle cx="8" cy="21" r="1" />
+  <circle class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:2.89s" cx="19" cy="21" r="1" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:2.89s" d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+</g></svg>
+<text y="401.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="80.0" dy="0.0">Orders</tspan></text>
+<path d="M135.0 360.0 Q165.0 344.0 232.0 344.0" fill="none" stroke="#1f9e78" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-start="url(#dot-1f9e78)"/>
+<circle class="dot" r="4.5" fill="#1f9e78"><animateMotion dur="1.40s" begin="0.00s" repeatCount="indefinite" path="M135.0 360.0 Q165.0 344.0 232.0 344.0"/></circle>
+<svg x="62.0" y="422.0" width="36" height="36" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-pulse" style="animation-delay:2.52s;transform-origin:12px 12px">
+  <path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:2.52s" d="M12 22V12" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:2.52s" d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:2.52s" d="m7.5 4.27 9 5.15" />
+</g></svg>
+<text y="481.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="80.0" dy="0.0">Stock snapshots</tspan></text>
+<path d="M135.0 440.0 Q165.0 424.0 232.0 424.0" fill="none" stroke="#1f9e78" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-start="url(#dot-1f9e78)"/>
+<circle class="dot" r="4.5" fill="#1f9e78"><animateMotion dur="1.40s" begin="0.00s" repeatCount="indefinite" path="M135.0 440.0 Q165.0 424.0 232.0 424.0"/></circle>
+<svg x="62.0" y="502.0" width="36" height="36" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-drive" style="animation-delay:2.15s;transform-origin:12px 12px">
+  <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:2.15s" d="M15 18H9" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:2.15s" d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" />
+  <circle class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:2.15s" cx="17" cy="18" r="2" />
+  <circle class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:2.15s" cx="7" cy="18" r="2" />
+</g></svg>
+<text y="561.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="80.0" dy="0.0">Supplier deliveries</tspan></text>
+<path d="M135.0 520.0 Q165.0 504.0 232.0 504.0" fill="none" stroke="#1f9e78" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-start="url(#dot-1f9e78)"/>
+<circle class="dot" r="4.5" fill="#1f9e78"><animateMotion dur="1.40s" begin="0.00s" repeatCount="indefinite" path="M135.0 520.0 Q165.0 504.0 232.0 504.0"/></circle>
+<svg x="62.0" y="582.0" width="36" height="36" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-pulse" style="animation-delay:1.78s;transform-origin:12px 12px">
+  <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:1.78s" d="m15 9-6 6" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:1.78s" d="M9 9h.01" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:1.78s" d="M15 15h.01" />
+</g></svg>
+<text y="641.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="80.0" dy="0.0">Promotions</tspan></text>
+<path d="M135.0 600.0 Q165.0 584.0 232.0 584.0" fill="none" stroke="#1f9e78" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-start="url(#dot-1f9e78)"/>
+<circle class="dot" r="4.5" fill="#1f9e78"><animateMotion dur="1.40s" begin="0.00s" repeatCount="indefinite" path="M135.0 600.0 Q165.0 584.0 232.0 584.0"/></circle>
+<svg x="62.0" y="662.0" width="36" height="36" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-pulse" style="animation-delay:1.41s;transform-origin:12px 12px">
+  <path d="M14 4.1 12 6" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:1.41s" d="m5.1 8-2.9-.8" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:1.41s" d="m6 12-1.9 2" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:1.41s" d="M7.2 2.2 8 5.1" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:1.41s" d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z" />
+</g></svg>
+<text y="721.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="80.0" dy="0.0">Web events</tspan></text>
+<path d="M135.0 680.0 Q165.0 664.0 232.0 664.0" fill="none" stroke="#1f9e78" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-start="url(#dot-1f9e78)"/>
+<circle class="dot" r="4.5" fill="#1f9e78"><animateMotion dur="1.40s" begin="0.00s" repeatCount="indefinite" path="M135.0 680.0 Q165.0 664.0 232.0 664.0"/></circle>
+<svg x="62.0" y="742.0" width="36" height="36" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-bob2" style="animation-delay:1.04s;transform-origin:12px 12px">
+  <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:1.04s" d="M13 5v2" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:1.04s" d="M13 17v2" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:1.04s" d="M13 11v2" />
+</g></svg>
+<text y="801.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="80.0" dy="0.0">Support tickets</tspan></text>
+<path d="M135.0 760.0 Q165.0 744.0 232.0 744.0" fill="none" stroke="#1f9e78" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-start="url(#dot-1f9e78)"/>
+<circle class="dot" r="4.5" fill="#1f9e78"><animateMotion dur="1.40s" begin="0.00s" repeatCount="indefinite" path="M135.0 760.0 Q165.0 744.0 232.0 744.0"/></circle>
+<path d="M135.0 195.0 Q165.0 179.0 232.0 179.0" fill="none" stroke="#1f9e78" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-start="url(#dot-1f9e78)"/>
+<circle class="dot" r="4.5" fill="#1f9e78"><animateMotion dur="1.40s" begin="0.00s" repeatCount="indefinite" path="M135.0 195.0 Q165.0 179.0 232.0 179.0"/></circle>
+<path d="M240.0 162.0 L240.0 810.0" fill="none" stroke="#5cc2a6" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" class="march" stroke-dasharray="14 14" style="--gap:29"/>
+<rect x="290" y="135" width="230" height="675" fill="none" stroke="#1f9e78" stroke-width="2" stroke-dasharray="9 7"/>
+<text y="166.0" font-size="20" fill="#1f9e78" text-anchor="middle"><tspan x="405.0" dy="0.0">Data lake</tspan></text>
+<path d="M250.0 480.0 L285.0 480.0" fill="none" stroke="#1f9e78" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle class="dot" r="4.5" fill="#1f9e78"><animateMotion dur="1.40s" begin="0.00s" repeatCount="indefinite" path="M250.0 480.0 L285.0 480.0"/></circle>
+<svg x="328.0" y="211.0" width="88" height="88" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-sway" style="animation-delay:0.67s;transform-origin:12px 12px">
+  <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:0.67s" d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:0.67s" d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+</g></svg>
+<text y="324.4" font-size="13" fill="#6e6e69" text-anchor="middle"><tspan x="405.0" dy="0.0">every source lands here,</tspan><tspan x="405.0" dy="16.2">partitioned by day or month</tspan></text>
+<g class="swap4" style="animation-delay:0.00s;transform-origin:405.0px 430.0px"><svg x="383.0" y="408.0" width="44" height="44" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-still" style="animation-delay:0.30s;transform-origin:12px 12px">
+  <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+  <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:0.30s" d="M8 13h2" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:0.30s" d="M14 13h2" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:0.30s" d="M8 17h2" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:0.30s" d="M14 17h2" />
+</g></svg></g>
+<g class="swap4 alt" style="animation-delay:-2.10s;transform-origin:405.0px 430.0px"><svg x="383.0" y="408.0" width="44" height="44" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-still" style="animation-delay:3.93s;transform-origin:12px 12px">
+  <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+  <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:3.93s" d="M10 12a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1 1 1 0 0 1 1 1v1a1 1 0 0 0 1 1" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:3.93s" d="M14 18a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1" />
+</g></svg></g>
+<g class="swap4 alt" style="animation-delay:-4.20s;transform-origin:405.0px 430.0px"><svg x="383.0" y="408.0" width="44" height="44" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-still" style="animation-delay:3.56s;transform-origin:12px 12px">
+  <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+  <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:3.56s" d="M10 9H8" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:3.56s" d="M16 13H8" />
+  <path class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:3.56s" d="M16 17H8" />
+</g></svg></g>
+<g class="swap4 alt" style="animation-delay:-6.30s;transform-origin:405.0px 430.0px"><svg x="383.0" y="408.0" width="44" height="44" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-still" style="animation-delay:3.19s;transform-origin:12px 12px">
+  <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+  <line x1="3" x2="21" y1="9" y2="9" />
+  <line class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:3.19s" x1="3" x2="21" y1="15" y2="15" />
+  <line class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:3.19s" x1="9" x2="9" y1="9" y2="21" />
+  <line class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:3.19s" x1="15" x2="15" y1="9" y2="21" />
+</g></svg></g>
+<text y="475.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="405.0" dy="0.0">Excel · JSON · CSV · Parquet</tspan></text>
+<text y="512.4" font-size="13" fill="#6e6e69" text-anchor="middle"><tspan x="405.0" dy="0.0">_catalog.json describes</tspan><tspan x="405.0" dy="16.2">every source</tspan></text>
+<svg x="384.0" y="629.0" width="42" height="42" overflow="visible" fill="#1e2b45" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g class="m-bob" style="animation-delay:2.82s;transform-origin:12px 12px"><path d="M12 0C5.363 0 0 5.363 0 12s5.363 12 12 12 12-5.363 12-12S18.637 0 12 0zM9.502 7.03a4.974 4.974 0 0 1 4.97 4.97 4.974 4.974 0 0 1-4.97 4.97A4.974 4.974 0 0 1 4.532 12a4.974 4.974 0 0 1 4.97-4.97zm6.563 3.183h2.351c.98 0 1.787.782 1.787 1.762s-.807 1.789-1.787 1.789h-2.351v-3.551z"/></g></svg>
+<text y="695.2" font-size="15" fill="#1e2b45" text-anchor="middle"><tspan x="405.0" dy="0.0">Read with DuckDB</tspan></text>
+<rect x="560" y="85" width="730" height="725" fill="none" stroke="#1f9e78" stroke-width="2" stroke-dasharray="9 7"/>
+<rect x="580" y="150" width="690" height="215" fill="none" stroke="#1f9e78" stroke-width="2" stroke-dasharray="9 7"/>
+<text y="181.0" font-size="20" fill="#1f9e78" text-anchor="middle"><tspan x="925.0" dy="0.0">Postgres warehouse</tspan></text>
+<svg x="803.0" y="163.0" width="24" height="24" overflow="visible" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><g class="m-pulse" style="animation-delay:2.45s;transform-origin:64px 64px"><path d="M93.809 92.112c.785-6.533.55-7.492 5.416-6.433l1.235.108c3.742.17 8.637-.602 11.513-1.938 6.191-2.873 9.861-7.668 3.758-6.409-13.924 2.873-14.881-1.842-14.881-1.842 14.703-21.815 20.849-49.508 15.543-56.287-14.47-18.489-39.517-9.746-39.936-9.52l-.134.025c-2.751-.571-5.83-.912-9.289-.968-6.301-.104-11.082 1.652-14.709 4.402 0 0-44.683-18.409-42.604 23.151.442 8.841 12.672 66.898 27.26 49.362 5.332-6.412 10.484-11.834 10.484-11.834 2.558 1.699 5.622 2.567 8.834 2.255l.249-.212c-.078.796-.044 1.575.099 2.497-3.757 4.199-2.653 4.936-10.166 6.482-7.602 1.566-3.136 4.355-.221 5.084 3.535.884 11.712 2.136 17.238-5.598l-.22.882c1.474 1.18 1.375 8.477 1.583 13.69.209 5.214.558 10.079 1.621 12.948 1.063 2.868 2.317 10.256 12.191 8.14 8.252-1.764 14.561-4.309 15.136-27.985"/><path d="M75.458 125.256c-4.367 0-7.211-1.689-8.938-3.32-2.607-2.46-3.641-5.629-4.259-7.522l-.267-.79c-1.244-3.358-1.666-8.193-1.916-14.419-.038-.935-.064-1.898-.093-2.919-.021-.747-.047-1.684-.085-2.664a18.8 18.8 0 01-4.962 1.568c-3.079.526-6.389.356-9.84-.507-2.435-.609-4.965-1.871-6.407-3.82-4.203 3.681-8.212 3.182-10.396 2.453-3.853-1.285-7.301-4.896-10.542-11.037-2.309-4.375-4.542-10.075-6.638-16.943-3.65-11.96-5.969-24.557-6.175-28.693C4.292 23.698 7.777 14.44 15.296 9.129 27.157.751 45.128 5.678 51.68 7.915c4.402-2.653 9.581-3.944 15.433-3.851 3.143.051 6.136.327 8.916.823 2.9-.912 8.628-2.221 15.185-2.139 12.081.144 22.092 4.852 28.949 13.615 4.894 6.252 2.474 19.381.597 26.651-2.642 10.226-7.271 21.102-12.957 30.57 1.544.011 3.781-.174 6.961-.831 6.274-1.295 8.109 2.069 8.607 3.575 1.995 6.042-6.677 10.608-9.382 11.864-3.466 1.609-9.117 2.589-13.745 2.377l-.202-.013-1.216-.107-.12 1.014-.116.991c-.311 11.999-2.025 19.598-5.552 24.619-3.697 5.264-8.835 6.739-13.361 7.709-1.544.33-2.947.474-4.219.474zm-9.19-43.671c2.819 2.256 3.066 6.501 3.287 14.434.028.99.054 1.927.089 2.802.106 2.65.355 8.855 1.327 11.477.137.371.26.747.39 1.146 1.083 3.316 1.626 4.979 6.309 3.978 3.931-.843 5.952-1.599 7.534-3.851 2.299-3.274 3.585-9.86 3.821-19.575l4.783.116-4.75-.57.14-1.186c.455-3.91.783-6.734 3.396-8.602 2.097-1.498 4.486-1.353 6.389-1.01-2.091-1.58-2.669-3.433-2.823-4.193l-.399-1.965 1.121-1.663c6.457-9.58 11.781-21.354 14.609-32.304 2.906-11.251 2.02-17.226 1.134-18.356-11.729-14.987-32.068-8.799-34.192-8.097l-.359.194-1.8.335-.922-.191c-2.542-.528-5.366-.82-8.393-.869-4.756-.08-8.593 1.044-11.739 3.431l-2.183 1.655-2.533-1.043c-5.412-2.213-21.308-6.662-29.696-.721-4.656 3.298-6.777 9.76-6.305 19.207.156 3.119 2.275 14.926 5.771 26.377 4.831 15.825 9.221 21.082 11.054 21.693.32.108 1.15-.537 1.976-1.529a270.708 270.708 0 0110.694-12.07l2.77-2.915 3.349 2.225c1.35.897 2.839 1.406 4.368 1.502l7.987-6.812-1.157 11.808c-.026.265-.039.626.065 1.296l.348 2.238-1.51 1.688-.174.196 4.388 2.025 1.836-2.301z"/><path fill="#336791" d="M115.731 77.44c-13.925 2.873-14.882-1.842-14.882-1.842 14.703-21.816 20.849-49.51 15.545-56.287C101.924.823 76.875 9.566 76.457 9.793l-.135.024c-2.751-.571-5.83-.911-9.291-.967-6.301-.103-11.08 1.652-14.707 4.402 0 0-44.684-18.408-42.606 23.151.442 8.842 12.672 66.899 27.26 49.363 5.332-6.412 10.483-11.834 10.483-11.834 2.559 1.699 5.622 2.567 8.833 2.255l.25-.212c-.078.796-.042 1.575.1 2.497-3.758 4.199-2.654 4.936-10.167 6.482-7.602 1.566-3.136 4.355-.22 5.084 3.534.884 11.712 2.136 17.237-5.598l-.221.882c1.473 1.18 2.507 7.672 2.334 13.557-.174 5.885-.29 9.926.871 13.082 1.16 3.156 2.316 10.256 12.192 8.14 8.252-1.768 12.528-6.351 13.124-13.995.422-5.435 1.377-4.631 1.438-9.49l.767-2.3c.884-7.367.14-9.743 5.225-8.638l1.235.108c3.742.17 8.639-.602 11.514-1.938 6.19-2.871 9.861-7.667 3.758-6.408z"/><path fill="#fff" d="M75.957 122.307c-8.232 0-10.84-6.519-11.907-9.185-1.562-3.907-1.899-19.069-1.551-31.503a1.59 1.59 0 011.64-1.55 1.594 1.594 0 011.55 1.639c-.401 14.341.168 27.337 1.324 30.229 1.804 4.509 4.54 8.453 12.275 6.796 7.343-1.575 10.093-4.359 11.318-11.46.94-5.449 2.799-20.951 3.028-24.01a1.593 1.593 0 011.71-1.472 1.597 1.597 0 011.472 1.71c-.239 3.185-2.089 18.657-3.065 24.315-1.446 8.387-5.185 12.191-13.794 14.037-1.463.313-2.792.453-4 .454zM31.321 90.466a6.71 6.71 0 01-2.116-.35c-5.347-1.784-10.44-10.492-15.138-25.885-3.576-11.717-5.842-23.947-6.041-27.922-.589-11.784 2.445-20.121 9.02-24.778 13.007-9.216 34.888-.44 35.813-.062a1.596 1.596 0 01-1.207 2.955c-.211-.086-21.193-8.492-32.768-.285-5.622 3.986-8.203 11.392-7.672 22.011.167 3.349 2.284 15.285 5.906 27.149 4.194 13.742 8.967 22.413 13.096 23.79.648.216 2.62.873 5.439-2.517A245.272 245.272 0 0145.88 73.046a1.596 1.596 0 012.304 2.208c-.048.05-4.847 5.067-10.077 11.359-2.477 2.979-4.851 3.853-6.786 3.853zm69.429-13.445a1.596 1.596 0 01-1.322-2.487c14.863-22.055 20.08-48.704 15.612-54.414-5.624-7.186-13.565-10.939-23.604-11.156-7.433-.16-13.341 1.738-14.307 2.069l-.243.099c-.971.305-1.716-.227-1.997-.849a1.6 1.6 0 01.631-2.025c.046-.027.192-.089.429-.176l-.021.006.021-.007c1.641-.601 7.639-2.4 15.068-2.315 11.108.118 20.284 4.401 26.534 12.388 2.957 3.779 2.964 12.485.019 23.887-3.002 11.625-8.651 24.118-15.497 34.277-.306.457-.81.703-1.323.703zm.76 10.21c-2.538 0-4.813-.358-6.175-1.174-1.4-.839-1.667-1.979-1.702-2.584-.382-6.71 3.32-7.878 5.208-8.411-.263-.398-.637-.866-1.024-1.349-1.101-1.376-2.609-3.26-3.771-6.078-.182-.44-.752-1.463-1.412-2.648-3.579-6.418-11.026-19.773-6.242-26.612 2.214-3.165 6.623-4.411 13.119-3.716C97.6 28.837 88.5 10.625 66.907 10.271c-6.494-.108-11.82 1.889-15.822 5.93-8.96 9.049-8.636 25.422-8.631 25.586a1.595 1.595 0 11-3.19.084c-.02-.727-.354-17.909 9.554-27.916C53.455 9.272 59.559 6.96 66.96 7.081c13.814.227 22.706 7.25 27.732 13.101 5.479 6.377 8.165 13.411 8.386 15.759.165 1.746-1.088 2.095-1.341 2.147l-.576.013c-6.375-1.021-10.465-.312-12.156 2.104-3.639 5.201 3.406 17.834 6.414 23.229.768 1.376 1.322 2.371 1.576 2.985.988 2.396 2.277 4.006 3.312 5.3.911 1.138 1.7 2.125 1.982 3.283.131.23 1.99 2.98 13.021.703 2.765-.57 4.423-.083 4.93 1.45.997 3.015-4.597 6.532-7.694 7.97-2.775 1.29-7.204 2.106-11.036 2.106zm-4.696-4.021c.35.353 2.101.962 5.727.806 3.224-.138 6.624-.839 8.664-1.786 2.609-1.212 4.351-2.567 5.253-3.492l-.5.092c-7.053 1.456-12.042 1.262-14.828-.577a6.162 6.162 0 01-.54-.401c-.302.119-.581.197-.78.253-1.58.443-3.214.902-2.996 5.105zm-45.562 8.915c-1.752 0-3.596-.239-5.479-.71-1.951-.488-5.24-1.957-5.19-4.37.057-2.707 3.994-3.519 5.476-3.824 5.354-1.103 5.703-1.545 7.376-3.67.488-.619 1.095-1.39 1.923-2.314 1.229-1.376 2.572-2.073 3.992-2.073.989 0 1.8.335 2.336.558 1.708.708 3.133 2.42 3.719 4.467.529 1.847.276 3.625-.71 5.006-3.237 4.533-7.886 6.93-13.443 6.93zm-7.222-4.943c.481.372 1.445.869 2.518 1.137 1.631.408 3.213.615 4.705.615 4.546 0 8.196-1.882 10.847-5.594.553-.774.387-1.757.239-2.274-.31-1.083-1.08-2.068-1.873-2.397-.43-.178-.787-.314-1.115-.314-.176 0-.712 0-1.614 1.009a41.146 41.146 0 00-1.794 2.162c-2.084 2.646-3.039 3.544-9.239 4.821-1.513.31-2.289.626-2.674.835zm12.269-7.36a1.596 1.596 0 01-1.575-1.354 8.218 8.218 0 01-.08-.799c-4.064-.076-7.985-1.82-10.962-4.926-3.764-3.927-5.477-9.368-4.699-14.927.845-6.037.529-11.366.359-14.229-.047-.796-.081-1.371-.079-1.769.003-.505.013-1.844 4.489-4.113 1.592-.807 4.784-2.215 8.271-2.576 5.777-.597 9.585 1.976 10.725 7.246 3.077 14.228.244 20.521-1.825 25.117-.385.856-.749 1.664-1.04 2.447l-.257.69c-1.093 2.931-2.038 5.463-1.748 7.354a1.595 1.595 0 01-1.335 1.819l-.244.02zM42.464 42.26l.062 1.139c.176 2.974.504 8.508-.384 14.86-.641 4.585.759 9.06 3.843 12.276 2.437 2.542 5.644 3.945 8.94 3.945h.068c.369-1.555.982-3.197 1.642-4.966l.255-.686c.329-.884.714-1.74 1.122-2.646 1.991-4.424 4.47-9.931 1.615-23.132-.565-2.615-1.936-4.128-4.189-4.627-4.628-1.022-11.525 2.459-12.974 3.837zm9.63-.677c-.08.564 1.033 2.07 2.485 2.271 1.449.203 2.689-.975 2.768-1.539.079-.564-1.033-1.186-2.485-1.388-1.451-.202-2.691.092-2.768.656zm2.818 2.826l-.407-.028c-.9-.125-1.81-.692-2.433-1.518-.219-.29-.576-.852-.505-1.354.101-.736.999-1.177 2.4-1.177.313 0 .639.023.967.069.766.106 1.477.327 2.002.62.91.508.977 1.075.936 1.368-.112.813-1.405 2.02-2.96 2.02zm-2.289-2.732c.045.348.907 1.496 2.029 1.651l.261.018c1.036 0 1.81-.815 1.901-1.082-.096-.182-.762-.634-2.025-.81a5.823 5.823 0 00-.821-.059c-.812 0-1.243.183-1.345.282zm43.605-1.245c.079.564-1.033 2.07-2.484 2.272-1.45.202-2.691-.975-2.771-1.539-.076-.564 1.036-1.187 2.486-1.388 1.45-.203 2.689.092 2.769.655zm-2.819 2.56c-1.396 0-2.601-1.086-2.7-1.791-.115-.846 1.278-1.489 2.712-1.688.316-.044.629-.066.93-.066 1.238 0 2.058.363 2.14.949.053.379-.238.964-.739 1.492-.331.347-1.026.948-1.973 1.079l-.37.025zm.943-3.013c-.276 0-.564.021-.856.061-1.441.201-2.301.779-2.259 1.089.048.341.968 1.332 2.173 1.332l.297-.021c.787-.109 1.378-.623 1.66-.919.443-.465.619-.903.598-1.052-.028-.198-.56-.49-1.613-.49zm3.965 32.843a1.594 1.594 0 01-1.324-2.483c3.398-5.075 2.776-10.25 2.175-15.255-.257-2.132-.521-4.337-.453-6.453.07-2.177.347-3.973.614-5.71.317-2.058.617-4.002.493-6.31a1.595 1.595 0 113.186-.172c.142 2.638-.197 4.838-.525 6.967-.253 1.643-.515 3.342-.578 5.327-.061 1.874.178 3.864.431 5.97.64 5.322 1.365 11.354-2.691 17.411a1.596 1.596 0 01-1.328.708z"/></g></svg>
+<path d="M520.0 245.0 L685.0 245.0" fill="none" stroke="#d49a1a" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle class="dot" r="4.5" fill="#d49a1a"><animateMotion dur="1.50s" begin="0.00s" repeatCount="indefinite" path="M520.0 245.0 L685.0 245.0"/></circle>
+<text y="234.3" font-size="13" fill="#1e2b45" text-anchor="middle"><tspan x="640.0" dy="0.0">Excel sheets</tspan></text>
+<svg x="692.0" y="217.0" width="56" height="56" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-build" style="animation-delay:2.08s;transform-origin:12px 12px">
+  <ellipse class="layer" style="animation-delay:0.00s" cx="12" cy="5" rx="9" ry="3" />
+  <path class="layer" style="animation-delay:0.35s" stroke="#a0612b" d="M3 5V19A9 3 0 0 0 21 19V5" />
+  <path class="layer" style="animation-delay:0.70s" stroke="#a0612b" d="M3 12A9 3 0 0 0 21 12" />
+</g></svg>
+<text y="299.1" font-size="17" fill="#1e2b45" text-anchor="middle"><tspan x="720.0" dy="0.0">Bronze</tspan></text>
+<text y="319.6" font-size="14" fill="#6e6e69" text-anchor="middle"><tspan x="720.0" dy="0.0">five raw tables</tspan></text>
+<svg x="897.0" y="217.0" width="56" height="56" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-build" style="animation-delay:1.71s;transform-origin:12px 12px">
+  <ellipse class="layer" style="animation-delay:0.00s" cx="12" cy="5" rx="9" ry="3" />
+  <path class="layer" style="animation-delay:0.35s" stroke="#7d8590" d="M3 5V19A9 3 0 0 0 21 19V5" />
+  <path class="layer" style="animation-delay:0.70s" stroke="#7d8590" d="M3 12A9 3 0 0 0 21 12" />
+</g></svg>
+<text y="299.1" font-size="17" fill="#1e2b45" text-anchor="middle"><tspan x="925.0" dy="0.0">Silver</tspan></text>
+<text y="319.6" font-size="14" fill="#6e6e69" text-anchor="middle"><tspan x="925.0" dy="0.0">cleaned, typed, tested</tspan></text>
+<svg x="1102.0" y="217.0" width="56" height="56" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-build" style="animation-delay:1.34s;transform-origin:12px 12px">
+  <ellipse class="layer" style="animation-delay:0.00s" cx="12" cy="5" rx="9" ry="3" />
+  <path class="layer" style="animation-delay:0.35s" stroke="#c99a2e" d="M3 5V19A9 3 0 0 0 21 19V5" />
+  <path class="layer" style="animation-delay:0.70s" stroke="#c99a2e" d="M3 12A9 3 0 0 0 21 12" />
+</g></svg>
+<text y="299.1" font-size="17" fill="#1e2b45" text-anchor="middle"><tspan x="1130.0" dy="0.0">Gold</tspan></text>
+<text y="319.6" font-size="14" fill="#6e6e69" text-anchor="middle"><tspan x="1130.0" dy="0.0">star schema + rules</tspan></text>
+<path d="M762.0 245.0 L883.0 245.0" fill="none" stroke="#d49a1a" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle class="dot" r="4.5" fill="#d49a1a"><animateMotion dur="1.40s" begin="0.00s" repeatCount="indefinite" path="M762.0 245.0 L883.0 245.0"/></circle>
+<svg x="813.0" y="213.0" width="18" height="18" overflow="visible" fill="#FF694B" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g class="m-pulse" style="animation-delay:0.97s;transform-origin:12px 12px"><path d="M17.9004 9.3763a8.1488 8.1488 0 0 0-3.0421-3.1206l1.7708.8385a10.2874 10.2874 0 0 1 3.74 3.0007l3.234-5.9295a2.8546 2.8546 0 0 0-.0611-2.9604C22.7566.0371 21.2112-.3409 19.9754.3327l-5.8749 3.2101a4.3612 4.3612 0 0 1-4.1761 0L4.1769.408a2.8545 2.8545 0 0 0-2.9592.0632c-1.1673.7853-1.5452 2.33-.8723 3.5655L3.55 9.9106a4.3612 4.3612 0 0 1 0 4.1772l-3.1272 5.743a2.86 2.86 0 0 0 .085 2.9974c.794 1.1438 2.3225 1.5054 3.5448.8385l6.0581-3.3049a10.2877 10.2877 0 0 1-3.0051-3.7454l-.8374-1.7708a8.148 8.148 0 0 0 3.1206 3.0421l10.5832 5.779c1.2213.666 2.7481.3055 3.5426-.8363a2.8699 2.8699 0 0 0 .0796-3.0018L17.9004 9.3763zm3.3801-7.7351c.6022 0 1.0904.4882 1.0904 1.0904s-.4882 1.0904-1.0904 1.0904-1.0904-.4882-1.0904-1.0904.4882-1.0904 1.0904-1.0904zM2.7442 3.822c-.6022 0-1.0904-.4882-1.0904-1.0904s.4882-1.0904 1.0904-1.0904 1.0904.4882 1.0904 1.0904S3.3464 3.822 2.7442 3.822zm0 18.5363c-.6022 0-1.0904-.4882-1.0904-1.0904 0-.6022.4882-1.0904 1.0904-1.0904s1.0904.4882 1.0904 1.0904c0 .6022-.4882 1.0904-1.0904 1.0904zm10.3585-11.4489c-1.2008-.0035-2.177.9672-2.1805 2.1679a2.1738 2.1738 0 0 0 .7052 1.6091c-1.4872-.2091-2.5234-1.5843-2.3142-3.0716.2091-1.4872 1.5843-2.5234 3.0716-2.3142a2.7194 2.7194 0 0 1 2.3142 2.3142 2.1623 2.1623 0 0 0-1.5963-.7054zm8.1778 11.4489c-.6022 0-1.0904-.4882-1.0904-1.0904 0-.6022.4882-1.0904 1.0904-1.0904s1.0904.4882 1.0904 1.0904c0 .6022-.4882 1.0904-1.0904 1.0904z"/></g></svg>
+<text y="263.4" font-size="13" fill="#1e2b45" text-anchor="middle"><tspan x="822.0" dy="0.0">dbt</tspan></text>
+<path d="M967.0 245.0 L1088.0 245.0" fill="none" stroke="#d49a1a" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle class="dot" r="4.5" fill="#d49a1a"><animateMotion dur="1.40s" begin="0.00s" repeatCount="indefinite" path="M967.0 245.0 L1088.0 245.0"/></circle>
+<svg x="1018.0" y="213.0" width="18" height="18" overflow="visible" fill="#FF694B" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g class="m-pulse" style="animation-delay:0.60s;transform-origin:12px 12px"><path d="M17.9004 9.3763a8.1488 8.1488 0 0 0-3.0421-3.1206l1.7708.8385a10.2874 10.2874 0 0 1 3.74 3.0007l3.234-5.9295a2.8546 2.8546 0 0 0-.0611-2.9604C22.7566.0371 21.2112-.3409 19.9754.3327l-5.8749 3.2101a4.3612 4.3612 0 0 1-4.1761 0L4.1769.408a2.8545 2.8545 0 0 0-2.9592.0632c-1.1673.7853-1.5452 2.33-.8723 3.5655L3.55 9.9106a4.3612 4.3612 0 0 1 0 4.1772l-3.1272 5.743a2.86 2.86 0 0 0 .085 2.9974c.794 1.1438 2.3225 1.5054 3.5448.8385l6.0581-3.3049a10.2877 10.2877 0 0 1-3.0051-3.7454l-.8374-1.7708a8.148 8.148 0 0 0 3.1206 3.0421l10.5832 5.779c1.2213.666 2.7481.3055 3.5426-.8363a2.8699 2.8699 0 0 0 .0796-3.0018L17.9004 9.3763zm3.3801-7.7351c.6022 0 1.0904.4882 1.0904 1.0904s-.4882 1.0904-1.0904 1.0904-1.0904-.4882-1.0904-1.0904.4882-1.0904 1.0904-1.0904zM2.7442 3.822c-.6022 0-1.0904-.4882-1.0904-1.0904s.4882-1.0904 1.0904-1.0904 1.0904.4882 1.0904 1.0904S3.3464 3.822 2.7442 3.822zm0 18.5363c-.6022 0-1.0904-.4882-1.0904-1.0904 0-.6022.4882-1.0904 1.0904-1.0904s1.0904.4882 1.0904 1.0904c0 .6022-.4882 1.0904-1.0904 1.0904zm10.3585-11.4489c-1.2008-.0035-2.177.9672-2.1805 2.1679a2.1738 2.1738 0 0 0 .7052 1.6091c-1.4872-.2091-2.5234-1.5843-2.3142-3.0716.2091-1.4872 1.5843-2.5234 3.0716-2.3142a2.7194 2.7194 0 0 1 2.3142 2.3142 2.1623 2.1623 0 0 0-1.5963-.7054zm8.1778 11.4489c-.6022 0-1.0904-.4882-1.0904-1.0904 0-.6022.4882-1.0904 1.0904-1.0904s1.0904.4882 1.0904 1.0904c0 .6022-.4882 1.0904-1.0904 1.0904z"/></g></svg>
+<text y="263.4" font-size="13" fill="#1e2b45" text-anchor="middle"><tspan x="1027.0" dy="0.0">dbt</tspan></text>
+<rect x="580" y="395" width="690" height="400" fill="none" stroke="#1f9e78" stroke-width="2" stroke-dasharray="9 7"/>
+<text y="426.0" font-size="20" fill="#1f9e78" text-anchor="middle"><tspan x="925.0" dy="0.0">Agent team · Insights</tspan></text>
+<svg x="788.0" y="408.0" width="24" height="24" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-pulse" style="animation-delay:0.23s;transform-origin:12px 12px">
+  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+  <circle class="detail" stroke="#e8692c" pathLength="1" style="animation-delay:0.23s" cx="9" cy="7" r="4" />
+  <path class="detail" stroke="#e8692c" pathLength="1" style="animation-delay:0.23s" d="M22 21v-2a4 4 0 0 0-3-3.87" />
+  <path class="detail" stroke="#e8692c" pathLength="1" style="animation-delay:0.23s" d="M16 3.13a4 4 0 0 1 0 7.75" />
+</g></svg>
+<svg x="899.0" y="474.0" width="52" height="52" overflow="visible" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><g class="m-bob" style="animation-delay:3.86s;transform-origin:64px 64px"><path d="M109.766 7.281a7.691 7.691 0 01-1.09 4.282 7.583 7.583 0 01-3.262 2.949 7.49 7.49 0 01-4.34.62 7.525 7.525 0 01-3.953-1.913A7.642 7.642 0 0195.137 5a7.606 7.606 0 012.629-3.531 7.509 7.509 0 014.136-1.461 7.51 7.51 0 015.422 1.996 7.627 7.627 0 012.438 5.273zm0 0" fill="#767677"/><path d="M65.758 96.79c-20.098 0-37.649-7.364-46.766-18.267a49.95 49.95 0 0018.102 24.254 49.251 49.251 0 0028.676 9.215 49.279 49.279 0 0028.675-9.215 49.917 49.917 0 0018.094-24.254C103.406 89.426 85.855 96.79 65.758 96.79zm0 0M65.75 25.883c20.098 0 37.652 7.367 46.766 18.265a49.95 49.95 0 00-18.102-24.253 49.27 49.27 0 00-28.672-9.22 49.27 49.27 0 00-28.672 9.22A49.909 49.909 0 0018.97 44.148C28.102 33.27 45.652 25.883 65.75 25.883zm0 0" fill="#f37726"/><path d="M38.164 117.984a9.671 9.671 0 01-1.371 5.399 9.5 9.5 0 01-9.59 4.504 9.405 9.405 0 01-4.98-2.418 9.671 9.671 0 01-2.809-4.797 9.73 9.73 0 01.313-5.567 9.624 9.624 0 013.328-4.453 9.466 9.466 0 0112.043.688 9.63 9.63 0 013.066 6.648zm0 0" fill="#989798"/><path d="M21.285 23.418a5.53 5.53 0 01-3.14-.816 5.627 5.627 0 01-2.618-5.672 5.612 5.612 0 011.407-2.95 5.593 5.593 0 012.789-1.664 5.46 5.46 0 013.238.184 5.539 5.539 0 012.586 1.969 5.66 5.66 0 01-.399 7.129 5.557 5.557 0 01-3.867 1.82zm0 0" fill="#6f7070"/></g></svg>
+<text y="550.2" font-size="15" fill="#1e2b45" text-anchor="middle"><tspan x="925.0" dy="0.0">Coder&#x27;s notebook</tspan></text>
+<text y="570.0" font-size="14" fill="#6e6e69" text-anchor="middle"><tspan x="925.0" dy="0.0">pandas · scikit-learn</tspan><tspan x="925.0" dy="17.5">statsmodels</tspan></text>
+<svg x="679.0" y="639.0" width="42" height="42" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-bob2" style="animation-delay:3.49s;transform-origin:12px 12px">
+  <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+  <rect class="detail" stroke="#e8692c" pathLength="1" style="animation-delay:3.49s" width="20" height="14" x="2" y="6" rx="2" />
+</g></svg>
+<text y="704.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="700.0" dy="0.0">Business Analyst</tspan></text>
+<svg x="829.0" y="639.0" width="42" height="42" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-tilt" style="animation-delay:3.12s;transform-origin:12px 12px">
+  <path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2" />
+  <path class="detail" stroke="#e8692c" pathLength="1" style="animation-delay:3.12s" d="M6.453 15h11.094" />
+  <path class="detail" stroke="#e8692c" pathLength="1" style="animation-delay:3.12s" d="M8.5 2h7" />
+</g></svg>
+<text y="704.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="850.0" dy="0.0">Data Scientist</tspan></text>
+<svg x="979.0" y="639.0" width="42" height="42" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-bob2" style="animation-delay:2.75s;transform-origin:12px 12px">
+  <path d="m18 16 4-4-4-4" />
+  <path class="detail" stroke="#e8692c" pathLength="1" style="animation-delay:2.75s" d="m6 8-4 4 4 4" />
+  <path class="detail" stroke="#e8692c" pathLength="1" style="animation-delay:2.75s" d="m14.5 4-5 16" />
+</g></svg>
+<text y="704.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="1000.0" dy="0.0">Coder</tspan></text>
+<svg x="1129.0" y="639.0" width="42" height="42" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-typing" style="animation-delay:2.38s;transform-origin:12px 12px">
+  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  <path class="blink" stroke="#e8692c" style="animation-delay:0.22s" d="M8 10h.01" />
+  <path class="blink" stroke="#e8692c" style="animation-delay:0.44s" d="M12 10h.01" />
+  <path class="blink" stroke="#e8692c" style="animation-delay:0.66s" d="M16 10h.01" />
+</g></svg>
+<text y="704.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="1150.0" dy="0.0">Business Translator</tspan></text>
+<path d="M1010.0 635.0 Q1010.0 500.0 962.0 500.0" fill="none" stroke="#1f9e78" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="march" stroke-dasharray="3 3" style="--gap:6"/>
+<text y="574.4" font-size="13" fill="#1f9e78" text-anchor="middle"><tspan x="1052.0" dy="0.0">runs code</tspan></text>
+<text y="767.4" font-size="13" fill="#6e6e69" text-anchor="middle"><tspan x="925.0" dy="0.0">The analyst plans, the coder runs code, the scientist checks it, the translator writes the report.</tspan></text>
+<path d="M520.0 650.0 L580.0 650.0" fill="none" stroke="#1f9e78" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle class="dot" r="4.5" fill="#1f9e78"><animateMotion dur="1.40s" begin="0.00s" repeatCount="indefinite" path="M520.0 650.0 L580.0 650.0"/></circle>
+<text y="638.4" font-size="13" fill="#1e2b45" text-anchor="middle"><tspan x="466.0" dy="0.0">other files</tspan></text>
+<path d="M1235.0 395.0 L1235.0 368.0" fill="none" stroke="#1f9e78" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="march" stroke-dasharray="3 3" style="--gap:6"/>
+<text y="384.4" font-size="13" fill="#1f9e78" text-anchor="middle"><tspan x="1170.0" dy="0.0">gold, read-only</tspan></text>
+<svg x="1384.0" y="444.0" width="72" height="72" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-bob" style="animation-delay:2.01s;transform-origin:12px 12px">
+  <rect width="20" height="8" x="2" y="2" rx="2" ry="2" />
+  <rect class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:2.01s" width="20" height="8" x="2" y="14" rx="2" ry="2" />
+  <line class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:2.01s" x1="6" x2="6.01" y1="6" y2="6" />
+  <line class="detail" stroke="#1f9e78" pathLength="1" style="animation-delay:2.01s" x1="6" x2="6.01" y1="18" y2="18" />
+</g></svg>
+<text y="544.0" font-size="19" fill="#1f9e78" text-anchor="middle"><tspan x="1420.0" dy="0.0">FastAPI</tspan></text>
+<text y="565.0" font-size="14" fill="#6e6e69" text-anchor="middle"><tspan x="1420.0" dy="0.0">api/</tspan></text>
+<svg x="1457.0" y="433.0" width="22" height="22" overflow="visible" fill="#009688" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g class="m-pulse" style="animation-delay:1.64s;transform-origin:12px 12px"><path d="M12 .0387C5.3729.0384.0003 5.3931 0 11.9988c-.001 6.6066 5.372 11.9628 12 11.9625 6.628.0003 12.001-5.3559 12-11.9625-.0003-6.6057-5.3729-11.9604-12-11.96m-.829 5.4153h7.55l-7.5805 5.3284h5.1828L5.279 18.5436q2.9466-6.5444 5.892-13.0896"/></g></svg>
+<path d="M1275.0 245.0 Q1340.0 245.0 1395.0 438.0" fill="none" stroke="#d49a1a" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle class="dot" r="4.5" fill="#d49a1a"><animateMotion dur="2.42s" begin="0.00s" repeatCount="indefinite" path="M1275.0 245.0 Q1340.0 245.0 1395.0 438.0"/></circle>
+<circle class="dot" r="4.5" fill="#d49a1a"><animateMotion dur="2.42s" begin="-1.21s" repeatCount="indefinite" path="M1275.0 245.0 Q1340.0 245.0 1395.0 438.0"/></circle>
+<text y="234.2" font-size="15" fill="#1e2b45" text-anchor="middle"><tspan x="1330.0" dy="0.0">reads gold</tspan></text>
+<path d="M1275.0 650.0 Q1345.0 650.0 1378.0 498.0" fill="none" stroke="#e8692c" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle class="dot" r="4.5" fill="#e8692c"><animateMotion dur="2.05s" begin="0.00s" repeatCount="indefinite" path="M1275.0 650.0 Q1345.0 650.0 1378.0 498.0"/></circle>
+<circle class="dot" r="4.5" fill="#e8692c"><animateMotion dur="2.05s" begin="-1.03s" repeatCount="indefinite" path="M1275.0 650.0 Q1345.0 650.0 1378.0 498.0"/></circle>
+<text y="674.4" font-size="13" fill="#1e2b45" text-anchor="middle"><tspan x="1355.0" dy="0.0">report and chat,</tspan><tspan x="1355.0" dy="16.2">streamed (SSE)</tspan></text>
+<rect x="1560" y="150" width="370" height="195" fill="none" stroke="#1f9e78" stroke-width="2" stroke-dasharray="9 7"/>
+<text y="181.0" font-size="20" fill="#1f9e78" text-anchor="middle"><tspan x="1745.0" dy="0.0">Dashboard · React</tspan></text>
+<svg x="1628.0" y="163.0" width="24" height="24" overflow="visible" fill="#087EA4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g class="m-spin" style="animation-delay:1.27s;transform-origin:12px 12px"><path d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></g></svg>
+<svg x="1585.2" y="234.0" width="42" height="42" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-bob2" style="animation-delay:0.90s;transform-origin:12px 12px">
+  <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
+  <path class="detail" stroke="#1c7ed6" pathLength="1" style="animation-delay:0.90s" d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+  <path class="detail" stroke="#1c7ed6" pathLength="1" style="animation-delay:0.90s" d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
+  <path class="detail" stroke="#1c7ed6" pathLength="1" style="animation-delay:0.90s" d="M2 7h20" />
+  <path class="detail" stroke="#1c7ed6" pathLength="1" style="animation-delay:0.90s" d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7" />
+</g></svg>
+<text y="299.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="1606.2" dy="0.0">Stores</tspan></text>
+<svg x="1677.8" y="234.0" width="42" height="42" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-bob2" style="animation-delay:0.53s;transform-origin:12px 12px">
+  <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+  <circle class="detail" stroke="#1c7ed6" pathLength="1" style="animation-delay:0.53s" cx="7.5" cy="7.5" r=".5" fill="#1c7ed6" />
+</g></svg>
+<text y="299.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="1698.8" dy="0.0">Products</tspan></text>
+<svg x="1770.2" y="234.0" width="42" height="42" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-pulse" style="animation-delay:0.16s;transform-origin:12px 12px">
+  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+  <circle class="detail" stroke="#1c7ed6" pathLength="1" style="animation-delay:0.16s" cx="9" cy="7" r="4" />
+  <path class="detail" stroke="#1c7ed6" pathLength="1" style="animation-delay:0.16s" d="M22 21v-2a4 4 0 0 0-3-3.87" />
+  <path class="detail" stroke="#1c7ed6" pathLength="1" style="animation-delay:0.16s" d="M16 3.13a4 4 0 0 1 0 7.75" />
+</g></svg>
+<text y="299.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="1791.2" dy="0.0">Customers</tspan></text>
+<svg x="1862.8" y="234.0" width="42" height="42" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-spin" style="animation-delay:3.79s;transform-origin:12px 12px">
+  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+  <circle class="detail" stroke="#1c7ed6" pathLength="1" style="animation-delay:3.79s" cx="12" cy="12" r="3" />
+</g></svg>
+<text y="299.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="1883.8" dy="0.0">Settings</tspan></text>
+<path d="M1465.0 480.0 Q1510.0 250.0 1555.0 250.0" fill="none" stroke="#1c7ed6" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#dot-1c7ed6)"/>
+<circle class="dot" r="4.5" fill="#1c7ed6"><animateMotion dur="2.54s" begin="0.00s" repeatCount="indefinite" path="M1465.0 480.0 Q1510.0 250.0 1555.0 250.0"/></circle>
+<circle class="dot" r="4.5" fill="#1c7ed6"><animateMotion dur="2.54s" begin="-1.27s" repeatCount="indefinite" path="M1465.0 480.0 Q1510.0 250.0 1555.0 250.0"/></circle>
+<rect x="1560" y="375" width="370" height="195" fill="none" stroke="#1f9e78" stroke-width="2" stroke-dasharray="9 7"/>
+<text y="406.0" font-size="20" fill="#1f9e78" text-anchor="middle"><tspan x="1745.0" dy="0.0">Ask in plain words</tspan></text>
+<g class="swap2" style="animation-delay:0.00s;transform-origin:1621.7px 480.0px"><svg x="1600.7" y="459.0" width="42" height="42" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-still" style="animation-delay:3.42s;transform-origin:12px 12px">
+  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+</g></svg></g>
+<g class="swap2 alt" style="animation-delay:-2.40s;transform-origin:1621.7px 480.0px"><svg x="1600.7" y="459.0" width="42" height="42" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-still" style="animation-delay:3.05s;transform-origin:12px 12px">
+  <ellipse cx="12" cy="5" rx="9" ry="3" />
+  <path class="detail" stroke="#7c5cd6" pathLength="1" style="animation-delay:3.05s" d="M3 5V19A9 3 0 0 0 15 21.84" />
+  <path class="detail" stroke="#7c5cd6" pathLength="1" style="animation-delay:3.05s" d="M21 5V8" />
+  <path class="detail" stroke="#7c5cd6" pathLength="1" style="animation-delay:3.05s" d="M21 12L18 17H22L19 22" />
+  <path class="detail" stroke="#7c5cd6" pathLength="1" style="animation-delay:3.05s" d="M3 12A9 3 0 0 0 14.59 14.87" />
+</g></svg></g>
+<text y="524.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="1621.7" dy="0.0">Text to SQL</tspan></text>
+<svg x="1724.0" y="459.0" width="42" height="42" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-bob" style="animation-delay:2.68s;transform-origin:12px 12px">
+  <path d="M12 8V4H8" />
+  <rect class="detail" stroke="#7c5cd6" pathLength="1" style="animation-delay:2.68s" width="16" height="12" x="4" y="8" rx="2" />
+  <path class="detail" stroke="#7c5cd6" pathLength="1" style="animation-delay:2.68s" d="M2 14h2" />
+  <path class="detail" stroke="#7c5cd6" pathLength="1" style="animation-delay:2.68s" d="M20 14h2" />
+  <path class="detail" stroke="#7c5cd6" pathLength="1" style="animation-delay:2.68s" d="M15 13v2" />
+  <path class="detail" stroke="#7c5cd6" pathLength="1" style="animation-delay:2.68s" d="M9 13v2" />
+</g></svg>
+<text y="524.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="1745.0" dy="0.0">Insights chat</tspan></text>
+<g class="swap2" style="animation-delay:0.00s;transform-origin:1868.3px 480.0px"><svg x="1847.3" y="459.0" width="42" height="42" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-still" style="animation-delay:2.31s;transform-origin:12px 12px">
+  <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+  <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+  <path class="detail" stroke="#7c5cd6" pathLength="1" style="animation-delay:2.31s" d="M10 9H8" />
+  <path class="detail" stroke="#7c5cd6" pathLength="1" style="animation-delay:2.31s" d="M16 13H8" />
+  <path class="detail" stroke="#7c5cd6" pathLength="1" style="animation-delay:2.31s" d="M16 17H8" />
+</g></svg></g>
+<g class="swap2 alt" style="animation-delay:-2.40s;transform-origin:1868.3px 480.0px"><svg x="1847.3" y="459.0" width="42" height="42" overflow="visible"
+ 
+  xmlns="http://www.w3.org/2000/svg"
+ 
+ 
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#1e2b45"
+  stroke-width="2.1"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+><g class="m-still" style="animation-delay:1.94s;transform-origin:12px 12px">
+  <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+  <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+  <path class="detail" stroke="#7c5cd6" pathLength="1" style="animation-delay:1.94s" d="M8 18v-1" />
+  <path class="detail" stroke="#7c5cd6" pathLength="1" style="animation-delay:1.94s" d="M12 18v-6" />
+  <path class="detail" stroke="#7c5cd6" pathLength="1" style="animation-delay:1.94s" d="M16 18v-3" />
+</g></svg></g>
+<text y="524.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="1868.3" dy="0.0">Report</tspan></text>
+<path d="M1465.0 480.0 Q1510.0 475.0 1555.0 475.0" fill="none" stroke="#7c5cd6" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#dot-7c5cd6)"/>
+<circle class="dot" r="4.5" fill="#7c5cd6"><animateMotion dur="1.40s" begin="0.00s" repeatCount="indefinite" path="M1465.0 480.0 Q1510.0 475.0 1555.0 475.0"/></circle>
+<rect x="1560" y="600" width="370" height="195" fill="none" stroke="#1f9e78" stroke-width="2" stroke-dasharray="9 7"/>
+<text y="631.0" font-size="20" fill="#1f9e78" text-anchor="middle"><tspan x="1745.0" dy="0.0">Model providers</tspan></text>
+<svg x="1600.7" y="684.0" width="42" height="42" overflow="visible" fill="#121211" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g class="m-bob" style="animation-delay:1.57s;transform-origin:12px 12px"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z"/></g></svg>
+<text y="749.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="1621.7" dy="0.0">OpenAI</tspan></text>
+<svg x="1724.0" y="684.0" width="42" height="42" overflow="visible" fill="#D97757" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g class="m-spin" style="animation-delay:1.20s;transform-origin:12px 12px"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></g></svg>
+<text y="749.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="1745.0" dy="0.0">Claude</tspan></text>
+<svg x="1847.3" y="684.0" width="42" height="42" overflow="visible" fill="#8E75B2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g class="m-bob" style="animation-delay:0.83s;transform-origin:12px 12px"><path d="M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81"/></g></svg>
+<text y="749.3" font-size="14" fill="#1e2b45" text-anchor="middle"><tspan x="1868.3" dy="0.0">Gemini</tspan></text>
+<path d="M1465.0 480.0 Q1510.0 700.0 1555.0 700.0" fill="none" stroke="#8E75B2" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#dot-8E75B2)"/>
+<circle class="dot" r="4.5" fill="#8E75B2"><animateMotion dur="2.45s" begin="0.00s" repeatCount="indefinite" path="M1465.0 480.0 Q1510.0 700.0 1555.0 700.0"/></circle>
+<circle class="dot" r="4.5" fill="#8E75B2"><animateMotion dur="2.45s" begin="-1.23s" repeatCount="indefinite" path="M1465.0 480.0 Q1510.0 700.0 1555.0 700.0"/></circle>
+<text y="827.4" font-size="13" fill="#6e6e69" text-anchor="middle"><tspan x="1745.0" dy="0.0">Settings picks the provider and model;</tspan><tspan x="1745.0" dy="16.2">text to SQL and the agents both use it.</tspan></text>
+<svg x="868.0" y="96.0" width="34" height="34" overflow="visible" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg"><g class="m-spin" style="animation-delay:0.46s;transform-origin:64px 64px">
+<path d="m2.5441 127 60.809-62.332a1.124 1.124 0 0 0 0.1359-1.4368c-3.6977-5.1625-10.521-6.0578-13.05-9.5268-7.4903-10.275-9.3909-16.092-12.61-15.731a0.98374 0.98374 0 0 0-0.58464 0.3085l-21.966 22.518c-12.638 12.944-14.454 41.475-14.782 65.367a1.1908 1.1908 0 0 0 2.0473 0.83273z" fill="#017cee"/>
+<path d="m126.99 125.46-62.332-60.813a1.124 1.124 0 0 0-1.4389-0.1359c-5.1625 3.6998-6.0578 10.521-9.5268 13.05-10.275 7.4903-16.092 9.3909-15.731 12.61a0.98374 0.98374 0 0 0 0.3085 0.58248l22.518 21.966c12.944 12.638 41.475 14.454 65.367 14.782a1.1908 1.1908 0 0 0 0.83489-2.0408z" fill="#00ad46"/>
+<path d="m60.792 112.72c-7.076-6.9035-10.355-20.559 3.2058-48.719-22.046 9.8525-29.771 22.803-25.972 26.511z" fill="#04d659"/>
+<path d="m125.45 1.0113-60.807 62.332a1.1218 1.1218 0 0 0-0.1359 1.4368c3.6998 5.1625 10.519 6.0578 13.05 9.5268 7.4903 10.275 9.393 16.092 12.61 15.731a0.97943 0.97943 0 0 0 0.58464-0.3085l21.966-22.518c12.638-12.944 14.454-41.475 14.782-65.367a1.193 1.193 0 0 0-2.0495-0.83273z" fill="#00c7d4"/>
+<path d="m112.73 67.211c-6.9035 7.076-20.559 10.355-48.721-3.2058 9.8525 22.046 22.803 29.771 26.511 25.972z" fill="#11e1ee"/>
+<path d="m1.0017 2.5495 62.332 60.807a1.124 1.124 0 0 0 1.4368 0.1359c5.1625-3.6998 6.0578-10.521 9.5268-13.05 10.275-7.4903 16.092-9.3909 15.731-12.61a0.99022 0.99022 0 0 0-0.3085-0.58463l-22.518-21.966c-12.944-12.638-41.475-14.454-65.367-14.782a1.1908 1.1908 0 0 0-0.83273 2.0495z" fill="#e43921"/>
+<path d="m67.212 15.284c7.076 6.9035 10.355 20.559-3.2058 48.721 22.046-9.8525 29.771-22.805 25.972-26.511z" fill="#ff7557"/>
+<path d="m15.279 60.8c6.9035-7.076 20.559-10.355 48.721 3.2058-9.8525-22.046-22.803-29.771-26.511-25.972z" fill="#0cb6ff"/>
+<circle cx="64.009" cy="63.995" r="2.7182" fill="#4a4848"/>
+</g></svg>
+<text y="119.0" font-size="20" fill="#1f9e78" text-anchor="start"><tspan x="912.0" dy="0.0">Airflow</tspan></text>
+<text y="830.2" font-size="16" fill="#1f9e78" text-anchor="middle"><tspan x="925.0" dy="0.0">Backend services</tspan></text></svg>
