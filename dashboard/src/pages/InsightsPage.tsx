@@ -349,10 +349,13 @@ function RunView({ run, hidden, onSettings, canAsk, onFollowUp }: RunViewProps) 
         m.kind === 'error' ? (
           <div key={`e${i}`} className="ask-connect insights-error" role="alert">
             <p>{m.text}</p>
-            <button className="btn" onClick={onSettings}>
-              <Settings size={15} strokeWidth={1.8} aria-hidden="true" />
-              Open Settings
-            </button>
+            {/* Only key and provider problems are fixed in Settings. */}
+            {m.text.includes('Settings') && (
+              <button className="btn" onClick={onSettings}>
+                <Settings size={15} strokeWidth={1.8} aria-hidden="true" />
+                Open Settings
+              </button>
+            )}
           </div>
         ) : null,
       )}

@@ -58,6 +58,7 @@ class DataTest(unittest.TestCase):
         self.assertTrue(result.startswith('## Which data to use'))
         self.assertIn('daily history from 2023-01-01 to 2024-07-31', result)
         self.assertIn('cast them to integers to join gold', result)
+        self.assertIn('never for figures in the same calculation as lake data', result)
 
     def test_lake_span_reads_the_order_days(self):
         with tempfile.TemporaryDirectory() as directory:

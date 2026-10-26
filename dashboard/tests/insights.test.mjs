@@ -264,3 +264,13 @@ test('hand-offs read as labelled cards, agent messages as Markdown, and your rep
   assert.ok(box.width > 90, `"everything" fits on one line (was ${box.width}px wide)`)
   assert.equal(await reply.innerText(), 'everything')
 })
+
+test('a busy API says so plainly, without a Settings button', async (t) => {
+  const busy = 'The agents are still working on another question, maybe from another tab. Ask again when it has finished.'
+  const { page } = await open(t, { start: (route) => route.fulfill({ status: 409, json: { detail: busy } }) })
+  await ask(page)
+  const alert = page.getByRole('alert')
+  await alert.waitFor()
+  assert.equal(await alert.innerText(), busy)
+  assert.equal(await alert.getByRole('button', { name: 'Open Settings' }).count(), 0)
+})

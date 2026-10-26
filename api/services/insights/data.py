@@ -67,9 +67,10 @@ def usage(span: tuple[str, str] | None) -> str:
         '## Which data to use\n'
         f'- The data lake has the {history}. Use it for anything over time: trends, seasonality, forecasts, '
         'demand, lead times, promotion effects and customer behaviour.\n'
-        '- The gold warehouse is a cleaned snapshot built from one Excel file, with a shorter sales window. '
-        'Use it for names and attributes (product names and categories, store names and regions, customer details), '
-        'and to cross-check totals.\n'
+        '- The gold warehouse is a separate, cleaned snapshot built from one Excel file; its figures cover a different '
+        'period from the lake. Use it only for names and attributes (product names and categories, store names and '
+        'regions, customer details), never for figures in the same calculation as lake data.\n'
+        '- Stock, deliveries and promotions are kept per store and product; answer at that grain where it applies.\n'
         '- Lake IDs are strings; cast them to integers to join gold tables. Name products and stores in results, not only IDs.')
 
 

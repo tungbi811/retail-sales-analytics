@@ -38,7 +38,7 @@ def register(connect):
         if not has_key(provider):
             raise HTTPException(status_code=503, detail=f'{PROVIDERS[provider][0]} has no API key. Add one in Settings.')
         if busy():
-            raise HTTPException(status_code=409, detail='Agents are already working on a question.')
+            raise HTTPException(status_code=409, detail='The agents are still working on another question, maybe from another tab. Ask again when it has finished.')
         run = Run(q.question.strip(), q.previous.model_dump() if q.previous else None, connect)
         RUNS[run.id] = run
         run.start()

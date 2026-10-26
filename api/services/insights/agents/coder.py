@@ -71,7 +71,10 @@ class Coder(AssistantAgent):
                 - LAKE is the Path to the read-only data lake, already available in the notebook.
                 - Query lake files with DuckDB: duckdb.sql(f"select ... from read_json_auto('{LAKE}/orders/*/*.jsonl')").
                 - Use DuckDB read_parquet for Parquet files and read_csv_auto for CSV files.
-                - Use gold(sql) to query the gold warehouse tables and return a pandas DataFrame.
+                - DuckDB relations have no fetchone(); end a query with .df() or .fetchall().
+                - Use gold(sql) to query the gold warehouse tables and return a pandas DataFrame. gold() runs Postgres SQL,
+                  and every table needs its schema: gold("select product_id, product_name from gold.dim_product").
+                  DuckDB cannot see the gold tables: load them with gold() and join the DataFrames, or register them in DuckDB.
                 - Never write to the lake or the database.
 
                 Rules:

@@ -64,6 +64,11 @@ class DataScientist(ConversableAgent):
                 5. Do not request or produce visualizations or plots — focus only on data and numerical/text outputs.
                 6. Once the analysis for the current task is complete and results are validated, call complete_data_scientist_task to summarize findings and return them to the Business Translator.
 
+                Data:
+                - Base every figure on the data lake's daily history. The gold warehouse is a separate snapshot from a
+                  different period: use it only to look up product, store and customer names, never for figures.
+                - Work at the grain the data has: stock and deliveries are per store and product.
+
                 Rules:
                 - If you need to build a machine learning model, you should choose a robust model instead of a simple model like Linear Regression or Logistic Regression.
                 - Do not ask vague or open-ended questions for coders. The requirement should be small and specific.

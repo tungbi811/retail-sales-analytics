@@ -77,7 +77,7 @@ class InsightsRoutesTest(unittest.TestCase):
     def test_second_run_while_busy_is_409(self):
         self.start()
         response = self.start()
-        self.assertEqual((response.status_code, response.json()['detail']), (409, 'Agents are already working on a question.'))
+        self.assertEqual((response.status_code, response.json()['detail']), (409, 'The agents are still working on another question, maybe from another tab. Ask again when it has finished.'))
         self.assertEqual(len(FakeRun.made), 1)
 
     def test_question_length_is_checked(self):
