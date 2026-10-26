@@ -38,6 +38,14 @@ export function periodRange(wh: Warehouse, p: Period): Range {
   return { from, to, prevFrom, prevTo, label: `${short(from)} – ${short(last)} ${y}`, vs }
 }
 
+/** Every sale from the first to the last. Nothing comes before it, so the comparison window is empty. */
+export function toDate(wh: Warehouse): Range {
+  const from = new Date(0)
+  const to = wh.today
+  const last = new Date(to.getTime() - 1000)
+  return { from, to, prevFrom: from, prevTo: from, label: `Up to ${short(last)} ${last.getFullYear()}`, vs: '' }
+}
+
 export interface Compared {
   now: Totals & { aov: number }
   /** Null when the comparison span holds no sales (e.g. the first year on record). */

@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Droplets, Palette, Sparkles, Waves, Wind, X, type LucideIcon } from 'lucide-react'
 import type { Warehouse } from '../data/types'
 import { salesFor, type RegionFilter } from '../data/metrics'
-import { categoryStats, monthsToDate, periodRange, productDetail, productStats, stockBoard, type Period, type ProductStat } from '../data/analytics'
-import { count, money, moneyShort, signedPct } from '../lib/format'
+import { categoryStats, monthsToDate, productDetail, productStats, stockBoard, toDate, type ProductStat, type Range } from '../data/analytics'
+import { count, money, moneyShort } from '../lib/format'
 import { toneOf } from '../lib/tones'
 import { Num } from '../components/Num'
 import { Info } from '../components/Info'
@@ -12,14 +12,12 @@ import { Segmented } from '../components/Segmented'
 import { Footnote, PageHead } from '../components/PageHead'
 import { StockBoard } from '../components/StockBoard'
 import { CoverageMatrix } from '../components/Coverage'
-import { RevenueDrivers } from '../components/RevenueDrivers'
+import { ProductRanking } from '../components/ProductRanking'
 
 interface Props {
   wh: Warehouse
   region: RegionFilter
   onRegion: (r: RegionFilter) => void
-  period: Period
-  onPeriod: (p: Period) => void
   /** Product to open, from search. */
   product?: string
 }
@@ -34,9 +32,10 @@ const VIEWS: { value: View; label: string }[] = [
   { value: 'coverage', label: 'Coverage' },
 ]
 
-export function ProductsPage({ wh, region, onRegion, period, onPeriod, product }: Props) {
+export function ProductsPage({ wh, region, onRegion, product }: Props) {
   const rows = useMemo(() => salesFor(wh, region), [wh, region])
-  const range = useMemo(() => periodRange(wh, period), [wh, period])
+  // Stock is a snapshot, so sales are counted up to date rather than over a chosen period.
+  const range = useMemo(() => toDate(wh), [wh])
   const products = useMemo(() => productStats(wh, rows, range, region), [wh, rows, range, region])
   const cards = useMemo(() => stockBoard(wh, region, products), [wh, region, products])
   const cats = useMemo(() => categoryStats(products), [products])
@@ -61,16 +60,14 @@ export function ProductsPage({ wh, region, onRegion, period, onPeriod, product }
         wh={wh}
         region={region}
         onRegion={onRegion}
-        period={period}
-        onPeriod={onPeriod}
-        span={view === 'coverage' ? 'Stock is a snapshot; the period does not apply' : range.label}
+        span={range.label}
       />
 
       {view === 'board' && <StockBoard wh={wh} region={region} cards={cards} categories={catOrder} category={cat} onCategory={setCat} rank={rank} onOpen={setOpen} />}
 
       {view === 'sales' && products.length > 0 && (
         <div className="row products-top">
-          <RevenueDrivers products={filtered} category={cat} comparison={range.vs} onSelect={setOpen} />
+          <ProductRanking products={filtered} category={cat} span={range.label} onSelect={setOpen} />
 
           <section className="card shelf" aria-labelledby="shelf-title">
             <h2 className="card-title" id="shelf-title">
@@ -123,7 +120,7 @@ export function ProductsPage({ wh, region, onRegion, period, onPeriod, product }
 interface FocusProps {
   wh: Warehouse
   rows: Parameters<typeof productDetail>[1]
-  range: ReturnType<typeof periodRange>
+  range: Range
   product: ProductStat
   tone: string
   onClose: () => void
@@ -190,8 +187,8 @@ function ProductDrawer({ wh, rows, range, product, tone, onClose }: FocusProps) 
           </dd>
         </div>
         <div>
-          <dt>Change</dt>
-          <dd className={product.change === null ? '' : product.change >= 0 ? 'pos' : 'neg'}>{product.change === null ? '—' : signedPct(product.change)}</dd>
+          <dt>Share of revenue</dt>
+          <dd>{Math.round(product.share * 100)}%</dd>
         </div>
         <div>
           <dt>Days of cover</dt>

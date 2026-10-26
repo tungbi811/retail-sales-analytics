@@ -1007,6 +1007,8 @@ button {
 
 .ask-thread-text {
   display: grid;
+  /* Without minmax the column widens to fit the unwrapped title and pushes past the row. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 2px;
   min-width: 0;
 }
@@ -5221,44 +5223,17 @@ i.lv-deep {
   }
 }
 
-.drivers-period,
-.drivers-footnote {
+.ranking-span,
+.ranking-footnote {
   color: var(--ink-2);
   font-size: 12px;
 }
 
-.drivers-period {
-  margin-top: 6px;
+.ranking-span {
+  margin: 6px 0 8px;
 }
 
-.drivers-summary {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 8px;
-  margin: 16px 0 8px;
-  padding: 12px 0;
-  border-block: 1px solid var(--line);
-  font-size: 12px;
-  color: var(--ink-2);
-  font-variant-numeric: tabular-nums;
-}
-
-.drivers-summary strong {
-  color: var(--ink);
-  font-size: 21px;
-  font-weight: 650;
-  letter-spacing: -0.02em;
-}
-
-.drivers-summary > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: auto;
-}
-
-.driver-table {
+.ranking-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
@@ -5266,34 +5241,41 @@ i.lv-deep {
   font-variant-numeric: tabular-nums;
 }
 
-.driver-table th,
-.driver-table td {
+.ranking-table th,
+.ranking-table td {
   padding: 10px 6px;
   border-bottom: 1px solid var(--line);
 }
 
-.driver-table th:first-child {
+.ranking-table th:first-child {
   padding-left: 0;
 }
 
-.driver-table th:last-child,
-.driver-table td:last-child {
-  padding-right: 0;
+.ranking-table td {
+  white-space: nowrap;
   text-align: right;
 }
 
-.driver-table thead th {
+.ranking-table td:last-child {
+  padding-right: 0;
+}
+
+.ranking-table thead th {
   font-size: 11px;
   font-weight: 500;
   color: var(--ink-2);
 }
 
-.driver-table tbody th {
-  width: 40%;
+.ranking-table thead th:not(:first-child) {
+  text-align: right;
+}
+
+.ranking-table tbody th {
+  width: 45%;
   font-weight: 600;
 }
 
-.driver-name {
+.ranking-name {
   display: block;
   width: 100%;
   text-align: left;
@@ -5302,62 +5284,39 @@ i.lv-deep {
   text-underline-offset: 3px;
 }
 
-.driver-name:hover {
+.ranking-name:hover {
   text-decoration: underline;
 }
 
-.driver-name:focus-visible {
+.ranking-name:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 3px;
 }
 
-.driver-note {
-  display: block;
-  margin-top: 3px;
-  font-size: 11px;
-  font-weight: 400;
-  color: var(--ink-2);
-}
-
-.driver-revenue {
-  white-space: nowrap;
+.ranking-units,
+.ranking-share {
   font-size: 12px;
   color: var(--ink-2);
 }
 
-.driver-change {
-  white-space: nowrap;
+.ranking-revenue {
   font-weight: 600;
 }
 
-.driver-delta {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.driver-delta svg {
-  flex-shrink: 0;
-}
-
-.driver-table tfoot th {
+.ranking-table tfoot th {
   font-size: 12px;
   font-weight: 500;
   color: var(--ink-2);
 }
 
-.drivers-footnote {
+.ranking-footnote {
   margin-top: 12px;
 }
 
-.drivers-empty {
+.ranking-empty {
   padding: 26px 0;
   color: var(--ink-2);
   font-size: 13px;
-}
-
-.drivers-empty p + p {
-  margin-top: 6px;
 }
 
 .shelf-list {
@@ -5981,12 +5940,7 @@ i.lv-deep {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .drivers-summary > span {
-    width: 100%;
-    margin-left: 0;
-  }
-
-  .driver-table thead {
+  .ranking-table thead {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -5994,8 +5948,8 @@ i.lv-deep {
     overflow: hidden;
   }
 
-  .driver-table tbody tr,
-  .driver-table tfoot tr {
+  .ranking-table tbody tr,
+  .ranking-table tfoot tr {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 4px 10px;
@@ -6003,26 +5957,30 @@ i.lv-deep {
     border-bottom: 1px solid var(--line);
   }
 
-  .driver-table th,
-  .driver-table td {
+  .ranking-table th,
+  .ranking-table td {
     width: auto;
     padding: 0;
     border: 0;
   }
 
-  .driver-table tbody th {
+  .ranking-table tbody th {
     width: auto;
   }
 
-  .driver-revenue {
-    grid-row: 2;
-    grid-column: 1 / -1;
+  /* Without the header a bare unit count reads as a mystery number. */
+  .ranking-units {
+    display: none;
   }
 
-  .driver-change {
+  .ranking-revenue {
     grid-row: 1;
     grid-column: 2;
-    align-self: start;
+  }
+
+  .ranking-share {
+    grid-row: 2;
+    grid-column: 2;
   }
 
   .person {

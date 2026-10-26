@@ -2,7 +2,7 @@ import { CalendarDays, Check, Clock, Download, PackagePlus } from 'lucide-react'
 import type { Lane, Warehouse } from '../data/types'
 import { regions, type RegionFilter } from '../data/metrics'
 import type { BoardCard } from '../data/analytics'
-import { count, money, moneyShort, signedPct } from '../lib/format'
+import { count, money, moneyShort } from '../lib/format'
 import { toneOf } from '../lib/tones'
 import { downloadCsv } from '../lib/csv'
 import { Info } from './Info'
@@ -157,13 +157,12 @@ function Card({ card: c, tone, rank, regionList, onOpen }: { card: BoardCard; to
           <i className={tone} aria-hidden="true" />
           {c.category}
         </span>
-        {rank && <span className="scard-rank" title="Rank by revenue in the period">#{rank}</span>}
+        {rank && <span className="scard-rank" title="Rank by revenue to date">#{rank}</span>}
       </span>
 
       <span className="scard-name">{c.product_name}</span>
       <span className="scard-sales">
         {money(c.revenue)}
-        {c.change !== null && <span className={c.change >= 0 ? 'pos' : 'neg'}>{signedPct(c.change, 0)}</span>}
         <span className="scard-units">· {count(c.units)} units</span>
       </span>
 

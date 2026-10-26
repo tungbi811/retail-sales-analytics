@@ -225,7 +225,8 @@ function GenderRing({ stats, genders }: { stats: CustomerStats; genders: string[
 function AgeCapsules({ seg }: { seg: ReturnType<typeof segments> }) {
   const flat = seg.ages.flatMap((_, ai) => seg.genders.map((_, gi) => seg.cells[gi][ai].perCustomer))
   const shown = useTweenList(flat, 900)
-  const max = Math.max(1, ...flat)
+  // Scaled to what is on screen too, so bars still shrinking from a bigger period never rise above their track.
+  const max = Math.max(1, ...flat, ...shown)
   const bestIndex = flat.indexOf(Math.max(...flat))
   return (
     <>

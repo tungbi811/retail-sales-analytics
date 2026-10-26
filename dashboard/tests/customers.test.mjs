@@ -13,8 +13,8 @@ after(async () => {
   await browser?.close()
 })
 
-async function openCustomers(t) {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1100 }, reducedMotion: 'reduce', timezoneId: 'Asia/Ho_Chi_Minh', locale: 'en-US' })
+async function openCustomers(t, reducedMotion = 'reduce') {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1100 }, reducedMotion, timezoneId: 'Asia/Ho_Chi_Minh', locale: 'en-US' })
   t.after(() => page.close())
   await page.route('**/api/warehouse', (route) => route.fulfill({ json: warehouse }))
   await page.goto(baseURL)
@@ -42,4 +42,21 @@ test('spend groups say what share of revenue the top customers bring', async (t)
   assert.deepEqual(await page.locator('.tiers-table tbody th').allInnerTexts(), ['Top 10%'], 'empty groups are left out')
   assert.match(await page.locator('.tiers-foot').innerText(), /Median spend\s+1,000\s+·\s+0%\s+ordered only once/)
   assert.equal(await page.locator('.swarm, .cal').count(), 0)
+})
+
+test('age capsules never overflow their track while they animate to a smaller period', async (t) => {
+  const page = await openCustomers(t, 'no-preference')
+  const period = (name) => page.getByRole('group', { name: 'Period', exact: true }).getByRole('button', { name, exact: true }).click()
+  await period('90 days')
+  await page.waitForTimeout(1200)
+  await period('Month')
+  const tallest = await page.evaluate(async () => {
+    const seen = []
+    for (let i = 0; i < 12; i++) {
+      await new Promise((r) => requestAnimationFrame(r))
+      seen.push(Math.max(...[...document.querySelectorAll('.capsule-fill')].map((f) => parseFloat(f.style.height))))
+    }
+    return Math.max(...seen)
+  })
+  assert.ok(tallest <= 100.01, `tallest capsule reached ${tallest.toFixed(0)}% of its track`)
 })

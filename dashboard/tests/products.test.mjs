@@ -8,7 +8,6 @@ let browser
 
 const sale = (id, store, product, date, amount) => ({ sale_id: id, store_id: store, product_id: product, customer_id: 'a', sale_datetime: `${date}T10:00:00`, sale_date: date, quantity: 1, amount })
 
-// Biggest seller declines; the biggest percentage gain contributes only +2.
 const warehouse = {
   stores: [
     { store_id: 'north', store_name: 'Hanoi showroom', region: 'Miền Bắc', city: 'Hà Nội', address: '1 Hanoi Street', latitude: 21.03, longitude: 105.85 },
@@ -31,7 +30,6 @@ const warehouse = {
     ]),
     sale('jan-south', 'south', 'wash', '2024-01-06', 400),
     sale('feb-south', 'south', 'wash', '2024-02-06', 200),
-    // Outside the same-days comparison, but included in the 90-day period.
     sale('late-january', 'north', 'toner', '2024-01-28', 10000),
   ],
   inventory: [],
@@ -54,116 +52,68 @@ async function openProducts(t, data = warehouse, viewport = { width: 1440, heigh
 }
 
 const view_ = (page, name) => page.getByRole('group', { name: 'View' }).getByRole('button', { name, exact: true }).click()
-const drivers = (page) => page.getByRole('region', { name: 'What drove the sales change?' })
-const driverNames = (page) => drivers(page).locator('tbody button').allTextContents()
-const changes = (page) => drivers(page).locator('tbody .driver-change').allTextContents()
+const ranking = (page) => page.getByRole('region', { name: 'Top products' })
+const rankedNames = (page) => ranking(page).locator('tbody button').allTextContents()
+const revenues = (page) => ranking(page).locator('tbody .ranking-revenue').allTextContents()
 
-test('drivers rank actual revenue impact, include gains and losses, and reconcile the hidden tail', async (t) => {
+test('products rank by revenue up to date, with no period to pick', async (t) => {
   const page = await openProducts(t)
-  assert.equal(await drivers(page).count(), 1, 'replace the best-seller hero with revenue-change drivers')
-  assert.equal(await page.getByText('Best seller', { exact: true }).count(), 0)
-  assert.deepEqual(await driverNames(page), ['Sữa tắm', 'Toner', 'Cleanser', 'Lipstick', 'Blush'])
-  assert.deepEqual(await changes(page), ['−300', '+250', '−200', '+50', '+20'])
-  assert.match(await drivers(page).locator('.drivers-summary').innerText(), /−178/)
-  assert.match(await drivers(page).locator('.drivers-summary').innerText(), /1,811.*1,633/s)
-  assert.match(await drivers(page).locator('tfoot').innerText(), /Other products \(1\).*\+2/s)
-  assert.match(await drivers(page).locator('.drivers-period').innerText(), /same days of January/)
+  assert.deepEqual(await rankedNames(page), ['Toner', 'Sữa tắm', 'Cleanser', 'Blush', 'Powder'])
+  assert.deepEqual(await revenues(page), ['10,450', '2,500', '200', '120', '120'])
+  assert.deepEqual(await ranking(page).locator('tbody .ranking-share').allTextContents(), ['78%', '19%', '1%', '1%', '1%'])
+  assert.match(await ranking(page).locator('tfoot').innerText(), /Other products \(2\).*54/s)
+  assert.equal(await ranking(page).locator('.ranking-span').innerText(), 'All products · Up to Feb 20 2024')
+  for (const view of ['Stock board', 'Sales', 'Coverage']) {
+    await view_(page, view)
+    assert.equal(await page.getByRole('group', { name: 'Period', exact: true }).count(), 0, `no period picker on ${view}`)
+    assert.equal(await page.locator('.page-products .period').innerText(), 'Up to Feb 20 2024')
+  }
+  assert.equal(await page.getByText('What drove the sales change?').count(), 0)
 })
 
-test('products with no sales in either the previous or current period keep their full absolute contribution', async (t) => {
+test('region and category filters narrow the ranking', async (t) => {
   const page = await openProducts(t)
-  await drivers(page).waitFor()
-  const stopped = drivers(page).locator('tbody tr', { hasText: 'Cleanser' })
-  assert.match(await stopped.innerText(), /200.*0.*−200/s)
-  const started = drivers(page).locator('tbody tr', { hasText: 'Lipstick' })
-  assert.match(await started.innerText(), /0.*50.*\+50/s)
-  assert.match(await started.innerText(), /No comparison sales/)
-})
-
-test('region and category filters update the contribution totals and product rows', async (t) => {
-  const page = await openProducts(t)
-  await drivers(page).waitFor()
   await page.getByRole('group', { name: 'Region', exact: true }).getByRole('button', { name: 'Miền Bắc' }).click()
-  assert.match(await drivers(page).locator('.drivers-summary').innerText(), /\+22/)
-  assert.deepEqual((await driverNames(page)).slice(0, 3), ['Toner', 'Cleanser', 'Sữa tắm'])
+  assert.deepEqual((await revenues(page)).slice(0, 2), ['10,450', '1,900'])
   await page.locator('.shelf-row', { hasText: 'Makeup' }).click()
-  assert.match(await drivers(page).locator('.drivers-period').innerText(), /Makeup/)
-  assert.match(await drivers(page).locator('.drivers-summary').innerText(), /\+70/)
-  assert.deepEqual(await driverNames(page), ['Lipstick', 'Blush'])
+  assert.match(await ranking(page).locator('.ranking-span').innerText(), /^Makeup/)
+  assert.deepEqual(await rankedNames(page), ['Blush', 'Powder', 'Lipstick'])
+  assert.equal(await ranking(page).locator('tfoot').count(), 0)
   // The category carries over to the stock board.
   await view_(page, 'Stock board')
   assert.equal(await page.getByRole('group', { name: 'Category', exact: true }).getByRole('button', { name: 'Makeup', exact: true }).getAttribute('aria-pressed'), 'true')
   assert.equal(await page.locator('.scard').count(), 3)
 })
 
-test('a period without comparison sales shows an explicit unavailable state, not fabricated growth', async (t) => {
-  const page = await openProducts(t)
-  await drivers(page).waitFor()
-  await page.getByRole('group', { name: 'Period', exact: true }).getByRole('button', { name: '90 days', exact: true }).click()
-  assert.match(await drivers(page).innerText(), /No comparison sales/)
-  assert.match(await drivers(page).innerText(), /the 90 days before/)
-  assert.equal(await drivers(page).locator('table').count(), 0)
-  assert.equal(await drivers(page).locator('.drivers-summary').count(), 0)
-  await page.getByRole('group', { name: 'Period', exact: true }).getByRole('button', { name: 'Month', exact: true }).click()
-  assert.deepEqual((await driverNames(page)).slice(0, 2), ['Sữa tắm', 'Toner'])
-})
-
-test('equal net revenue still exposes offsetting product changes', async (t) => {
-  const data = structuredClone(warehouse)
-  data.sales.push(sale('offset', 'north', 'toner', '2024-02-08', 178))
-  const page = await openProducts(t, data)
-  await drivers(page).waitFor()
-  assert.match(await drivers(page).locator('.drivers-summary').innerText(), /^0\s+net revenue change/)
-  assert.equal(await drivers(page).locator('tbody button').count(), 5)
-  assert.deepEqual((await changes(page)).slice(0, 2), ['+428', '−300'])
-})
-
-test('unchanged products and empty sales periods have honest empty states', async (t) => {
+test('a category without sales says so', async (t) => {
   const data = structuredClone(warehouse)
   data.sales = [sale('jan', 'north', 'wash', '2024-01-05', 100), sale('feb', 'north', 'wash', '2024-02-05', 100)]
   const page = await openProducts(t, data)
-  await drivers(page).waitFor()
-  assert.match(await drivers(page).innerText(), /No product-level revenue changes/)
-  assert.equal(await drivers(page).locator('tbody button').count(), 0)
   await page.locator('.shelf-row', { hasText: 'Makeup' }).click()
-  assert.match(await drivers(page).innerText(), /No sales in either period/)
+  assert.match(await ranking(page).innerText(), /No sales yet/)
+  assert.equal(await ranking(page).locator('table').count(), 0)
 })
 
-test('driver products open their existing detail drawer with keyboard activation', async (t) => {
+test('ranked products open their detail drawer with keyboard activation, without a period change', async (t) => {
   const page = await openProducts(t)
-  await drivers(page).waitFor()
-  await drivers(page).getByRole('button', { name: 'Cleanser', exact: true }).focus()
+  await ranking(page).getByRole('button', { name: 'Cleanser', exact: true }).focus()
   await page.keyboard.press('Enter')
-  assert.equal(await page.getByRole('dialog').getByRole('heading', { level: 2 }).innerText(), 'Cleanser')
+  const drawer = page.getByRole('dialog')
+  assert.equal(await drawer.getByRole('heading', { level: 2 }).innerText(), 'Cleanser')
+  assert.deepEqual(await drawer.locator('.stat-grid dt').allInnerTexts(), ['Revenue', 'Units', 'Share of revenue', 'Days of cover'])
   await page.keyboard.press('Tab')
   await page.keyboard.press('Tab')
   assert.equal(await page.evaluate(() => Boolean(document.activeElement.closest('[role="dialog"]'))), true, 'Tab stays inside the product detail')
   await page.keyboard.press('Escape')
-  assert.equal(await page.getByRole('dialog').count(), 0)
-  assert.equal(await drivers(page).getByRole('button', { name: 'Cleanser', exact: true }).evaluate((node) => node === document.activeElement), true, 'Escape returns focus to the selected driver')
+  assert.equal(await drawer.count(), 0)
+  assert.equal(await ranking(page).getByRole('button', { name: 'Cleanser', exact: true }).evaluate((node) => node === document.activeElement), true, 'Escape returns focus to the selected product')
 })
 
-test('a short preceding month never includes current-month sales in the comparison', async (t) => {
-  const data = structuredClone(warehouse)
-  data.today = '2025-03-31T12:00:00'
-  data.sales = [
-    sale('previous', 'north', 'wash', '2025-02-05', 100),
-    sale('early-current', 'north', 'wash', '2025-03-01', 200),
-    sale('later-current', 'north', 'wash', '2025-03-20', 300),
-  ]
-  const page = await openProducts(t, data)
-  await drivers(page).waitFor()
-  assert.deepEqual(await changes(page), ['+400'])
-  assert.match(await drivers(page).locator('.drivers-summary').innerText(), /100.*500/s)
-  assert.match(await drivers(page).locator('.drivers-period').innerText(), /vs February/)
-})
-
-test('the contribution table fits a narrow viewport without page overflow', async (t) => {
+test('the ranking fits a narrow viewport without page overflow', async (t) => {
   const page = await openProducts(t, warehouse, { width: 390, height: 844 })
-  await drivers(page).waitFor()
+  await ranking(page).waitFor()
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
-  assert.deepEqual((await changes(page)).slice(0, 2), ['−300', '+250'])
-  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true)
+  assert.deepEqual((await revenues(page)).slice(0, 2), ['10,450', '2,500'])
 })
 
 test('the stock board puts each product in the lane of its emptiest store', async (t) => {
