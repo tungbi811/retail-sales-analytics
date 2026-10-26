@@ -1,6 +1,6 @@
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Telescope } from 'lucide-react'
+import { Lightbulb } from 'lucide-react'
 
 /**
  * The Business Translator's report as Markdown: headings, lists, emphasis and tables.
@@ -10,7 +10,7 @@ export function Report({ markdown }: { markdown: string }) {
   return (
     <section className="report" aria-label="Report">
       <p className="report-source">
-        <Telescope size={14} strokeWidth={1.8} aria-hidden="true" />
+        <Lightbulb size={14} strokeWidth={1.8} aria-hidden="true" />
         From the data lake
       </p>
       <div className="report-body">

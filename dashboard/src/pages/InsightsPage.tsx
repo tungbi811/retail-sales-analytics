@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { ChevronDown, ChevronUp, CornerDownRight, MessageSquarePlus, Send, Settings, Square, Telescope } from 'lucide-react'
+import { ChevronDown, ChevronUp, CornerDownRight, Lightbulb, MessageSquarePlus, Send, Settings, Square, X } from 'lucide-react'
 import { agentName, ended, followEvents, reply, startRun, stop, type InsightsRun, type Previous, type StreamMessage } from '../data/insights'
 import { count, time } from '../lib/format'
 import { Report } from '../components/Report'
@@ -34,9 +34,18 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
   const [hidden, setHidden] = useState(false)
   // The run on screen; null follows the newest. Only the newest can still be going.
   const [selected, setSelected] = useState<string | null>(null)
+  // A report the next question follows up on.
+  const [followUp, setFollowUp] = useState<Previous | null>(null)
+  // "<run id>:<message count>" of the last question answered, so its box closes until the agents ask again.
+  const [answered, setAnswered] = useState<string | null>(null)
+  const [replyError, setReplyError] = useState<string | null>(null)
+  const input = useRef<HTMLTextAreaElement>(null)
   const run = runs[runs.length - 1]
   const going = run !== undefined && !ended(run)
   const shown = runs.find((r) => r.id === selected) ?? run
+  const asking = going && run.messages[run.messages.length - 1]?.kind === 'ask' && answered !== `${run.id}:${run.messages.length}`
+  // One box at the bottom: a new question when nothing is running, the reply when an agent asks, and none while they work.
+  const mode = !going ? 'ask' : asking ? 'reply' : null
   const current = providers?.find((p) => p.active)
   // Until the providers load, or if the API can't list them, let questions through and show any error in the run.
   const connected = current?.ready ?? true
@@ -76,7 +85,30 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
 
   function submit(e: FormEvent) {
     e.preventDefault()
-    ask(draft)
+    send()
+  }
+
+  function send() {
+    if (mode === 'ask') {
+      if (draft.trim().length < 3) return
+      ask(draft, followUp ?? undefined)
+      setFollowUp(null)
+    } else if (mode === 'reply' && draft.trim()) {
+      const key = `${run.id}:${run.messages.length}`
+      const text = draft.trim()
+      setReplyError(null)
+      reply(run.id, text)
+        .then(() => {
+          setAnswered(key)
+          setDraft('')
+        })
+        .catch((err: Error) => setReplyError(err.message))
+    }
+  }
+
+  function startFollowUp(previous: Previous) {
+    setFollowUp(previous)
+    requestAnimationFrame(() => input.current?.focus())
   }
 
   function stopRun() {
@@ -124,7 +156,7 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
                   <li key={r.id}>
                     <button className="ask-thread" aria-current={shown?.id === r.id ? 'true' : undefined} onClick={() => setSelected(r.id)}>
                       <span className="ask-avatar" aria-hidden="true">
-                        {r.previous ? <CornerDownRight size={15} strokeWidth={1.8} /> : <Telescope size={15} strokeWidth={1.8} />}
+                        {r.previous ? <CornerDownRight size={15} strokeWidth={1.8} /> : <Lightbulb size={15} strokeWidth={1.8} />}
                       </span>
                       <span className="ask-thread-text">
                         <span className="ask-thread-top">
@@ -143,7 +175,7 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
         <div className="ask-chat">
           <header className="ask-chat-head">
             <span className="ask-avatar" aria-hidden="true">
-              <Telescope size={15} strokeWidth={1.8} />
+              <Lightbulb size={15} strokeWidth={1.8} />
             </span>
             <span className="ask-chat-who">
               <b>Agent team</b>
@@ -167,7 +199,7 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
               (connected ? (
                 <div className="ask-in">
                   <span className="ask-avatar" aria-hidden="true">
-                    <Telescope size={15} strokeWidth={1.8} />
+                    <Lightbulb size={15} strokeWidth={1.8} />
                   </span>
                   <div className="ask-in-body">
                     <p className="ask-bubble">
@@ -188,45 +220,73 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
                 </div>
               ))}
             {shown && (
-              <RunView key={shown.id} run={shown} hidden={hidden} onSettings={onSettings} canAsk={!going && connected} onFollowUp={(q, previous) => ask(q, previous)} />
+              <RunView key={shown.id} run={shown} hidden={hidden} onSettings={onSettings} canAsk={!going && connected} onFollowUp={startFollowUp} />
             )}
           </div>
 
-          <div className={run ? 'ask-compose' : 'ask-compose is-empty'}>
-            <ul className="ask-quick" aria-label="Example questions">
-              {SUGGESTIONS.map((s) => (
-                <li key={s}>
-                  <button disabled={going || !connected} onClick={() => ask(s)}>
-                    {s}
+          {mode && (
+            <div className={run ? 'ask-compose' : 'ask-compose is-empty'}>
+              {mode === 'ask' && !followUp && (
+                <ul className="ask-quick" aria-label="Example questions">
+                  {SUGGESTIONS.map((s) => (
+                    <li key={s}>
+                      <button disabled={!connected} onClick={() => ask(s)}>
+                        {s}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {mode === 'ask' && followUp && (
+                <p className="insights-follow-chip">
+                  <CornerDownRight size={14} strokeWidth={1.8} aria-hidden="true" />
+                  <span>
+                    Follow-up to: <b>{followUp.question}</b>
+                  </span>
+                  <button aria-label="Cancel follow-up" onClick={() => setFollowUp(null)}>
+                    <X size={14} strokeWidth={1.9} />
                   </button>
-                </li>
-              ))}
-            </ul>
-            <form className="ask-form" onSubmit={submit}>
-              <label className="sr-only" htmlFor="insights-input">
-                Your question
-              </label>
-              <textarea
-                id="insights-input"
-                rows={1}
-                value={draft}
-                maxLength={1000}
-                disabled={!connected}
-                placeholder="Ask the agents a business question…"
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault()
-                    ask(draft)
-                  }
-                }}
-              />
-              <button className="ask-send" type="submit" disabled={going || !connected || draft.trim().length < 3} aria-label="Ask">
-                <Send size={16} strokeWidth={1.9} />
-              </button>
-            </form>
-            <p className="ask-hint">Agents take a few minutes and use the model chosen in Settings.</p>
-          </div>
+                </p>
+              )}
+              <form className="ask-form" onSubmit={submit}>
+                <label className="sr-only" htmlFor="insights-input">
+                  {mode === 'reply' ? 'Your reply' : followUp ? 'Your follow-up question' : 'Your question'}
+                </label>
+                <textarea
+                  id="insights-input"
+                  ref={input}
+                  rows={1}
+                  value={draft}
+                  maxLength={mode === 'reply' ? 2000 : 1000}
+                  disabled={!connected}
+                  placeholder={mode === 'reply' ? 'Answer the Business Analyst…' : followUp ? 'Ask a follow-up about this report…' : 'Ask the agents a business question…'}
+                  onChange={(e) => setDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      send()
+                    }
+                  }}
+                />
+                <button
+                  className="ask-send"
+                  type="submit"
+                  disabled={!connected || draft.trim().length < (mode === 'reply' ? 1 : 3)}
+                  aria-label={mode === 'reply' ? 'Send reply' : followUp ? 'Ask follow-up' : 'Ask'}
+                >
+                  <Send size={16} strokeWidth={1.9} />
+                </button>
+              </form>
+              {replyError && mode === 'reply' && (
+                <p className="ask-hint is-error" role="alert">
+                  {replyError}
+                </p>
+              )}
+              <p className="ask-hint">
+                {mode === 'reply' ? 'The Business Analyst needs an answer before the agents go on.' : 'Agents take a few minutes and use the model chosen in Settings.'}
+              </p>
+            </div>
+          )}
         </div>
       </section>
     </main>
@@ -238,7 +298,7 @@ interface RunViewProps {
   hidden: boolean
   onSettings: () => void
   canAsk: boolean
-  onFollowUp: (question: string, previous: Previous) => void
+  onFollowUp: (previous: Previous) => void
 }
 
 function RunView({ run, hidden, onSettings, canAsk, onFollowUp }: RunViewProps) {
@@ -266,8 +326,6 @@ function RunView({ run, hidden, onSettings, canAsk, onFollowUp }: RunViewProps) 
 
       {hidden ? (waiting ? <Item m={last} /> : !end && <Status run={run} />) : stream.map((m, i) => <Item key={i} m={m} />)}
       {!hidden && !end && !waiting && <Status run={run} />}
-      {/* Keyed by position, so a second question from the agents gets a fresh box. */}
-      {waiting && <ReplyBox key={run.messages.length} runId={run.id} />}
 
       {run.messages.map((m, i) =>
         m.kind === 'error' ? (
@@ -285,7 +343,10 @@ function RunView({ run, hidden, onSettings, canAsk, onFollowUp }: RunViewProps) 
       {report !== undefined && (
         <>
           <Report markdown={report} />
-          <FollowUp disabled={!canAsk} onAsk={(q) => onFollowUp(q, { question: run.question, report })} />
+          <button className="btn insights-follow" disabled={!canAsk} onClick={() => onFollowUp({ question: run.question, report })}>
+            <MessageSquarePlus size={15} strokeWidth={1.8} aria-hidden="true" />
+            Follow up
+          </button>
         </>
       )}
       <div ref={bottom} />
@@ -355,62 +416,6 @@ function Avatar({ agent }: { agent: string }) {
   )
 }
 
-function ReplyBox({ runId }: { runId: string }) {
-  const [text, setText] = useState('')
-  const [state, setState] = useState<'idle' | 'sending' | 'sent' | string>('idle')
-  if (state === 'sent') return null
-  function send(e: FormEvent) {
-    e.preventDefault()
-    if (!text.trim()) return
-    setState('sending')
-    reply(runId, text.trim())
-      .then(() => setState('sent'))
-      .catch((err: Error) => setState(err.message))
-  }
-  return (
-    <form className="ask-form insights-reply" onSubmit={send}>
-      <label className="sr-only" htmlFor="insights-reply">
-        Your reply
-      </label>
-      <textarea id="insights-reply" rows={2} value={text} maxLength={2000} placeholder="Answer the Business Analyst…" onChange={(e) => setText(e.target.value)} />
-      <button className="ask-send" type="submit" disabled={state === 'sending' || !text.trim()} aria-label="Send reply">
-        <Send size={16} strokeWidth={1.9} />
-      </button>
-      {state !== 'idle' && state !== 'sending' && <p className="ask-error" role="alert">{state}</p>}
-    </form>
-  )
-}
-
-/** A next question that carries this run's question and report into a new run. */
-function FollowUp({ disabled, onAsk }: { disabled: boolean; onAsk: (question: string) => void }) {
-  const [open, setOpen] = useState(false)
-  const [text, setText] = useState('')
-  if (!open)
-    return (
-      <button className="btn insights-follow" disabled={disabled} onClick={() => setOpen(true)}>
-        <MessageSquarePlus size={15} strokeWidth={1.8} aria-hidden="true" />
-        Follow up
-      </button>
-    )
-  function send(e: FormEvent) {
-    e.preventDefault()
-    if (text.trim().length < 3 || disabled) return
-    onAsk(text.trim())
-    setOpen(false)
-    setText('')
-  }
-  return (
-    <form className="ask-form insights-reply" onSubmit={send}>
-      <label className="sr-only" htmlFor="insights-follow">
-        Your follow-up question
-      </label>
-      <textarea id="insights-follow" rows={2} autoFocus value={text} maxLength={1000} placeholder="Ask a follow-up about this report…" onChange={(e) => setText(e.target.value)} />
-      <button className="ask-send" type="submit" disabled={disabled || text.trim().length < 3} aria-label="Ask follow-up">
-        <Send size={16} strokeWidth={1.9} />
-      </button>
-    </form>
-  )
-}
 
 /** The one-line summary under a run in the list. */
 function outcome(run: InsightsRun): { text: string; error?: boolean } {

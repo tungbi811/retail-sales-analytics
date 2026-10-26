@@ -101,15 +101,19 @@ test('hide discussion leaves one status line', async (t) => {
   assert.equal(await page.locator('.ask-log .ask-in').count(), 4)
 })
 
-test('ask shows a reply box that posts the reply', async (t) => {
+test('when an agent asks, the only box is the reply box, and it closes once sent', async (t) => {
   const question = { kind: 'ask', agent: 'BusinessAnalyst', text: 'Should I look at all regions, or only the North?' }
   const { page, posts } = await open(t, { messages: [...DISCUSSION.slice(0, 1), question] })
   await ask(page)
   await page.getByText(question.text).waitFor()
+  assert.equal(await page.locator('textarea').count(), 1, 'one box, not a reply box and a question box')
+  assert.equal(await page.getByLabel('Your question').count(), 0)
+  assert.equal(await page.getByText(question.text).count(), 1, 'the question shows once')
   await page.getByLabel('Your reply').fill('Only North')
   await page.getByRole('button', { name: 'Send reply' }).click()
   await page.getByLabel('Your reply').waitFor({ state: 'detached' })
   assert.deepEqual(posts.at(-1), { path: 'reply', body: { text: 'Only North' } })
+  assert.equal(await page.locator('textarea').count(), 0, 'no box while the agents work again')
 })
 
 test('stop posts stop and ends the run', async (t) => {
@@ -119,17 +123,18 @@ test('stop posts stop and ends the run', async (t) => {
   await page.getByRole('button', { name: 'Stop', exact: true }).click()
   await page.getByText('Stopped. The agents did not finish this question.').waitFor()
   assert.equal(posts.at(-1).path, 'stop')
+  await page.getByLabel('Your question').waitFor()
   assert.equal(await page.getByRole('button', { name: 'Stop', exact: true }).count(), 0)
   assert.equal(await page.getByRole('status').count(), 0)
 })
 
-test('ask is disabled while a run is going', async (t) => {
+test('the question box hides while the agents work', async (t) => {
   const { page } = await open(t)
   await ask(page)
   await page.getByText('Framed as a 30-day stock-out forecast per store and product.').waitFor()
-  await page.getByLabel('Your question').fill('And next quarter?')
-  assert.equal(await askButton(page).isDisabled(), true)
-  assert.equal(await page.getByRole('list', { name: 'Example questions' }).getByRole('button').first().isDisabled(), true)
+  assert.equal(await page.locator('textarea').count(), 0)
+  assert.equal(await page.getByRole('list', { name: 'Example questions' }).count(), 0)
+  assert.match(await page.getByRole('status').innerText(), /is working/)
 })
 
 test('a finished run lets you ask again', async (t) => {
@@ -187,6 +192,8 @@ test('follow up starts a new run with the earlier question and report', async (t
   const { page, posts } = await open(t, { messages: FINISHED })
   await ask(page)
   await page.getByRole('button', { name: 'Follow up' }).click()
+  assert.equal(await page.locator('textarea').count(), 1, 'the follow-up goes in the box at the bottom')
+  assert.match(await page.locator('.insights-follow-chip').innerText(), /Follow-up to: Which products will run out of stock next month\?/)
   await page.getByLabel('Your follow-up question').fill('Which of these should we reorder first?')
   await page.getByRole('button', { name: 'Ask follow-up' }).click()
   await page.getByText('Follow-up to: Which products will run out of stock next month?').waitFor()

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useThumb } from '../lib/motion'
-import { LayoutDashboard, Package, Search, Settings, Sparkles, Telescope } from 'lucide-react'
+import { LayoutDashboard, Package, Search, Settings, Sparkles, Lightbulb } from 'lucide-react'
 import type { stockAlerts } from '../data/metrics'
 
 /** Pages in the top nav. Text to SQL, Insights and Settings are reached from the rail instead. */
@@ -153,7 +153,7 @@ export type View = 'dashboard' | 'ask' | 'insights' | 'settings'
 const VIEWS: { view: View; label: string; Icon: typeof Search }[] = [
   { view: 'dashboard', label: 'Dashboard', Icon: LayoutDashboard },
   { view: 'ask', label: 'Text to SQL', Icon: Sparkles },
-  { view: 'insights', label: 'Insights', Icon: Telescope },
+  { view: 'insights', label: 'Insights', Icon: Lightbulb },
 ]
 
 /** Views beside every page: the dashboard pages, Text to SQL or Insights, with Settings at the bottom. */

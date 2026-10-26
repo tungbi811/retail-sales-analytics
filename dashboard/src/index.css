@@ -1714,8 +1714,39 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
-.insights-reply {
-  margin-left: 46px;
+.insights-follow-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 8px;
+  margin: 0;
+  padding: 5px 6px 5px 12px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  box-shadow: 0 0 0 1px var(--line);
+  color: var(--ink-2);
+  font-size: 12.5px;
+}
+
+.insights-follow-chip b {
+  font-weight: 550;
+}
+
+.insights-follow-chip button {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: var(--ink-2);
+}
+
+.insights-follow-chip button:hover {
+  background: var(--surface);
+}
+
+.ask-hint.is-error {
+  color: var(--neg);
 }
 
 .insights-error p {
