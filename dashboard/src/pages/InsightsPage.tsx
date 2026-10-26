@@ -18,10 +18,16 @@ interface Props {
   onSettings: () => void
 }
 
+// Questions the data lake can answer: each needs orders, stock, deliveries, promotions or customer activity, not one query.
 const SUGGESTIONS = [
   'Which products will run out of stock next month?',
   'What revenue should we expect over the next three months?',
   'Which customers are likely to stop buying, and why?',
+  'Which promotions actually lifted sales, and by how much?',
+  'Which suppliers deliver late most often, and what does it cost us?',
+  'Which stores need more stock before the November–December peak?',
+  'What do customers do in the weeks before they stop buying?',
+  'How much do weekends and the year-end season add to revenue?',
 ]
 
 /**
@@ -146,7 +152,19 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
             <span className="muted">{runs.length ? `${count(runs.length)} asked` : 'none yet'}</span>
           </header>
           {runs.length === 0 ? (
-            <p className="ask-none muted">Questions you ask the agents stay here until you reload the page.</p>
+            <div className="ask-try">
+              <h3 className="panel-sub">Try asking</h3>
+              <ul aria-label="Questions to try">
+                {SUGGESTIONS.map((q) => (
+                  <li key={q}>
+                    <button disabled={!connected} onClick={() => ask(q)}>
+                      {q}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <p className="ask-none muted">Questions you ask stay here until you reload the page.</p>
+            </div>
           ) : (
             <ul className="ask-threads">
               {runs

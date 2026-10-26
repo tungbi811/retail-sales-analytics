@@ -53,7 +53,8 @@ async function open(t, { messages = DISCUSSION, start = nextRun } = {}) {
   await page.goto(baseURL)
   await page.locator('.dash .kpis').waitFor()
   await rail(page).getByRole('button', { name: 'Insights' }).click()
-  await page.getByRole('heading', { name: 'Insights', level: 1 }).waitFor()
+  // The loading placeholder has the same heading while the page's code loads, so wait for the page itself.
+  await page.locator('.insights-page').waitFor()
   return { page, posts }
 }
 
@@ -141,6 +142,7 @@ test('a finished run lets you ask again', async (t) => {
   const { page } = await open(t, { messages: [...DISCUSSION, { kind: 'end', status: 'done' }] })
   await ask(page)
   await page.getByText('The agents finished without a report.').waitFor()
+  assert.equal(await page.getByRole('list', { name: 'Example questions' }).getByRole('button').count(), 8, 'suggestions move above the box once the list holds questions')
   await page.getByLabel('Your question').fill('And next quarter?')
   assert.equal(await askButton(page).isDisabled(), false)
   assert.equal(await page.getByRole('button', { name: 'Stop', exact: true }).count(), 0)
@@ -228,4 +230,14 @@ test('report html is not injected', async (t) => {
   assert.equal(await report.locator('img, b').count(), 0)
   assert.match(await report.innerText(), /<img src=x onerror="window\.injected = true">/)
   assert.equal(await page.evaluate(() => window.injected), undefined)
+})
+
+test('suggested questions start a run from the list on the left', async (t) => {
+  const { page, posts } = await open(t)
+  const tryList = page.getByRole('list', { name: 'Questions to try' }).getByRole('button')
+  assert.equal(await tryList.count(), 8)
+  await tryList.filter({ hasText: 'Which promotions actually lifted sales' }).click()
+  await page.getByText('Framed as a 30-day stock-out forecast per store and product.').waitFor()
+  assert.deepEqual(posts, [{ path: 'runs', body: { question: 'Which promotions actually lifted sales, and by how much?' } }])
+  assert.equal(await page.getByRole('list', { name: 'Questions to try' }).count(), 0, 'the list gives way to the asked questions')
 })
