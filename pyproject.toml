@@ -24,4 +24,6 @@ dependencies = [
     "python-dotenv>=1.2.4",
     "sqlalchemy>=2.1.6",
     "uvicorn>=0.54.0",
+    "scikit-learn>=1.9.1",
+    "statsmodels>=0.15.0",
 ]

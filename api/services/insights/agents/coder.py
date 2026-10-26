@@ -75,6 +75,8 @@ class Coder(AssistantAgent):
                 - Use gold(sql) to query the gold warehouse tables and return a pandas DataFrame. gold() runs Postgres SQL,
                   and every table needs its schema: gold("select product_id, product_name from gold.dim_product").
                   DuckDB cannot see the gold tables: load them with gold() and join the DataFrames, or register them in DuckDB.
+                - Installed libraries: pandas, numpy, duckdb, scikit-learn, statsmodels and scipy. Nothing else is
+                  installed and nothing can be: never pip install.
                 - Never write to the lake or the database.
 
                 Rules:
