@@ -44,8 +44,8 @@ interface Intent {
 }
 
 // Which rail button lights up for a page, and where each one leads.
-const VIEW_OF: Partial<Record<Page, View>> = { Ask: 'ask', Settings: 'settings' }
-const PAGE_OF: Record<View, Page> = { dashboard: 'Dashboard', ask: 'Ask', settings: 'Settings' }
+const VIEW_OF: Partial<Record<Page, View>> = { 'Text to SQL': 'ask', Settings: 'settings' }
+const PAGE_OF: Record<View, Page> = { dashboard: 'Dashboard', ask: 'Text to SQL', settings: 'Settings' }
 
 type Load = { status: 'loading' } | { status: 'error'; message: string } | { status: 'ready'; wh: Warehouse }
 
@@ -58,7 +58,7 @@ export default function App() {
   // Where a link or search result lands: a store, a product, or the store ranking sorted by one column.
   const [intent, setIntent] = useState<Intent>({ n: 0 })
   const [tool, setTool] = useState<Tool | null>(null)
-  // Ask history lives here so leaving the Ask page keeps the conversation.
+  // Text to SQL history lives here so leaving the page keeps the conversation.
   const [chat, setChat] = useState<TextToSqlEntry[]>([])
   const closeTool = useCallback(() => setTool(null), [])
   // The header buttons open their panel, or close it when it is already open.
@@ -259,7 +259,7 @@ function PageView({ page, intent, chat, onChat, onData, onSettings, ...p }: Page
       return <StoresPage key={key} {...p} rankBy={intent.rankBy} store={intent.store} />
     case 'Customers':
       return <CustomersPage key={key} {...p} />
-    case 'Ask':
+    case 'Text to SQL':
       return <TextToSqlPage key={key} wh={p.wh} entries={chat} onEntries={onChat} onData={onData} onSettings={onSettings} />
     default:
       return <Dashboard key={key} {...p} />

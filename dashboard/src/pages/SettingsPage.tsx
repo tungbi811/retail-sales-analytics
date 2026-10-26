@@ -32,7 +32,7 @@ async function call<T>(path: string, method: string, body?: unknown): Promise<T>
   return json
 }
 
-/** Which AI writes the SQL on the Ask page: one provider, its model and its key, saved to the root .env. */
+/** Which AI writes the SQL on the Text to SQL page: one provider, its model and its key, saved to the root .env. */
 export function SettingsPage() {
   const [saved, setSaved] = useState<AiSettings | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -95,7 +95,7 @@ export function SettingsPage() {
       .then((s) => {
         setSaved(s)
         setKey('')
-        setSave({ state: 'ok', message: 'Saved. Ask uses this from the next question.' })
+        setSave({ state: 'ok', message: 'Saved. Text to SQL uses this from the next question.' })
       })
       .catch((err: Error) => setSave({ state: 'failed', message: err.message }))
   }

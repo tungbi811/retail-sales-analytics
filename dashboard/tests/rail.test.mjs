@@ -30,7 +30,7 @@ after(async () => {
 
 const PROVIDERS = [
   { id: 'claude', label: 'Claude', model: 'claude-opus-5-5', ready: true, active: true },
-  { id: 'openai', label: 'OpenAI', model: 'gpt-6.1-sol', ready: true, active: false },
+  { id: 'openai', label: 'OpenAI', model: 'gpt-5.4-mini', ready: true, active: false },
   { id: 'gemini', label: 'Gemini', model: 'gemini-3.8-flash', ready: false, active: false },
 ]
 
@@ -55,16 +55,16 @@ const panel = (page) => page.getByRole('dialog')
 const tryAsking = (page, name) => page.getByRole('list', { name: 'Questions to try' }).getByRole('button', { name })
 
 async function openAsk(page) {
-  await rail(page).getByRole('button', { name: 'Ask in plain words' }).click()
-  await page.getByRole('heading', { name: 'Ask', level: 1 }).waitFor()
+  await rail(page).getByRole('button', { name: 'Text to SQL' }).click()
+  await page.getByRole('heading', { name: 'Text to SQL', level: 1 }).waitFor()
 }
 
-test('the rail switches between the dashboard, Ask and Settings, with no theme or colour switch', async (t) => {
+test('the rail switches between the dashboard, Text to SQL and Settings, with no theme or colour switch', async (t) => {
   const { page } = await open(t)
   const labels = await rail(page).getByRole('button').evaluateAll((nodes) => nodes.map((n) => n.getAttribute('title')))
-  assert.deepEqual(labels, ['Dashboard', 'Ask in plain words', 'Settings'])
+  assert.deepEqual(labels, ['Dashboard', 'Text to SQL', 'Settings'])
   assert.equal(await rail(page).getByRole('button', { name: 'Dashboard' }).getAttribute('aria-current'), 'page')
-  assert.deepEqual(await page.locator('.nav-item').allInnerTexts(), ['Dashboard', 'Products', 'Stores', 'Customers'], 'no badge and no Ask tab in the top nav')
+  assert.deepEqual(await page.locator('.nav-item').allInnerTexts(), ['Dashboard', 'Products', 'Stores', 'Customers'], 'no badge and no Text to SQL tab in the top nav')
   assert.equal(await page.getByRole('button', { name: /theme|palette|colour/i }).count(), 0)
 })
 
@@ -121,7 +121,7 @@ test('ask sends the question and shows the answer as bars, a table and the SQL',
   })
   await openAsk(page)
   assert.equal(await page.locator('.nav-item[aria-current="page"]').count(), 0, 'ask is a view of its own, outside the top nav')
-  assert.equal(await rail(page).getByRole('button', { name: 'Ask in plain words' }).getAttribute('aria-current'), 'page')
+  assert.equal(await rail(page).getByRole('button', { name: 'Text to SQL' }).getAttribute('aria-current'), 'page')
   assert.equal(await panel(page).count(), 0)
   const input = page.getByRole('textbox', { name: 'Your question' })
   assert.equal(await input.evaluate((n) => n === document.activeElement), true, 'the box starts focused')
@@ -151,6 +151,18 @@ test('ask sends the question and shows the answer as bars, a table and the SQL',
   // New chat starts over.
   await page.getByRole('button', { name: 'New chat' }).click()
   assert.equal(await page.locator('.ask-entry').count(), 0)
+})
+
+test('a long question stays inside its row in the list', async (t) => {
+  const { page } = await open(t)
+  await openAsk(page)
+  await tryAsking(page, 'Top 5 products by revenue in July').click()
+  await page.locator('.ask-answer').waitFor()
+  const spill = await page.locator('.ask-thread').evaluate((row) => {
+    const edge = row.querySelector('.ask-thread-text').getBoundingClientRect().right
+    return [...row.querySelectorAll('.ask-thread-top, .ask-thread-sub')].map((n) => Math.round(n.getBoundingClientRect().right - edge))
+  })
+  assert.deepEqual(spill, [0, 0], 'the title, time and preview end at the row edge')
 })
 
 test('ask suggestions send straight away, and API errors are shown, not swallowed', async (t) => {
@@ -187,14 +199,14 @@ test('help explains each metric', async (t) => {
 
 test('ask uses the provider chosen in Settings and links there', async (t) => {
   const providers = PROVIDERS.map((p) => ({ ...p, active: p.id === 'openai' }))
-  const { page } = await open(t, (route) => route.fulfill({ json: { ...answer, provider: 'openai', model: 'gpt-6.1-sol' } }), providers)
+  const { page } = await open(t, (route) => route.fulfill({ json: { ...answer, provider: 'openai', model: 'gpt-5.4-mini' } }), providers)
   await openAsk(page)
-  await page.locator('.ask-using').getByText('gpt-6.1-sol').waitFor()
-  assert.equal(await page.getByRole('radiogroup', { name: 'Model' }).count(), 0, 'no provider switch on Ask')
-  assert.match(await page.locator('.ask-using').innerText(), /^OpenAI · gpt-6.1-sol\s+Change in Settings$/)
+  await page.locator('.ask-using').getByText('gpt-5.4-mini').waitFor()
+  assert.equal(await page.getByRole('radiogroup', { name: 'Model' }).count(), 0, 'no provider switch on Text to SQL')
+  assert.match(await page.locator('.ask-using').innerText(), /^OpenAI · gpt-5.4-mini\s+Change in Settings$/)
   await tryAsking(page, 'Average order value by age group').click()
   await page.locator('.ask-answer').waitFor()
-  assert.match(await page.locator('.ask-in .ask-meta').innerText(), /^OpenAI · gpt-6.1-sol/)
+  assert.match(await page.locator('.ask-in .ask-meta').innerText(), /^OpenAI · gpt-5.4-mini/)
   await page.getByRole('button', { name: 'Change in Settings' }).click()
   await page.getByRole('heading', { name: 'Settings', level: 1 }).waitFor()
   assert.equal(await rail(page).getByRole('button', { name: 'Settings' }).getAttribute('aria-current'), 'page')
@@ -220,7 +232,7 @@ const SETTINGS = {
   provider: 'claude',
   providers: [
     { id: 'claude', label: 'Claude', model: 'claude-opus-5-5', default: 'claude-opus-5-5', key: '…4f2a' },
-    { id: 'openai', label: 'OpenAI', model: 'gpt-6.1-sol', default: 'gpt-6.1-sol', key: null },
+    { id: 'openai', label: 'OpenAI', model: 'gpt-5.4-mini', default: 'gpt-5.4-mini', key: null },
     { id: 'gemini', label: 'Gemini', model: 'gemini-3.8-flash', default: 'gemini-3.8-flash', key: null },
   ],
 }
@@ -234,7 +246,7 @@ async function openSettings(t) {
     const body = req.postDataJSON()
     calls.push({ method: req.method(), path, body })
     if (path === '/models') {
-      const lists = { claude: ['claude-opus-5-5', 'claude-sonnet-5-5'], openai: ['gpt-6.1-sol', 'o5-mini'], gemini: ['gemini-3.8-flash'] }
+      const lists = { claude: ['claude-opus-5-5', 'claude-sonnet-5-5'], openai: ['gpt-5.4-mini', 'o5-mini'], gemini: ['gemini-3.8-flash'] }
       return route.fulfill({ json: { models: lists[body.provider], error: null } })
     }
     if (path === '/test') return route.fulfill({ json: body.model === 'o5-mini' ? { ok: false, error: 'OpenAI rejected the key.' } : { ok: true, error: null } })
@@ -263,7 +275,7 @@ test('switching provider changes the model list and never saves on its own', asy
   const { page, calls } = await openSettings(t)
   await page.getByRole('group', { name: 'Provider' }).getByRole('button', { name: 'OpenAI' }).click()
   await model(page).locator('option', { hasText: 'o5-mini' }).waitFor({ state: 'attached' })
-  assert.equal(await model(page).inputValue(), 'gpt-6.1-sol')
+  assert.equal(await model(page).inputValue(), 'gpt-5.4-mini')
   assert.match(await keyBox(page).getAttribute('placeholder'), /Paste your OpenAI API key/)
   assert.deepEqual(calls.filter((c) => c.method === 'PUT'), [])
 })
@@ -276,16 +288,16 @@ test('test connection reports the result, and save sends the provider, model and
   await model(page).selectOption('o5-mini')
   await page.getByRole('button', { name: 'Test connection' }).click()
   await page.getByRole('status').getByText('OpenAI rejected the key.').waitFor()
-  await model(page).selectOption('gpt-6.1-sol')
+  await model(page).selectOption('gpt-5.4-mini')
   await page.getByRole('button', { name: 'Test connection' }).click()
-  await page.getByText('Connected to OpenAI · gpt-6.1-sol').waitFor()
+  await page.getByText('Connected to OpenAI · gpt-5.4-mini').waitFor()
   assert.deepEqual(calls.filter((c) => c.path === '/test').map((c) => c.body), [
     { provider: 'openai', model: 'o5-mini', key: 'sk-test-1234' },
-    { provider: 'openai', model: 'gpt-6.1-sol', key: 'sk-test-1234' },
+    { provider: 'openai', model: 'gpt-5.4-mini', key: 'sk-test-1234' },
   ])
 
   await page.getByRole('button', { name: 'Save' }).click()
-  await page.getByText('Saved. Ask uses this from the next question.').waitFor()
-  assert.deepEqual(calls.filter((c) => c.method === 'PUT').map((c) => c.body), [{ provider: 'openai', model: 'gpt-6.1-sol', key: 'sk-test-1234' }])
+  await page.getByText('Saved. Text to SQL uses this from the next question.').waitFor()
+  assert.deepEqual(calls.filter((c) => c.method === 'PUT').map((c) => c.body), [{ provider: 'openai', model: 'gpt-5.4-mini', key: 'sk-test-1234' }])
   assert.equal(await keyBox(page).inputValue(), '', 'the pasted key is cleared once saved')
 })

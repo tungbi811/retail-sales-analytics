@@ -25,7 +25,7 @@ interface Provider {
   model: string
   /** Its API key is set. */
   ready: boolean
-  /** Chosen in Settings: Ask sends every question to it. */
+  /** Chosen in Settings: Text to SQL sends every question to it. */
   active: boolean
 }
 
@@ -129,7 +129,7 @@ export function TextToSqlPage({ wh, entries, onEntries, onData, onSettings }: Pr
     <main className="main ask-main">
       <div className="title-row">
         <div className="title-group">
-          <h1>Ask</h1>
+          <h1>Text to SQL</h1>
           <p className="ask-using">
             {current.model && (
               <span>

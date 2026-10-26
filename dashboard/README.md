@@ -58,9 +58,9 @@ Latitude and Longitude columns of the Stores sheet. The Vietnam outline is pre-b
 - **Help** (press `?`): what each metric means and which column it comes from.
 - **dbt run** pill on the Dashboard: when the gold tables were last built; its refresh button reloads the data in place.
 
-The rail on the left (bottom bar on phones) switches views: **Dashboard**, **Ask in plain words**, and **Settings** at the bottom.
+The rail on the left (bottom bar on phones) switches views: **Dashboard**, **Text to SQL**, and **Settings** at the bottom.
 
-## Ask in plain words (text to SQL)
+## Text to SQL
 
 A question in plain words becomes SQL over the gold models (`POST /api/text-to-sql`, `api/routes/text_to_sql.py`,
 `api/services/text_to_sql/`, `src/pages/TextToSqlPage.tsx`). It is laid out like an inbox: questions asked on the left,
@@ -72,10 +72,10 @@ them to the root `.env` and applies them at once:
 | Provider | Key                                    | Default model      | Model variable              |
 |----------|----------------------------------------|--------------------|-----------------------------|
 | Claude   | `ANTHROPIC_API_KEY`                    | `claude-opus-5-5`  | `TEXT_TO_SQL_CLAUDE_MODEL`  |
-| OpenAI   | `OPENAI_API_KEY`                       | `gpt-6.1-sol`      | `TEXT_TO_SQL_OPENAI_MODEL`  |
+| OpenAI   | `OPENAI_API_KEY`                       | `gpt-5.4-mini`     | `TEXT_TO_SQL_OPENAI_MODEL`  |
 | Gemini   | `GEMINI_API_KEY` (or `GOOGLE_API_KEY`) | `gemini-3.8-flash` | `TEXT_TO_SQL_GEMINI_MODEL`  |
 
-`TEXT_TO_SQL_PROVIDER` holds the chosen provider (Claude when unset). Settings only answers requests from this computer,
+`TEXT_TO_SQL_PROVIDER` holds the chosen provider (OpenAI when unset). OpenAI defaults to `gpt-5.4-mini`; a saved model overrides this default. Settings only answers requests from this computer,
 and only the last four characters of a saved key are ever sent to the browser.
 
 The model writes one SELECT; the API checks it, runs it in a read-only transaction with a 10 s timeout, returns at most

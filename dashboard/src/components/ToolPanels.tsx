@@ -256,7 +256,7 @@ export function HelpPanel({ onClose }: { onClose: () => void }) {
           <kbd>Esc</kbd> Close a panel
         </li>
         <li>
-          <kbd>Enter</kbd> Ask, in the Ask panel
+          <kbd>Enter</kbd> Send, in Text to SQL
         </li>
       </ul>
     </Panel>
