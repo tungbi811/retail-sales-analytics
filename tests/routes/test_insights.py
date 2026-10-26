@@ -80,6 +80,36 @@ class InsightsRoutesTest(unittest.TestCase):
         self.assertEqual((response.status_code, response.json()['detail']), (409, 'The agents are still working on another question, maybe from another tab. Ask again when it has finished.'))
         self.assertEqual(len(FakeRun.made), 1)
 
+    def test_two_questions_at_once_start_one_run(self):
+        import threading
+        import time
+        from fastapi import HTTPException
+        # Call the endpoint from two threads, as the server's thread pool does; TestClient would queue them.
+        start = next(r.endpoint for r in insights.register(None).routes if r.path == '/api/insights/runs')
+        real_busy = insights.busy
+
+        def slow_busy():
+            answer = real_busy()
+            time.sleep(0.05)  # widen the gap between the check and adding the run
+            return answer
+
+        results = []
+
+        def ask():
+            try:
+                results.append(start(insights.Question(question='Which products run out?')))
+            except HTTPException as e:
+                results.append(e.status_code)
+
+        with mock.patch.object(insights, 'busy', slow_busy):
+            threads = [threading.Thread(target=ask) for _ in range(2)]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join()
+        self.assertEqual(len(FakeRun.made), 1)
+        self.assertIn(409, results)
+
     def test_question_length_is_checked(self):
         self.assertEqual(self.client.post('/api/insights/runs', json={'question': 'Hi'}).status_code, 422)
 

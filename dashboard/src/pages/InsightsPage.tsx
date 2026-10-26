@@ -119,9 +119,9 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
   function stopRun() {
     if (!run) return
     const id = run.id
-    stop(id)
-      .then(() => onRuns((list) => list.map((r) => (r.id === id && !ended(r) ? { ...r, messages: [...r.messages, { kind: 'end', status: 'stopped' }] } : r))))
-      .catch(() => undefined)
+    const end = () => onRuns((list) => list.map((r) => (r.id === id && !ended(r) ? { ...r, messages: [...r.messages, { kind: 'end', status: 'stopped' }] } : r)))
+    // If the API cannot be reached, the run is gone with it, so Stop still ends it here.
+    stop(id).then(end, end)
   }
 
   return (

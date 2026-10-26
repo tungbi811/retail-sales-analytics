@@ -209,6 +209,25 @@ class RunTest(unittest.TestCase):
         self.assertEqual(run.messages_after(0, timeout=0), [{'kind': 'end', 'status': 'stopped'}])
         self.assertEqual(self.server.stops, 1)
 
+    def test_a_message_that_cannot_be_read_ends_the_run_and_releases_the_chat(self):
+        pending = Input()
+
+        def events():
+            yield SimpleNamespace(type='tool_call', content=SimpleNamespace(sender='Coder', tool_calls=[
+                SimpleNamespace(function=SimpleNamespace(name='run_code', arguments='not json'))]))
+            yield pending.event  # AG2 keeps going after a bad message; nobody may leave it waiting
+            yield DONE
+
+        run, chat = self.run_with(events)
+        messages = self.wait_until(run, 'end')
+        self.assertEqual([m['kind'] for m in messages], ['error', 'end'])
+        self.assertEqual(messages[-1], {'kind': 'end', 'status': 'error'})
+        self.assertTrue(chat.stopped.is_set(), 'the Coder stops running code')
+        run.thread.join(2)
+        self.assertFalse(run.thread.is_alive())
+        self.assertEqual(pending.answers, ['exit'])
+        self.assertEqual(self.server.stops, 1)
+
     def test_provider_error_becomes_error_message(self):
         def events():
             yield text('User', 'Who will churn?')

@@ -95,10 +95,24 @@ class Run:
                     if event.type == 'input_request':
                         event.content.respond('exit')
                     continue
-                messages = translator.feed(event)
+                try:
+                    messages = translator.feed(event)
+                except Exception as e:
+                    # One message we cannot read ends the run, but AG2's thread still has to be released.
+                    self.stopped.set()
+                    self._add([{'kind': 'error', 'text': f'The agents stopped with an error: {e}'}, {'kind': 'end', 'status': 'error'}])
+                    if event.type == 'input_request':
+                        event.content.respond('exit')
+                    continue
                 if any(m['kind'] == 'ask' for m in messages):
                     with self._changed:
-                        self._pending = event.content
+                        # Checked under the lock stop() takes, so a Stop at this moment still answers the question.
+                        late = self.stopped.is_set()
+                        if not late:
+                            self._pending = event.content
+                    if late:
+                        event.content.respond('exit')
+                        continue
                 self._add(messages)
         except Exception as e:
             known = plain_error(active_provider(), e)

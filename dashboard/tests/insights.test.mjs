@@ -272,3 +272,13 @@ test('a busy API says so plainly, without a Settings button', async (t) => {
   assert.equal(await alert.innerText(), busy)
   assert.equal(await alert.getByRole('button', { name: 'Open Settings' }).count(), 0)
 })
+
+test('stop still ends the run when the API cannot be reached', async (t) => {
+  const { page } = await open(t)
+  await ask(page)
+  await page.locator('.insights-steps').waitFor()
+  await page.route(/\/api\/insights\/runs\/[^/]+\/stop$/, (route) => route.abort())
+  await page.getByRole('button', { name: 'Stop', exact: true }).click()
+  await page.getByText('Stopped. The agents did not finish this question.').waitFor()
+  await page.getByLabel('Your question').waitFor()
+})

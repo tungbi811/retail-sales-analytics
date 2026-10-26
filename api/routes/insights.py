@@ -1,4 +1,5 @@
 import json
+import threading
 
 from fastapi import APIRouter, HTTPException, Response
 from fastapi.responses import StreamingResponse
@@ -26,6 +27,8 @@ class Reply(BaseModel):
 
 def register(connect):
     router = APIRouter(prefix='/api/insights/runs')
+    # Requests run in a thread pool: the busy check and adding the run happen together, so two tabs can't both start one.
+    starting = threading.Lock()
 
     def find(run_id: str) -> Run:
         if run_id not in RUNS:
@@ -37,10 +40,11 @@ def register(connect):
         provider = active_provider()
         if not has_key(provider):
             raise HTTPException(status_code=503, detail=f'{PROVIDERS[provider][0]} has no API key. Add one in Settings.')
-        if busy():
-            raise HTTPException(status_code=409, detail='The agents are still working on another question, maybe from another tab. Ask again when it has finished.')
-        run = Run(q.question.strip(), q.previous.model_dump() if q.previous else None, connect)
-        RUNS[run.id] = run
+        with starting:
+            if busy():
+                raise HTTPException(status_code=409, detail='The agents are still working on another question, maybe from another tab. Ask again when it has finished.')
+            run = Run(q.question.strip(), q.previous.model_dump() if q.previous else None, connect)
+            RUNS[run.id] = run
         run.start()
         return {'id': run.id}
 
