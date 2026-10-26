@@ -1672,6 +1672,89 @@ button {
   grid-template-columns: auto minmax(0, 1fr) auto auto;
 }
 
+/* Agent colours: one KPI field each, so every palette and the dark theme follow. */
+.agent-ba {
+  --agent-bg: var(--k1-bg);
+  --agent-fg: var(--k1-fg);
+}
+
+.agent-ds {
+  --agent-bg: var(--k2-bg);
+  --agent-fg: var(--k2-fg);
+}
+
+.agent-co {
+  --agent-bg: var(--k3-bg);
+  --agent-fg: var(--k3-fg);
+}
+
+.agent-bt {
+  --agent-bg: var(--k4-bg);
+  --agent-fg: var(--k4-fg);
+}
+
+.ask-avatar[class*='agent-'] {
+  background: var(--agent-bg);
+  box-shadow: none;
+  color: var(--agent-fg);
+}
+
+.ask-avatar-xs {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  font-size: 9.5px;
+}
+
+.agent-name[class*='agent-'] {
+  display: inline-block;
+  margin-right: 4px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--agent-bg);
+  color: var(--agent-fg);
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+/* A stretch of the agents' working steps, folded into one toggle. */
+.insights-steps {
+  margin-left: 46px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+.insights-steps > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+
+.insights-steps > summary b {
+  font-weight: 600;
+}
+
+.insights-steps-who {
+  display: inline-flex;
+}
+
+.insights-steps-who .ask-avatar + .ask-avatar {
+  margin-left: -5px;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+.insights-steps-body {
+  display: grid;
+  gap: 14px;
+  padding: 14px 16px 16px;
+  border-top: 1px solid var(--line);
+}
+
 .insights-bubble {
   max-width: min(88%, 760px);
 }

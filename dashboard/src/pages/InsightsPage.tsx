@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { ChevronDown, ChevronUp, CornerDownRight, Lightbulb, MessageSquarePlus, Send, Settings, Square, X } from 'lucide-react'
+import { CornerDownRight, Lightbulb, MessageSquarePlus, Send, Settings, Square, X } from 'lucide-react'
 import { agentName, ended, followEvents, reply, startRun, stop, type InsightsRun, type Previous, type StreamMessage } from '../data/insights'
 import { count, time } from '../lib/format'
 import { Md, Report } from '../components/Report'
@@ -37,7 +37,6 @@ const SUGGESTIONS = [
 export function InsightsPage({ runs, onRuns, onSettings }: Props) {
   const [draft, setDraft] = useState('')
   const [providers, setProviders] = useState<Provider[] | null>(null)
-  const [hidden, setHidden] = useState(false)
   // The run on screen; null follows the newest. Only the newest can still be going.
   const [selected, setSelected] = useState<string | null>(null)
   // A report the next question follows up on.
@@ -199,12 +198,6 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
               <b>Agent team</b>
               <span className="muted">Business Analyst, Business Translator, Data Scientist and Coder</span>
             </span>
-            {shown && (
-              <button className="ask-new" aria-expanded={!hidden} onClick={() => setHidden((h) => !h)}>
-                {hidden ? <ChevronDown size={14} strokeWidth={1.9} aria-hidden="true" /> : <ChevronUp size={14} strokeWidth={1.9} aria-hidden="true" />}
-                {hidden ? 'Show discussion' : 'Hide discussion'}
-              </button>
-            )}
             {going && (
               <button className="ask-new" onClick={stopRun}>
                 <Square size={13} strokeWidth={2} aria-hidden="true" /> Stop
@@ -238,7 +231,7 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
                 </div>
               ))}
             {shown && (
-              <RunView key={shown.id} run={shown} hidden={hidden} onSettings={onSettings} canAsk={!going && connected} onFollowUp={startFollowUp} />
+              <RunView key={shown.id} run={shown} onSettings={onSettings} canAsk={!going && connected} onFollowUp={startFollowUp} />
             )}
           </div>
 
@@ -313,13 +306,12 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
 
 interface RunViewProps {
   run: InsightsRun
-  hidden: boolean
   onSettings: () => void
   canAsk: boolean
   onFollowUp: (previous: Previous) => void
 }
 
-function RunView({ run, hidden, onSettings, canAsk, onFollowUp }: RunViewProps) {
+function RunView({ run, onSettings, canAsk, onFollowUp }: RunViewProps) {
   const end = run.messages.find((m) => m.kind === 'end')
   const report = run.messages.find((m) => m.kind === 'report')?.text
   // The Business Translator's last message is the report itself; show it once, as the report.
@@ -329,8 +321,19 @@ function RunView({ run, hidden, onSettings, canAsk, onFollowUp }: RunViewProps) 
   const bottom = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!hidden) bottom.current?.scrollIntoView({ block: 'end' })
-  }, [run.messages.length, hidden])
+    bottom.current?.scrollIntoView({ block: 'end' })
+  }, [run.messages.length])
+
+  // What you need to read stays out: questions to you and your replies. The agents' working steps in between fold into one toggle each.
+  const parts: ({ kind: 'item'; m: StreamMessage; at: number } | { kind: 'steps'; items: StreamMessage[]; at: number })[] = []
+  stream.forEach((m, at) => {
+    if (m.kind === 'report' || m.kind === 'error' || m.kind === 'end') return
+    const shown = m.kind === 'ask' || (m.kind === 'message' && m.agent === 'User')
+    const prev = parts[parts.length - 1]
+    if (shown) parts.push({ kind: 'item', m, at })
+    else if (prev?.kind === 'steps') prev.items.push(m)
+    else parts.push({ kind: 'steps', items: [m], at })
+  })
 
   return (
     <article className="ask-entry">
@@ -342,8 +345,8 @@ function RunView({ run, hidden, onSettings, canAsk, onFollowUp }: RunViewProps) 
         </span>
       </div>
 
-      {hidden ? (waiting ? <Item m={last} /> : !end && <Status run={run} />) : stream.map((m, i) => <Item key={i} m={m} />)}
-      {!hidden && !end && !waiting && <Status run={run} />}
+      {parts.map((p) => (p.kind === 'item' ? <Item key={p.at} m={p.m} /> : <Steps key={p.at} items={p.items} />))}
+      {!end && !waiting && <Status run={run} />}
 
       {run.messages.map((m, i) =>
         m.kind === 'error' ? (
@@ -375,7 +378,34 @@ function RunView({ run, hidden, onSettings, canAsk, onFollowUp }: RunViewProps) 
   )
 }
 
-/** The folded view: who spoke last and how long the run has taken. */
+/** One stretch of the agents' work, folded: who took part and how many steps, opened to read each one. */
+function Steps({ items }: { items: StreamMessage[] }) {
+  const agents = [...new Set(items.flatMap((m) => ('agent' in m ? [m.agent] : [])))]
+  const runs = items.filter((m) => m.kind === 'code').length
+  return (
+    <details className="insights-steps">
+      <summary>
+        <span className="insights-steps-who" aria-hidden="true">
+          {agents.map((a) => (
+            <Avatar key={a} agent={a} small />
+          ))}
+        </span>
+        <b>How the agents worked it out</b>
+        <span className="muted">
+          {items.length} {items.length === 1 ? 'step' : 'steps'}
+          {runs ? `, ${runs} code ${runs === 1 ? 'run' : 'runs'}` : ''}
+        </span>
+      </summary>
+      <div className="insights-steps-body">
+        {items.map((m, i) => (
+          <Item key={i} m={m} />
+        ))}
+      </div>
+    </details>
+  )
+}
+
+/** The working line: who has the work now and how long the run has taken. */
 function Status({ run }: { run: InsightsRun }) {
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
@@ -434,7 +464,7 @@ function Item({ m }: { m: StreamMessage }) {
             <Md text={m.text} />
           </div>
           <span className="ask-meta">
-            <b>{agentName(m.agent)}</b>
+            <Name agent={m.agent} />
           </span>
         </div>
       </div>
@@ -446,7 +476,7 @@ function Item({ m }: { m: StreamMessage }) {
         <div className="ask-in-body">
           <div className="insights-handoff">
             <p className="insights-handoff-label">
-              {agentName(m.agent)} · {HANDOFFS[m.tool]}
+              <Name agent={m.agent} /> {HANDOFFS[m.tool]}
             </p>
             <Md text={m.text} />
           </div>
@@ -460,7 +490,7 @@ function Item({ m }: { m: StreamMessage }) {
         <div className="ask-in-body">
           <details className="insights-detail">
             <summary>
-              {agentName(m.agent)} · {m.kind === 'code' ? 'ran code' : FOLDED[m.tool ?? ''] ?? 'result'}
+              <Name agent={m.agent} /> {m.kind === 'code' ? 'ran code' : FOLDED[m.tool ?? ''] ?? 'result'}
             </summary>
             {m.kind === 'output' && m.tool === 'get_data_info' ? <Md text={m.text} /> : <pre>{m.kind === 'code' ? m.code : m.text}</pre>}
           </details>
@@ -472,12 +502,19 @@ function Item({ m }: { m: StreamMessage }) {
 
 const INITIALS: Record<string, string> = { BusinessAnalyst: 'BA', BusinessTranslator: 'BT', DataScientist: 'DS', Coder: 'CO' }
 
-function Avatar({ agent }: { agent: string }) {
+/** Each agent keeps one pastel field from the palette, on its avatar and its name. */
+const tone = (agent: string) => (INITIALS[agent] ? `agent-${INITIALS[agent].toLowerCase()}` : '')
+
+function Avatar({ agent, small }: { agent: string; small?: boolean }) {
   return (
-    <span className="ask-avatar" aria-hidden="true">
+    <span className={`ask-avatar ${tone(agent)}${small ? ' ask-avatar-xs' : ''}`} aria-hidden="true">
       {INITIALS[agent] ?? agent.slice(0, 2).toUpperCase()}
     </span>
   )
+}
+
+function Name({ agent }: { agent: string }) {
+  return <b className={`agent-name ${tone(agent)}`}>{agentName(agent)}</b>
 }
 
 

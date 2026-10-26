@@ -91,7 +91,8 @@ buying) goes to an AG2 agent team: Business Analyst, Business Translator, Data S
 kernel, and finish with a Markdown report labelled "From the data lake". They use the provider and model chosen in
 Settings.
 
-The discussion streams in live (`GET /api/insights/runs/{id}/events`); **Hide discussion** folds it to one status line.
+The discussion streams in live (`GET /api/insights/runs/{id}/events`). The agents' working steps (hand-offs, code and
+results) fold into one toggle, **How the agents worked it out**; each agent has its own colour.
 If the Business Analyst asks something, a reply box appears; **Stop** ends a run. **Follow up** starts a new run that
 carries the earlier question and report. Runs are listed on the left until you reload; one runs at a time. The page
 loads on first open, so the Markdown renderer is not in the dashboard bundle.
