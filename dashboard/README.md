@@ -58,7 +58,7 @@ Latitude and Longitude columns of the Stores sheet. The Vietnam outline is pre-b
 - **Help** (press `?`): what each metric means and which column it comes from.
 - **dbt run** pill on the Dashboard: when the gold tables were last built; its refresh button reloads the data in place.
 
-The rail on the left (bottom bar on phones) switches views: **Dashboard**, **Text to SQL**, and **Settings** at the bottom.
+The rail on the left (bottom bar on phones) switches views: **Dashboard**, **Text to SQL**, **Insights**, and **Settings** at the bottom.
 
 ## Text to SQL
 
@@ -82,6 +82,20 @@ The model writes one SELECT; the API checks it, runs it in a read-only transacti
 500 rows, and sends a failing query back to the same model once to fix. Without a key the page points to Settings.
 The conversation stays while you switch views; **New chat** clears it.
 
+## Insights
+
+A business question that needs more than one query (what will run out, what revenue to expect, who is likely to stop
+buying) goes to an AG2 agent team: Business Analyst, Business Translator, Data Scientist and Coder
+(`api/services/insights/`, `api/routes/insights.py`, `src/pages/InsightsPage.tsx`). They explore the data lake in
+`lake/` (build it with `uv run python -m ingestion.make_lake`) and the gold models, run Python in a local Jupyter
+kernel, and finish with a Markdown report labelled "From the data lake". They use the provider and model chosen in
+Settings.
+
+The discussion streams in live (`GET /api/insights/runs/{id}/events`); **Hide discussion** folds it to one status line.
+If the Business Analyst asks something, a reply box appears; **Stop** ends a run. **Follow up** starts a new run that
+carries the earlier question and report. Runs are listed on the left until you reload; one runs at a time. The page
+loads on first open, so the Markdown renderer is not in the dashboard bundle.
+
 ## Tests
 
 ```bash
@@ -89,8 +103,8 @@ npm test
 ```
 
 - `tests/metrics.test.mjs`: unit tests for the dashboard maths in `src/data/metrics.ts` (month windows, KPIs, pace, heatmap).
-- `tests/dashboard.test.mjs`, `tests/rail.test.mjs`, `tests/stores.test.mjs`, `tests/products.test.mjs`, `tests/customers.test.mjs`:
-  browser tests with Playwright against a mocked `/api/warehouse` (and `/api/text-to-sql`, `/api/settings/ai`);
+- `tests/dashboard.test.mjs`, `tests/rail.test.mjs`, `tests/insights.test.mjs`, `tests/stores.test.mjs`, `tests/products.test.mjs`, `tests/customers.test.mjs`:
+  browser tests with Playwright against a mocked `/api/warehouse` (and `/api/text-to-sql`, `/api/settings/ai`, `/api/insights`);
   `tests/fixture.mjs` holds the shared fake warehouse.
   They need `npm run dev` running; set `DASHBOARD_URL` if it is not on `http://localhost:5173`.
 

@@ -29,7 +29,10 @@ const DISCUSSION = [
 /** The API's stream: every message so far, replayed from the start. A long retry keeps the browser from reconnecting mid-test. */
 const sse = (messages) => ['retry: 600000\n\n', ...messages.map((m) => `data: ${JSON.stringify(m)}\n\n`)].join('')
 
-async function open(t, { messages = DISCUSSION, start = (route) => route.fulfill({ json: { id: 'run1' } }) } = {}) {
+let runs = 0
+const nextRun = (route) => route.fulfill({ json: { id: `run${++runs}` } })
+
+async function open(t, { messages = DISCUSSION, start = nextRun } = {}) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce', timezoneId: 'Asia/Ho_Chi_Minh', locale: 'en-US' })
   t.after(() => page.close())
   const posts = []
@@ -68,6 +71,7 @@ test('rail shows Insights below Text to SQL', async (t) => {
   // Third, right under the Text to SQL button, whatever that one is called.
   assert.deepEqual([labels.length, labels[2], labels[3]], [4, 'Insights', 'Settings'])
   assert.equal(await rail(page).getByRole('button', { name: 'Insights' }).getAttribute('aria-current'), 'page')
+  await page.locator('.ask-using').getByText('gpt-5.4-mini').waitFor()
   assert.match(await page.locator('.ask-using').innerText(), /^OpenAI · gpt-5.4-mini\s+Change in Settings$/)
   assert.equal(await page.locator('.ask-hint').innerText(), 'Agents take a few minutes and use the model chosen in Settings.')
 })
@@ -145,4 +149,76 @@ test('missing key error links to Settings', async (t) => {
   assert.match(await alert.innerText(), /OpenAI has no API key\. Add one in Settings\./)
   await alert.getByRole('button', { name: 'Open Settings' }).click()
   await page.getByRole('heading', { name: 'Settings', level: 1 }).waitFor()
+})
+
+const REPORT = [
+  '## Stock-out risk, next 30 days',
+  '',
+  'Six store and product pairs will likely run out **before their next delivery**.',
+  '',
+  '| Store | Product | Days of cover |',
+  '| --- | --- | ---: |',
+  '| Store 101 | Lipstick | 4 |',
+  '| Store 102 | Toner | 6 |',
+].join('\n')
+
+const FINISHED = [
+  ...DISCUSSION,
+  { kind: 'message', agent: 'BusinessTranslator', text: REPORT },
+  { kind: 'report', text: REPORT },
+  { kind: 'end', status: 'done' },
+]
+
+test('report renders markdown tables with the data lake label', async (t) => {
+  const { page } = await open(t, { messages: FINISHED })
+  await ask(page)
+  const report = page.getByRole('region', { name: 'Report' })
+  await report.waitFor()
+  assert.equal(await report.locator('.report-source').innerText(), 'From the data lake')
+  assert.equal(await report.getByRole('heading', { level: 2 }).innerText(), 'Stock-out risk, next 30 days')
+  assert.equal(await report.locator('strong').innerText(), 'before their next delivery')
+  assert.deepEqual(await report.locator('th').allInnerTexts(), ['Store', 'Product', 'Days of cover'])
+  assert.deepEqual(await report.locator('tbody tr').first().locator('td').allInnerTexts(), ['Store 101', 'Lipstick', '4'])
+  assert.equal(await page.locator('.ask-log .ask-meta b', { hasText: 'Business Translator' }).count(), 0, 'the report shows once, not also as a chat bubble')
+  assert.equal(await page.getByRole('button', { name: 'Stop', exact: true }).count(), 0)
+})
+
+test('follow up starts a new run with the earlier question and report', async (t) => {
+  const { page, posts } = await open(t, { messages: FINISHED })
+  await ask(page)
+  await page.getByRole('button', { name: 'Follow up' }).click()
+  await page.getByLabel('Your follow-up question').fill('Which of these should we reorder first?')
+  await page.getByRole('button', { name: 'Ask follow-up' }).click()
+  await page.getByText('Follow-up to: Which products will run out of stock next month?').waitFor()
+  assert.deepEqual(posts.at(-1), {
+    path: 'runs',
+    body: { question: 'Which of these should we reorder first?', previous: { question: 'Which products will run out of stock next month?', report: REPORT } },
+  })
+  const listed = page.getByRole('complementary', { name: 'Questions' }).locator('.ask-thread-top b')
+  assert.deepEqual(await listed.allInnerTexts(), ['Which of these should we reorder first?', 'Which products will run out of stock next month?'], 'newest first')
+})
+
+test('runs survive leaving and coming back to Insights', async (t) => {
+  const { page } = await open(t, { messages: FINISHED })
+  await ask(page)
+  await page.getByRole('region', { name: 'Report' }).waitFor()
+  await rail(page).getByRole('button', { name: 'Dashboard' }).click()
+  await page.locator('.dash .kpis').waitFor()
+  await rail(page).getByRole('button', { name: 'Insights' }).click()
+  await page.getByRole('region', { name: 'Report' }).waitFor()
+  const list = page.getByRole('complementary', { name: 'Questions' })
+  assert.deepEqual(await list.locator('.ask-thread-top b').allInnerTexts(), ['Which products will run out of stock next month?'])
+  assert.equal(await list.locator('.ask-thread-sub').innerText(), 'Report ready')
+  assert.equal(await page.locator('.ask-log .ask-in').count(), 4, 'the discussion is still there, once')
+})
+
+test('report html is not injected', async (t) => {
+  const html = '## Result\n\n<img src=x onerror="window.injected = true"> <b>bold?</b>'
+  const { page } = await open(t, { messages: [{ kind: 'report', text: html }, { kind: 'end', status: 'done' }] })
+  await ask(page)
+  const report = page.getByRole('region', { name: 'Report' })
+  await report.waitFor()
+  assert.equal(await report.locator('img, b').count(), 0)
+  assert.match(await report.innerText(), /<img src=x onerror="window\.injected = true">/)
+  assert.equal(await page.evaluate(() => window.injected), undefined)
 })

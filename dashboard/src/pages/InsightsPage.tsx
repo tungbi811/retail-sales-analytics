@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { ChevronDown, ChevronUp, Send, Settings, Square, Telescope } from 'lucide-react'
+import { ChevronDown, ChevronUp, CornerDownRight, MessageSquarePlus, Send, Settings, Square, Telescope } from 'lucide-react'
 import { agentName, ended, followEvents, reply, startRun, stop, type InsightsRun, type Previous, type StreamMessage } from '../data/insights'
-import { time } from '../lib/format'
+import { count, time } from '../lib/format'
+import { Report } from '../components/Report'
 
 interface Provider {
   id: string
@@ -25,14 +26,17 @@ const SUGGESTIONS = [
 
 /**
  * A business question for the agent team. They explore the data lake and the gold models, talk it through
- * (shown live, or folded to one status line), and finish with a report.
+ * (shown live, or folded to one status line), and finish with a report. Earlier runs stay listed on the left until a reload.
  */
 export function InsightsPage({ runs, onRuns, onSettings }: Props) {
   const [draft, setDraft] = useState('')
   const [providers, setProviders] = useState<Provider[] | null>(null)
   const [hidden, setHidden] = useState(false)
+  // The run on screen; null follows the newest. Only the newest can still be going.
+  const [selected, setSelected] = useState<string | null>(null)
   const run = runs[runs.length - 1]
   const going = run !== undefined && !ended(run)
+  const shown = runs.find((r) => r.id === selected) ?? run
   const current = providers?.find((p) => p.active)
   // Until the providers load, or if the API can't list them, let questions through and show any error in the run.
   const connected = current?.ready ?? true
@@ -58,6 +62,7 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
     const q = question.trim()
     if (q.length < 3 || going || !connected) return
     setDraft('')
+    setSelected(null)
     const startedAt = Date.now()
     startRun(q, previous)
       .then((id) => onRuns((list) => [...list, { id, question: q, messages: [], startedAt, previous }]))
@@ -103,6 +108,38 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
       </div>
 
       <section className="ask-page insights-page">
+        <aside className="ask-list" aria-label="Questions">
+          <header className="ask-list-head">
+            <h2>Questions</h2>
+            <span className="muted">{runs.length ? `${count(runs.length)} asked` : 'none yet'}</span>
+          </header>
+          {runs.length === 0 ? (
+            <p className="ask-none muted">Questions you ask the agents stay here until you reload the page.</p>
+          ) : (
+            <ul className="ask-threads">
+              {runs
+                .slice()
+                .reverse()
+                .map((r) => (
+                  <li key={r.id}>
+                    <button className="ask-thread" aria-current={shown?.id === r.id ? 'true' : undefined} onClick={() => setSelected(r.id)}>
+                      <span className="ask-avatar" aria-hidden="true">
+                        {r.previous ? <CornerDownRight size={15} strokeWidth={1.8} /> : <Telescope size={15} strokeWidth={1.8} />}
+                      </span>
+                      <span className="ask-thread-text">
+                        <span className="ask-thread-top">
+                          <b>{r.question}</b>
+                          <time>{time(new Date(r.startedAt))}</time>
+                        </span>
+                        <span className={outcome(r).error ? 'ask-thread-sub is-error' : 'ask-thread-sub'}>{outcome(r).text}</span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+            </ul>
+          )}
+        </aside>
+
         <div className="ask-chat">
           <header className="ask-chat-head">
             <span className="ask-avatar" aria-hidden="true">
@@ -112,7 +149,7 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
               <b>Agent team</b>
               <span className="muted">Business Analyst, Business Translator, Data Scientist and Coder</span>
             </span>
-            {run && (
+            {shown && (
               <button className="ask-new" aria-expanded={!hidden} onClick={() => setHidden((h) => !h)}>
                 {hidden ? <ChevronDown size={14} strokeWidth={1.9} aria-hidden="true" /> : <ChevronUp size={14} strokeWidth={1.9} aria-hidden="true" />}
                 {hidden ? 'Show discussion' : 'Hide discussion'}
@@ -150,7 +187,9 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
                   </button>
                 </div>
               ))}
-            {run && <RunView run={run} hidden={hidden} onSettings={onSettings} />}
+            {shown && (
+              <RunView key={shown.id} run={shown} hidden={hidden} onSettings={onSettings} canAsk={!going && connected} onFollowUp={(q, previous) => ask(q, previous)} />
+            )}
           </div>
 
           <div className={run ? 'ask-compose' : 'ask-compose is-empty'}>
@@ -194,8 +233,19 @@ export function InsightsPage({ runs, onRuns, onSettings }: Props) {
   )
 }
 
-function RunView({ run, hidden, onSettings }: { run: InsightsRun; hidden: boolean; onSettings: () => void }) {
+interface RunViewProps {
+  run: InsightsRun
+  hidden: boolean
+  onSettings: () => void
+  canAsk: boolean
+  onFollowUp: (question: string, previous: Previous) => void
+}
+
+function RunView({ run, hidden, onSettings, canAsk, onFollowUp }: RunViewProps) {
   const end = run.messages.find((m) => m.kind === 'end')
+  const report = run.messages.find((m) => m.kind === 'report')?.text
+  // The Business Translator's last message is the report itself; show it once, as the report.
+  const stream = run.messages.filter((m) => !(m.kind === 'message' && m.agent === 'BusinessTranslator' && m.text === report))
   const last = run.messages.findLast((m) => m.kind !== 'end')
   const waiting = !end && last?.kind === 'ask'
   const bottom = useRef<HTMLDivElement>(null)
@@ -207,13 +257,14 @@ function RunView({ run, hidden, onSettings }: { run: InsightsRun; hidden: boolea
   return (
     <article className="ask-entry">
       <div className="ask-out">
+        {run.previous && <p className="insights-follow-of muted">Follow-up to: {run.previous.question}</p>}
         <p className="ask-q">{run.question}</p>
         <span className="ask-meta">
           <b>You</b> {time(new Date(run.startedAt))}
         </span>
       </div>
 
-      {hidden ? (waiting ? <Item m={last} /> : !end && <Status run={run} />) : run.messages.map((m, i) => <Item key={i} m={m} />)}
+      {hidden ? (waiting ? <Item m={last} /> : !end && <Status run={run} />) : stream.map((m, i) => <Item key={i} m={m} />)}
       {!hidden && !end && !waiting && <Status run={run} />}
       {/* Keyed by position, so a second question from the agents gets a fresh box. */}
       {waiting && <ReplyBox key={run.messages.length} runId={run.id} />}
@@ -230,15 +281,12 @@ function RunView({ run, hidden, onSettings }: { run: InsightsRun; hidden: boolea
         ) : null,
       )}
       {end?.kind === 'end' && end.status === 'stopped' && <p className="insights-ended muted">Stopped. The agents did not finish this question.</p>}
-      {end?.kind === 'end' && end.status === 'done' && !run.messages.some((m) => m.kind === 'report') && (
-        <p className="insights-ended muted">The agents finished without a report.</p>
-      )}
-      {run.messages.map((m, i) =>
-        m.kind === 'report' ? (
-          <section key={`r${i}`} className="ask-card insights-report" aria-label="Report">
-            <p className="insights-report-text">{m.text}</p>
-          </section>
-        ) : null,
+      {end?.kind === 'end' && end.status === 'done' && report === undefined && <p className="insights-ended muted">The agents finished without a report.</p>}
+      {report !== undefined && (
+        <>
+          <Report markdown={report} />
+          <FollowUp disabled={!canAsk} onAsk={(q) => onFollowUp(q, { question: run.question, report })} />
+        </>
       )}
       <div ref={bottom} />
     </article>
@@ -331,4 +379,45 @@ function ReplyBox({ runId }: { runId: string }) {
       {state !== 'idle' && state !== 'sending' && <p className="ask-error" role="alert">{state}</p>}
     </form>
   )
+}
+
+/** A next question that carries this run's question and report into a new run. */
+function FollowUp({ disabled, onAsk }: { disabled: boolean; onAsk: (question: string) => void }) {
+  const [open, setOpen] = useState(false)
+  const [text, setText] = useState('')
+  if (!open)
+    return (
+      <button className="btn insights-follow" disabled={disabled} onClick={() => setOpen(true)}>
+        <MessageSquarePlus size={15} strokeWidth={1.8} aria-hidden="true" />
+        Follow up
+      </button>
+    )
+  function send(e: FormEvent) {
+    e.preventDefault()
+    if (text.trim().length < 3 || disabled) return
+    onAsk(text.trim())
+    setOpen(false)
+    setText('')
+  }
+  return (
+    <form className="ask-form insights-reply" onSubmit={send}>
+      <label className="sr-only" htmlFor="insights-follow">
+        Your follow-up question
+      </label>
+      <textarea id="insights-follow" rows={2} autoFocus value={text} maxLength={1000} placeholder="Ask a follow-up about this report…" onChange={(e) => setText(e.target.value)} />
+      <button className="ask-send" type="submit" disabled={disabled || text.trim().length < 3} aria-label="Ask follow-up">
+        <Send size={16} strokeWidth={1.9} />
+      </button>
+    </form>
+  )
+}
+
+/** The one-line summary under a run in the list. */
+function outcome(run: InsightsRun): { text: string; error?: boolean } {
+  const end = run.messages.find((m) => m.kind === 'end')
+  const error = run.messages.find((m) => m.kind === 'error')
+  if (error?.kind === 'error') return { text: error.text, error: true }
+  if (!end || end.kind !== 'end') return { text: 'Agents working…' }
+  if (end.status === 'stopped') return { text: 'Stopped' }
+  return { text: run.messages.some((m) => m.kind === 'report') ? 'Report ready' : 'Finished without a report' }
 }

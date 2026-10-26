@@ -1659,7 +1659,13 @@ button {
 
 /* Insights: the Text to SQL chat layout, with the agents' discussion in place of answers. */
 .ask-page.insights-page {
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: 280px minmax(0, 1fr);
+}
+
+@media (max-width: 860px) {
+  .ask-page.insights-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .insights-page .ask-chat-head {
@@ -1721,8 +1727,117 @@ button {
   font-size: 13px;
 }
 
-.insights-report-text {
-  white-space: pre-wrap;
+.insights-follow-of {
+  margin: 0;
+  font-size: 12.5px;
+}
+
+.insights-follow {
+  align-self: flex-start;
+  margin-left: 46px;
+}
+
+/* The report: a white card in the chat column, Markdown set in the page's type scale. */
+.report {
+  margin-left: 46px;
+  padding: 18px 22px 20px;
+  border-radius: 20px;
+  background: var(--bubble);
+  box-shadow: var(--shadow);
+}
+
+.report-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+  color: var(--ink-3);
+  font-size: 12.5px;
+  font-weight: 550;
+}
+
+.report-body {
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.report-body > :first-child {
+  margin-top: 0;
+}
+
+.report-body > :last-child {
+  margin-bottom: 0;
+}
+
+.report-body h1,
+.report-body h2,
+.report-body h3 {
+  margin: 18px 0 6px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.report-body h1 {
+  font-size: 20px;
+}
+
+.report-body h2 {
+  font-size: 17px;
+}
+
+.report-body h3 {
+  font-size: 15px;
+}
+
+.report-body p,
+.report-body ul,
+.report-body ol {
+  margin: 8px 0;
+}
+
+.report-body ul,
+.report-body ol {
+  padding-left: 22px;
+}
+
+.report-body li + li {
+  margin-top: 3px;
+}
+
+.report-body code {
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  font-size: 12.5px;
+}
+
+.report-table {
+  margin: 10px 0;
+  overflow-x: auto;
+}
+
+.report-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.report-table th {
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.report-table th,
+.report-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.report-table tr:last-child td {
+  border-bottom: 0;
 }
 
 /* Search */

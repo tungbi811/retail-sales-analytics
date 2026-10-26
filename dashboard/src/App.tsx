@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight, Clock, Download, RotateCw } from 'lucide-react'
 import { loadWarehouse } from './data/source'
 import type { Warehouse } from './data/types'
@@ -35,7 +35,6 @@ import { StoresPage, type SortKey } from './pages/StoresPage'
 import { CustomersPage } from './pages/CustomersPage'
 import { TextToSqlPage, type TextToSqlEntry } from './pages/TextToSqlPage'
 import { SettingsPage } from './pages/SettingsPage'
-import { InsightsPage } from './pages/InsightsPage'
 import type { InsightsRun } from './data/insights'
 
 interface Intent {
@@ -44,6 +43,9 @@ interface Intent {
   store?: string
   product?: string
 }
+
+// Insights brings a Markdown renderer, so it loads when first opened instead of with the dashboard.
+const InsightsPage = lazy(() => import('./pages/InsightsPage').then((m) => ({ default: m.InsightsPage })))
 
 // Which rail button lights up for a page, and where each one leads.
 const VIEW_OF: Partial<Record<Page, View>> = { 'Text to SQL': 'ask', Insights: 'insights', Settings: 'settings' }
@@ -168,7 +170,9 @@ export default function App() {
         <SettingsPage />
       ) : page === 'Insights' ? (
         // Insights reads the data lake through the API, so it does not wait for the warehouse.
-        <InsightsPage runs={insights} onRuns={setInsights} onSettings={() => land('Settings', {})} />
+        <Suspense fallback={<Loading page={page} />}>
+          <InsightsPage runs={insights} onRuns={setInsights} onSettings={() => land('Settings', {})} />
+        </Suspense>
       ) : load.status === 'ready' ? (
         <RefreshContext.Provider value={refresh}>
           <PageView
