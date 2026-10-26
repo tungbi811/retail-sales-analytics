@@ -4,7 +4,11 @@ from api.services.insights.llm import llm_config
 
 
 def convert_message_to_markdown(message: str) -> str:
-    client = OpenAIWrapper(**llm_config(0).model_dump())
+    config = llm_config(0).model_dump()
+    # This call has no tools, and OpenAI rejects parallel_tool_calls without them (400).
+    for entry in config['config_list']:
+        entry.pop('parallel_tool_calls', None)
+    client = OpenAIWrapper(**config)
     messages = [
         {"role": "user", "content": f"Convert the whole message to markdown format (do not summarise or remove anything):\n{message}"}
     ]

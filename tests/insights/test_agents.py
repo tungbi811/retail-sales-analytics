@@ -171,6 +171,9 @@ class AgentsTest(unittest.TestCase):
                 config = wrapper.call_args.kwargs
                 self.assertEqual(config['config_list'][0]['model'], 'gpt-4.1-mini')
                 self.assertEqual(config['config_list'][0]['temperature'], 0)
+                # OpenAI answers 400 to parallel_tool_calls on a request without tools.
+                self.assertNotIn('parallel_tool_calls', config)
+                self.assertNotIn('parallel_tool_calls', config['config_list'][0])
                 client.create.assert_called_once_with(messages=[{
                     'role': 'user',
                     'content': 'Convert the whole message to markdown format (do not summarise or remove anything):\nAll facts',

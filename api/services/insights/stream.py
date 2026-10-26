@@ -15,6 +15,7 @@ class Translator:
     def __init__(self):
         self.skipped_question = False
         self.caller = None      # who made the tool call whose response comes next
+        self.tool = None        # and which tool it called
         self.last_agent = None  # sender of the last message
         self.last_text = ''     # last message or output text, shown with a question to the user
 
@@ -30,14 +31,16 @@ class Translator:
             self.last_agent, self.last_text = sender, text
             return [{'kind': 'message', 'agent': sender, 'text': text}]
         if event.type == 'tool_call':
-            self.caller = content.sender
+            self.caller, self.tool = content.sender, content.tool_calls[0].function.name
             if content.sender == 'Coder':
                 code = json.loads(content.tool_calls[0].function.arguments)['code']
                 return [{'kind': 'code', 'agent': 'Coder', 'code': code}]
             return []
         if event.type == 'tool_response':
-            agent, self.caller = self.caller or 'System', None
+            agent, tool, self.caller, self.tool = self.caller or 'System', self.tool, None, None
             self.last_agent, self.last_text = None, str(content.content)
+            if tool == 'request_clarification':
+                return []  # the question to the user follows as an ask, with this text
             return [{'kind': 'output', 'agent': agent, 'text': self.last_text}]
         if event.type == 'input_request':
             if self.last_agent == 'BusinessTranslator':

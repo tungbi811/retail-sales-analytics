@@ -133,7 +133,8 @@ class RunTest(unittest.TestCase):
 
         run, _ = self.run_with(events)
         messages = self.wait_until(run, 'ask')
-        self.assertEqual(messages[-1], {'kind': 'ask', 'agent': 'BusinessAnalyst', 'text': 'Which region do you mean?'})
+        # The question shows once, as the question, not also as the tool's result.
+        self.assertEqual(messages, [{'kind': 'ask', 'agent': 'BusinessAnalyst', 'text': 'Which region do you mean?'}])
         self.assertFalse(run.done)
         run.reply('Only North')
         self.assertEqual(pending.answers, ['Only North'])
