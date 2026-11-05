@@ -3,6 +3,8 @@
 Sales and stock analytics for Pantio's stores: Excel exports go into Postgres, dbt shapes them into a star schema,
 and a dashboard reads it.
 
+![The dashboard overview for July 2024: revenue, orders, units sold and average order cards, a month-pace gauge, and monthly revenue for the year.](docs/dashboard.png)
+
 ```
 data/*.xlsx → ingestion/ → bronze → dbt/ → silver → gold → api/ → dashboard/
                  (scheduled daily by airflow/)
